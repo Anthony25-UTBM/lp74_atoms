@@ -14,7 +14,7 @@ import java.util.TimerTask;
 import javax.swing.JPanel;
 
 
-// Panel principal gérant la simulation (sa création + son lancement + mises à jour)
+// Panel principal gï¿½rant la simulation (sa crï¿½ation + son lancement + mises ï¿½ jour)
 public class MoleculesJPanel_2 extends JPanel implements Observer, MouseListener {
     protected Environnement_2 env;
     protected Timer timer;
@@ -28,16 +28,7 @@ public class MoleculesJPanel_2 extends JPanel implements Observer, MouseListener
     
     public void Lancer() {
         env = new Environnement_2(1000, this.getWidth(), getHeight(),0);
-        env.addObserver(this);
-        TimerTask tache = new TimerTask() {
-            @Override
-            public void run() {
-                env.MiseAJourEnv();
-            }
-        };
-        timer = new Timer();
-        timer.scheduleAtFixedRate(tache, 0, 500); 	//lent : 250
-    }    
+    }
     
     @Override
     public void update(Observable o, Object arg) {

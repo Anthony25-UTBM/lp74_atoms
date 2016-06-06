@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Random;
 
-// Grille représentant l'environnement + les atomes
+// Grille reprï¿½sentant l'environnement + les atomes
 public class Environnement_2 extends Observable {
 /*
 	// Attributs		
@@ -27,7 +27,7 @@ public class Environnement_2 extends Observable {
             	int alea = generateur.nextInt(_densite);
                 if (alea < 5) contenu[i][j][0] = 3;					// 0,5% atomes de carbone
                 else { if (alea < 20) contenu[i][j][0] = 2;		    // 1,5% atomes d'oxygene
-                       else { if (alea < 100) contenu[i][j][0] = 1;	// 8% atomes d'hydrogène
+                       else { if (alea < 100) contenu[i][j][0] = 1;	// 8% atomes d'hydrogï¿½ne
                               else contenu[i][j][0] = 0;			// 90% vide
                        }
             	}
@@ -86,7 +86,7 @@ public class Environnement_2 extends Observable {
 	    protected double hauteur;
 	    protected double profondeur;
 	    
-	    // Méthodes
+	    // Mï¿½thodes
 	    public Environnement_2(int _nbAtomes, double _largeur,double _profondeur, double _hauteur) {
 	        largeur = _largeur;
 	        hauteur = _hauteur;
@@ -99,7 +99,7 @@ public class Environnement_2 extends Observable {
 	        	int alea = generateur.nextInt(100);
 	            if (alea < 10) number = 6;					// 10% atomes de carbone
 	            else { if (alea < 35) number = 8;		    // 20% atomes d'oxygene
-	                   else { if (alea < 100) number = 1;	// 70% atomes d'hydrogène
+	                   else { if (alea < 100) number = 1;	// 70% atomes d'hydrogï¿½ne
 	                   }
 	            }
 	        	atomes[i] = new Atome(number, generateur.nextDouble() * largeur, generateur.nextDouble() * hauteur,generateur.nextDouble()*profondeur, generateur.nextDouble() * 2 * Math.PI);
@@ -121,14 +121,15 @@ public class Environnement_2 extends Observable {
 	       //atomes.removeIf(a2 -> a2.estMort());
 	    }
 	    
-	    protected void MiseAJourAtomes() {
+	    protected void MiseAJourAtomes(AGroup world) {
 	        for (Atome a : atomes) {
 	            a.MiseAJour(atomes,molecules,largeur,hauteur,profondeur);
+				a.draw(world);
 	        }
 	    }
 	    
-	    public void MiseAJourEnv() {
-	        MiseAJourAtomes();
+	    public void MiseAJourEnv(AGroup world) {
+	        MiseAJourAtomes(world);
 	        MiseAJourMolecule();
 	        setChanged();
 	        notifyObservers();

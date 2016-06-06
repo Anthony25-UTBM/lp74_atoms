@@ -14,6 +14,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.Node;
 
+import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class ApplicationV4 extends Application {
 	 
@@ -34,7 +38,11 @@ public class ApplicationV4 extends Application {
     private double mouseDeltaY;
     //axis
     final Group axisGroup = new Group();
-    
+
+    protected Environnement_2 env;
+    protected Timer timer;
+    TimerTask tache;
+
     
     private void setupCamera()
     {
@@ -103,14 +111,23 @@ public class ApplicationV4 extends Application {
 	    setupScene();
 	    setupCamera();
 	    setupAxes();
+
+        int screen_width = 1024;
+        int screen_height = 768;
  
-        Scene scene = new Scene(root, 1024, 768, true);
+        Scene scene = new Scene(root, screen_width, screen_height, true);
         scene.setFill(Color.GREY);
-        
-        Atome a = new Atome(8,20,20,20,30);
-        a.draw(world);
-        
-        
+
+        env = new Environnement_2(1000, screen_width, screen_height, 0);
+        TimerTask tache = new TimerTask() {
+            @Override
+            public void run() {
+                env.MiseAJourEnv(world);
+            }
+        };
+        timer = new Timer();
+        timer.scheduleAtFixedRate(tache, 0, 500); 	//lent : 250
+
         handleMouse(scene, world);
  
         stage.setTitle("Atom pour les nuls");
