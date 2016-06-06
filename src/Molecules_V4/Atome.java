@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import javafx.scene.Scene;
+
 // Agent Atome
 public class Atome extends Agent {
     // Constantes
@@ -36,6 +38,7 @@ public class Atome extends Agent {
     protected double vitesseZ;
     protected Random generateur;
     protected int tempsRestant = 500;
+    private ASphere sphere;
         
     public Atome(int _n, double _x, double _y,double _z, double _dir) {
     	a_number = _n;
@@ -49,7 +52,12 @@ public class Atome extends Agent {
         posZ = _z;
         vitesseX = Math.cos(_dir);
         vitesseY = Math.sin(_dir);
-        vitesseZ = Math.tan(_dir);
+        vitesseZ = 0;
+        double [] pos = {posX,posY,posZ};
+        double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
+        sphere = new ASphere(rayon,pos,colors);
+        
+        
         
         System.out.println("Atome créé ("+symb+")");
     }
@@ -301,6 +309,22 @@ public class Atome extends Agent {
     		MiseAJourPosition();
         }
 		if (liaison == 0) etat = 2;
+    }
+    
+    protected void updatePosition()
+    {
+    	double [] pos = {posX,posY,posZ};
+    	sphere.setT(pos);
+    }
+    
+    
+    protected void draw(AGroup root)
+    {
+    	updatePosition();
+    	if(!root.getChildren().contains(sphere))
+    	{
+    		root.getChildren().add(sphere);
+    	}
     }
 
 }

@@ -10,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.Node;
 
@@ -24,20 +25,13 @@ public class ApplicationV4 extends Application {
     final AGroup camera2 = new AGroup();
     final AGroup camera3 = new AGroup();
     final int cameraDistance = 450;
-    private Timeline timeline;
-    boolean timelinePlaying = false;
-    double ONE_FRAME = 1.0/24.0;
-    double DELTA_MULTIPLIER = 200.0;
-    double CONTROL_MULTIPLIER = 0.1;
-    double SHIFT_MULTIPLIER = 0.1;
-    double ALT_MULTIPLIER = 0.5;
         
-    double mousePosX;
-    double mousePosY;
-    double mouseOldX;
-    double mouseOldY;
-    double mouseDeltaX;
-    double mouseDeltaY;
+    private double mousePosX;
+    private double mousePosY;
+    private double mouseOldX;
+    private double mouseOldY;
+    private double mouseDeltaX;
+    private double mouseDeltaY;
     //axis
     final Group axisGroup = new Group();
     
@@ -113,13 +107,8 @@ public class ApplicationV4 extends Application {
         Scene scene = new Scene(root, 1024, 768, true);
         scene.setFill(Color.GREY);
         
-        double rayon = 10;
-        double [] position= {20,20,20};
-        double [] couleurs= {0,0,1};
-        
-        
-        ASphere atom = new ASphere(rayon,position,couleurs);
-        world.getChildren().add(atom);
+        Atome a = new Atome(8,20,20,20,30);
+        a.draw(world);
         
         
         handleMouse(scene, world);
@@ -132,48 +121,53 @@ public class ApplicationV4 extends Application {
 		
 	}
 	
+	
 	private void handleMouse(Scene scene, final Node root) {
+		
         scene.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override public void handle(MouseEvent me) {
-                mousePosX = me.getSceneX();
-                mousePosY = me.getSceneY();
-                mouseOldX = me.getSceneX();
-                mouseOldY = me.getSceneY();
+	                mousePosX = me.getSceneX();
+	                mousePosY = me.getSceneY();
+	                mouseOldX = me.getSceneX();
+	                mouseOldY = me.getSceneY();
+            	
             }
         });
         scene.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
 			@Override public void handle(MouseEvent me) {
-                mouseOldX = mousePosX;
-                mouseOldY = mousePosY;
-                mousePosX = me.getSceneX();
-                mousePosY = me.getSceneY();
-                mouseDeltaX = (mousePosX - mouseOldX); 
-                mouseDeltaY = (mousePosY - mouseOldY); 
-                
-                double modifier = 1.0;
-                double modifierFactor = 0.1;
-                
-                if (me.isControlDown()) {
-                    modifier = 0.1;
-                } 
-                if (me.isShiftDown()) {
-                    modifier = 10.0;
-                }     
-                if (me.isPrimaryButtonDown()) {
-                	camera2.ry.setAngle(camera2.ry.getAngle() - mouseDeltaX*modifierFactor*modifier*2.0);  // +
-                	camera2.rx.setAngle(camera2.rx.getAngle() + mouseDeltaY*modifierFactor*modifier*2.0);  // -
-                }
-                else if (me.isSecondaryButtonDown()) {
-                    double z = camera.getTranslateZ();
-                    double newZ = z + mouseDeltaX*modifierFactor*modifier;
-                    camera.setTranslateZ(newZ);
-                }
-                else if (me.isMiddleButtonDown()) {
-                	camera3.t.setX(camera3.t.getX() + mouseDeltaX*modifierFactor*modifier*0.3);  // -
-                    camera3.t.setY(camera3.t.getY() + mouseDeltaY*modifierFactor*modifier*0.3);  // -
-                }
-            }
+				
+	                mouseOldX = mousePosX;
+	                mouseOldY = mousePosY;
+	                mousePosX = me.getSceneX();
+	                mousePosY = me.getSceneY();
+	                mouseDeltaX = (mousePosX - mouseOldX); 
+	                mouseDeltaY = (mousePosY - mouseOldY); 
+	                
+	                double modifier = 1.0;
+	                double modifierFactor = 0.1;
+	                
+	                if (me.isControlDown()) {
+	                    modifier = 0.1;
+	                } 
+	                if (me.isShiftDown()) {
+	                    modifier = 10.0;
+	                }     
+	                if (me.isPrimaryButtonDown()) {
+	                	camera2.ry.setAngle(camera2.ry.getAngle() - mouseDeltaX*modifierFactor*modifier*2.0);  // +
+	                	camera2.rx.setAngle(camera2.rx.getAngle() + mouseDeltaY*modifierFactor*modifier*2.0);  // -
+	                }
+	                else if (me.isSecondaryButtonDown()) {
+	                    double z = camera.getTranslateZ();
+	                    double newZ = z + mouseDeltaX*modifierFactor*modifier;
+	                    camera.setTranslateZ(newZ);
+	                }
+	                else if (me.isMiddleButtonDown()) {
+	                	camera3.t.setX(camera3.t.getX() + mouseDeltaX*modifierFactor*modifier*0.3);  // -
+	                    camera3.t.setY(camera3.t.getY() + mouseDeltaY*modifierFactor*modifier*0.3);  // -
+	                }
+	            }
+		
         });
     }
  

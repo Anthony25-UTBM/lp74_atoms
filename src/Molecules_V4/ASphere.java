@@ -35,14 +35,14 @@ public class ASphere extends Sphere implements IASphere{
 
 	}
 	
-	private void setT(double [] position)
+	public void setT(double [] position)
 	{
 		this.setTranslateX(position[0]);
 		this.setTranslateY(position[1]);
 		this.setTranslateZ(position[2]);
 	}
 	
-	private void setColors(double [] couleurs)
+	public void setColors(double [] couleurs)
 	{
 		final PhongMaterial material = new PhongMaterial();
 		
@@ -77,9 +77,9 @@ public class ASphere extends Sphere implements IASphere{
              setOnMouseDragged(new EventHandler<MouseEvent>() {
 				@Override public void handle(MouseEvent me) {
                    
-                    setTranslateX(me.getSceneX());  // -
-                    setTranslateY(me.getSceneY());  // -
-                    setTranslateZ(me.getZ());  // -
+                    setTranslateX(me.getX());  // -
+                    setTranslateY(me.getY());  // -
+                    setTranslateZ(me.getX());  // -
                      
                  }
              });
