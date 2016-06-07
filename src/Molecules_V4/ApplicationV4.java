@@ -1,5 +1,6 @@
 package Molecules_V4;
 
+import javafx.animation.AnimationTimer;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -17,6 +18,8 @@ import javafx.scene.Node;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class ApplicationV4 extends Application {
@@ -117,17 +120,18 @@ public class ApplicationV4 extends Application {
  
         Scene scene = new Scene(root, screen_width, screen_height, true);
         scene.setFill(Color.GREY);
-
-        env = new Environnement_2(1000, screen_width, screen_height, 0);
-        TimerTask tache = new TimerTask() {
+        final ReentrantLock lock = new ReentrantLock();
+        env = new Environnement_2(1000, screen_width, screen_height, 1000);
+        
+        AnimationTimer animTimer = new AnimationTimer() {
             @Override
-            public void run() {
-                env.MiseAJourEnv(world);
+            public void handle(long l) {
+                env.MiseAJourAtomes(world);
             }
+ 
         };
-        timer = new Timer();
-        timer.scheduleAtFixedRate(tache, 0, 500); 	//lent : 250
-
+        animTimer.start();
+     
         handleMouse(scene, world);
  
         stage.setTitle("Atom pour les nuls");
