@@ -35,6 +35,7 @@ public class AController {
     Scene scene;
     Scene rootScene;
     Group cameraRoot = new Group();
+    Group rootDraw = new Group();
     TimerTask tache;
     @FXML
     AnchorPane uiViewer;
