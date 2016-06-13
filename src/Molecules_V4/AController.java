@@ -39,6 +39,8 @@ public class AController {
     TimerTask tache;
     @FXML
     AnchorPane uiViewer;
+    private int screen_width = 1024;
+    private int screen_height = 768;
     private double mousePosX;
     private double mousePosY;
     private double mouseOldX;
@@ -64,7 +66,15 @@ public class AController {
         scene = new Scene(uiViewer);
         uiViewer.getChildren().add(world);
         uiViewer.getChildren().add(cameraRoot);
+    }
 
+    public void random_elem_gen(int nb_atoms) {
+        world.getChildren().clear();
+        env = new Environnement_2(nb_atoms, screen_width, screen_height, 1000);
+    }
+
+    public void random_elem_gen() {
+        random_elem_gen(1000);
     }
 
     void setParent(Parent p) {
@@ -103,8 +113,6 @@ public class AController {
         setupCamera();
         setupAxes();
 
-        int screen_width = 1024;
-        int screen_height = 768;
         rootScene = new Scene(parent);
 
         scene.setFill(Color.GREY);

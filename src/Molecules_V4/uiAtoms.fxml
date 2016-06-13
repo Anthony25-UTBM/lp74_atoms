@@ -68,7 +68,7 @@
                                 <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
                             </textFill>
                         </Label>
-                        <JFXToggleButton layoutX="4.0" layoutY="489.0" prefHeight="58.0" prefWidth="235.0" text="Random Simulation Mode" toggleColor="#1e88e5" toggleLineColor="#68beff" />
+                        <JFXToggleButton layoutX="4.0" layoutY="489.0" prefHeight="58.0" prefWidth="235.0" text="Build mode" toggleColor="#1e88e5" toggleLineColor="#68beff" />
                         <JFXTreeTableView fx:id="uiStatistics" editable="true" layoutX="-13.0" layoutY="41.0" tableMenuButtonVisible="true">
                             <effect>
                                 <Blend />
@@ -97,7 +97,7 @@
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                                 <JFXSpinner />
                                 <JFXTextField focusColor="#ff5722" labelFloat="true" promptText="type Molecule" unFocusColor="#c6ff00" />
-                                <JFXButton alignment="CENTER" blendMode="DARKEN" buttonType="RAISED" contentDisplay="CENTER" prefHeight="41.0" prefWidth="215.0" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="CENTER" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
+                                <JFXButton alignment="CENTER" blendMode="DARKEN" buttonType="RAISED" contentDisplay="CENTER" onAction="#ran" prefHeight="41.0" prefWidth="215.0" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="CENTER" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
                                     <effect>
                                         <Blend />
                                     </effect>
