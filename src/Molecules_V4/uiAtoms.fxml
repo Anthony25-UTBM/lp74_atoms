@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
 <?import com.jfoenix.controls.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
-      fx:controller="Molecules_V4.AController">
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Molecules_V4.AController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -49,10 +50,9 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0"
-                   prefWidth="-1.0" VBox.vgrow="ALWAYS">
+        <SplitPane dividerPositions="0.26948775055679286, 0.6080178173719376" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
             <items>
-                <AnchorPane>
+                <AnchorPane focusTraversable="true">
                     <children>
                         <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Statistics" textAlignment="CENTER" wrapText="false">
                             <font>
@@ -62,53 +62,44 @@
                                 <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
                             </textFill>
                         </Label>
-                        <JFXToggleButton layoutX="4.0" layoutY="489.0" prefHeight="58.0" prefWidth="235.0" text="Build mode" toggleColor="#1e88e5" toggleLineColor="#68beff" />
-                        <JFXTreeTableView fx:id="uiStatistics" editable="true" layoutX="-13.0" layoutY="41.0" tableMenuButtonVisible="true">
+                        <JFXToggleButton layoutX="4.0" layoutY="489.0" prefHeight="58.0" text="Build mode" toggleColor="#1e88e5" toggleLineColor="#68beff" />
+                        <JFXTreeTableView fx:id="uiStatistics" editable="true" layoutX="-13.0" layoutY="48.0" prefHeight="444.0" prefWidth="239.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="48.0">
                             <effect>
                                 <Blend />
                             </effect>
                         </JFXTreeTableView>
                     </children>
                 </AnchorPane>
-                <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
-                    <content>
-                        <AnchorPane id="Content" fx:id="uiViewer" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0"
-                                    prefWidth="430.0">
-                            <children>
-                                <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;"
-                                       text="View" textAlignment="CENTER" textFill="$x2" wrapText="false"/>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </ScrollPane>
+            <AnchorPane fx:id="uiViewer" prefHeight="200.0" prefWidth="200.0" />
                 <AnchorPane>
                     <children>
-                        <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <VBox fx:id="uiDetails" layoutX="3.0" layoutY="48.0" prefHeight="501.0" prefWidth="215.0">
+                        <VBox layoutX="3.0" layoutY="49.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Atomes" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                                <JFXComboBox editable="true" prefHeight="25.0" prefWidth="217.0" promptText="Atom type" />
-                                <JFXSpinner />
-                                <JFXTextField labelFloat="true" promptText="Type atom" />
+                                <JFXComboBox fx:id="uiAtomType" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Atom type" />
+                        <ScrollPane pannable="true" prefHeight="225.0" prefWidth="428.0" />
+                                <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                                <JFXSpinner />
-                                <JFXTextField focusColor="#ff5722" labelFloat="true" promptText="type Molecule" unFocusColor="#c6ff00" />
-                                <JFXButton alignment="CENTER" blendMode="DARKEN" buttonType="RAISED"
-                                           contentDisplay="CENTER" onAction="#random_elem_gen" prefHeight="41.0"
-                                           prefWidth="215.0" ripplerFill="#68beff"
-                                           style="-fx-background-color: #1E88E5;" text="Random generation"
-                                           textAlignment="CENTER" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
+                        <ScrollPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="132.0" prefWidth="428.0" />
+                                <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="25.0" promptText="type Molecule" unFocusColor="#c6ff00" />
+                                <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#random_elem_gen" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" VBox.vgrow="ALWAYS">
                                     <effect>
                                         <Blend />
                                     </effect>
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
                                 </JFXButton>
-                        <JFXButton alignment="CENTER" blendMode="DARKEN" buttonType="RAISED" contentDisplay="CENTER" layoutX="10.0" layoutY="212.0" prefHeight="41.0" prefWidth="215.0" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Launch simulation" textAlignment="CENTER" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
+                        <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" ripplerFill="#fa7878" style="-fx-background-color: #FF5252;" text="Launch simulation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" wrapText="true" VBox.vgrow="ALWAYS">
                            <effect>
                               <Blend />
                            </effect>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
                         </JFXButton>
                             </children>
                         </VBox>

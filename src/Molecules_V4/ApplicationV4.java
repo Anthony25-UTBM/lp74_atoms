@@ -23,6 +23,7 @@ public class ApplicationV4 extends Application {
             c = f.getController();
             c.setParent(parent);
 
+
         } catch (Exception ex) {
             System.out.println("cant read fxml file");
         }

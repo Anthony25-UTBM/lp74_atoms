@@ -97,6 +97,8 @@ public class Environnement_2 extends Observable {
 	        atomes = new Atome[_nbAtomes];
 	        for (int i = 0; i < _nbAtomes; i++) {
 	        	int number=0;
+				if(Atome.m_symbole.size() == 0) break;
+
 				number = generateur.nextInt(Atome.m_symbole.size() - 1);
 
 	        	atomes[i] = new Atome(number, generateur.nextDouble() * largeur, generateur.nextDouble() * hauteur,generateur.nextDouble()*profondeur, generateur.nextDouble() * 2 * Math.PI);

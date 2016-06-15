@@ -4,16 +4,20 @@ import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.*;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.stage.Stage;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
+import java.lang.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
 
 /**
  * Created by adahs on 11/06/2016.
@@ -38,7 +42,12 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
-    Pane uiViewer;
+    AnchorPane uiViewer;
+    @FXML
+    JFXComboBox uiAtomType;
+
+
+
     private int screen_width = 1024;
     private int screen_height = 768;
     private double mousePosX;
@@ -66,6 +75,14 @@ public class AController {
         scene = new Scene(uiViewer);
         uiViewer.getChildren().add(world);
         uiViewer.getChildren().add(cameraRoot);
+        if(!Atome.m_uniqGroup.isEmpty())
+        {
+            for(String grp : Atome.m_uniqGroup)
+                uiAtomType.getItems().add(new Label(grp));
+            uiAtomType.setEditable(false);
+            uiAtomType.setPromptText("Atome Type");
+        }
+
     }
 
     public void random_elem_gen(int nb_atoms) {
@@ -113,6 +130,7 @@ public class AController {
         setupCamera();
         setupAxes();
 
+
         rootScene = new Scene(parent);
 
         scene.setFill(Color.GREY);
@@ -132,6 +150,7 @@ public class AController {
 
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
+        stage.setFullScreen(true);
         stage.show();
 
         ///rootScene.setCamera(camera);

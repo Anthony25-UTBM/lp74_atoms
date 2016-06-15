@@ -1,9 +1,11 @@
 package Molecules_V4;
 
+
 import javax.json.*;
 import java.awt.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -22,6 +24,8 @@ public class Atome extends Agent {
     protected static ArrayList<String> m_symbole = new ArrayList<String>();
     protected static ArrayList<Integer> m_liaisons = new ArrayList<Integer>();
     protected static ArrayList<Double> m_rayons = new ArrayList<Double>();
+    protected static ArrayList<String> m_group = new ArrayList<String>();
+    protected static ArrayList<String> m_uniqGroup = new ArrayList<String>();
     // Attributs communs aux atomes
     protected String symboles[] =
             {"", "H", "HE", "LI", "BE", "B", "C", "N", "O"};
@@ -83,11 +87,18 @@ public class Atome extends Agent {
 
                     JsonObject e = (JsonObject) element;
                     JsonString symbol = e.getJsonString("small");
+                    JsonString group  = e.getJsonString("group");
+                    m_group.add(i,group.getString());
+                    String uniq_g = group.getString();
+
+                    if(!m_uniqGroup.contains(uniq_g) && !uniq_g.equals(""))
+                    {
+                        m_uniqGroup.add(m_uniqGroup.size(),uniq_g);
+                    }
                     m_symbole.add(i, symbol.getString());
                     JsonArray electrons = e.getJsonArray("electrons");
                     int nbCouche = electrons.size();
                     int nbSaturation = (electrons.size() * electrons.size()) * 2;
-
 
                     int liaison = nbSaturation - Integer.parseInt(electrons.get(nbCouche - 1).toString());
 
