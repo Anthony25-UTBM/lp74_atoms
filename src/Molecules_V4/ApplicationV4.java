@@ -5,8 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 public class ApplicationV4 extends Application {
 
 
@@ -19,12 +17,13 @@ public class ApplicationV4 extends Application {
     public void start(Stage stage) throws Exception {
         AController c = new AController();
         try {
+            Atome.parseJson();
             FXMLLoader f = new FXMLLoader(getClass().getResource("uiAtoms.fxml"));
             Parent parent = f.load();
             c = f.getController();
             c.setParent(parent);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.out.println("cant read fxml file");
         }
         c.AStart(stage);

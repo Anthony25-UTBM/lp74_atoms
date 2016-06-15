@@ -1,11 +1,12 @@
 package Molecules_V4;
 
-import java.awt.Color;
+import javax.json.*;
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
-import javafx.scene.Scene;
 
 // Agent Atome
 public class Atome extends Agent {
@@ -15,23 +16,26 @@ public class Atome extends Agent {
     public static final double DISTANCE_MIN_CARRE = 100;
     public static final double DISTANCE_MAX = 40;
     public static final double DISTANCE_MAX_CARRE = 1600;
-    
+
+    // nouvelle architecture proposÃ© pr aymen
+
+    protected static ArrayList<String> m_symbole = new ArrayList<String>();
+    protected static ArrayList<Integer> m_liaisons = new ArrayList<Integer>();
+    protected static ArrayList<Double> m_rayons = new ArrayList<Double>();
     // Attributs communs aux atomes
-    protected String symboles [] = 
-    	{"", "H", "HE", "LI", "BE", "B", "C", "N", "O"};
+    protected String symboles[] =
+            {"", "H", "HE", "LI", "BE", "B", "C", "N", "O"};
     protected int    liaisons [] = {0,1,0,0,0,0,4,0,2};
     //protected double rayons   [] = {0,2.5,0,0,0,0,7,0,6}; // div par 10
     protected double rayons   [] = {0,5,0,0,0,0,10,0,8}; // div par 10
     protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.RED};
-    
     // Attributs de l'atome
     protected int a_number;		//1 -> H;  6 -> C;  8 -> 0
     protected String symb;
-    protected int    etat;		//0 -> libre;    1 -> partiellement lié;	2 -> lié (stable)
+    protected int    etat;		//0 -> libre;    1 -> partiellement liï¿½;	2 -> liï¿½ (stable)
     protected int    liaison;
     protected double rayon;
     protected Color couleur;
-
     //attributs simulation
     protected double vitesseX;
     protected double vitesseY;
@@ -39,15 +43,14 @@ public class Atome extends Agent {
     protected Random generateur;
     protected int tempsRestant = 500;
     private ASphere sphere;
-        
     public Atome(int _n, double _x, double _y,double _z, double _dir) {
     	a_number = _n;
-    	symb = symboles[a_number];
-    	etat = 0;
-    	liaison = liaisons[a_number];
-    	rayon = rayons[a_number];
-    	couleur = couleurs[a_number];
-    	posX = _x;
+        symb = m_symbole.get(a_number);
+        etat = 0;
+        liaison = m_liaisons.get(a_number);
+        rayon = m_rayons.get(a_number);
+        couleur = couleurs[a_number % 9];
+        posX = _x;
         posY = _y;
         posZ = _z;
         vitesseX = Math.cos(_dir);
@@ -56,17 +59,62 @@ public class Atome extends Agent {
         double [] pos = {posX,posY,posZ};
         double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
         sphere = new ASphere(rayon,pos,colors);
-        
-        
-        
-        System.out.println("Atome créé ("+symb+")");
+
+
+        System.out.println("Atome crï¿½ï¿½ ("+symb+")");
+    }
+
+    public static void parseJson() {
+        System.out.println("Reading json file");
+        try {
+            InputStream is = new FileInputStream("C:\\Users\\adahs\\workspace\\lp74_atoms\\src\\Molecules_V4\\periodicTable.json");
+            JsonReader reader = Json.createReader(is);
+            JsonObject object = reader.readObject();
+            JsonArray tables = object.getJsonArray("table");
+
+
+            int i = 0;
+
+            for (Object table : tables) {
+                JsonObject t = (JsonObject) table;
+                JsonArray elementsArray = t.getJsonArray("elements");
+
+                for (Object element : elementsArray) {
+
+                    JsonObject e = (JsonObject) element;
+                    JsonString symbol = e.getJsonString("small");
+                    m_symbole.add(i, symbol.getString());
+                    JsonArray electrons = e.getJsonArray("electrons");
+                    int nbCouche = electrons.size();
+                    int nbSaturation = (electrons.size() * electrons.size()) * 2;
+
+
+                    int liaison = nbSaturation - Integer.parseInt(electrons.get(nbCouche - 1).toString());
+
+                    m_liaisons.add(i, liaison);
+
+                    JsonValue rayon = e.get("molar");
+                    m_rayons.add(i, Double.parseDouble(rayon.toString()));
+                    System.out.println(" element : " + m_symbole.get(i) + " "
+                            + "electrons " + m_rayons.get(i) + " "
+                            + " molar " + m_liaisons.get(i)
+                    );
+                    i++;
+                }
+            }
+
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+
+        }
     }
     
     public double getRayon() {
     	return rayon;
     }
 
-    //TODO: exploiter cette méthode
+    //TODO: exploiter cette mï¿½thode
     public int estlibre() {
     	return liaison;
     }
@@ -181,7 +229,7 @@ public class Atome extends Agent {
             vitesseX = vitesseX - diffX / alea;
             vitesseY = vitesseY - diffY / alea;
             vitesseZ = vitesseZ - diffZ / alea;
-            //System.out.println("Atome évité!!");
+            //System.out.println("Atome ï¿½vitï¿½!!");
             Normaliser();
             return true;
         }
@@ -243,7 +291,7 @@ public class Atome extends Agent {
 
     protected boolean EviterMolecule(ArrayList<Molecule> molecules) {
         if (!molecules.isEmpty()) {
-            // Recherche de la molécule la plus proche
+            // Recherche de la molï¿½cule la plus proche
         	Molecule m = molecules.get(0);
             double distanceCarre = DistanceCarre(m);
             for (Molecule m_2 : molecules) {

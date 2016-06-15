@@ -2,9 +2,10 @@ package Molecules_V4;
 //package Molecules;
 
 import java.util.ArrayList;
-//import java.util.Collections;
 import java.util.Observable;
 import java.util.Random;
+
+//import java.util.Collections;
 
 // Grille repr�sentant l'environnement + les atomes
 public class Environnement_2 extends Observable {
@@ -96,12 +97,8 @@ public class Environnement_2 extends Observable {
 	        atomes = new Atome[_nbAtomes];
 	        for (int i = 0; i < _nbAtomes; i++) {
 	        	int number=0;
-	        	int alea = generateur.nextInt(100);
-	            if (alea < 10) number = 6;					// 10% atomes de carbone
-	            else { if (alea < 35) number = 8;		    // 20% atomes d'oxygene
-	                   else { if (alea < 100) number = 1;	// 70% atomes d'hydrog�ne
-	                   }
-	            }
+				number = generateur.nextInt(Atome.m_symbole.size() - 1);
+
 	        	atomes[i] = new Atome(number, generateur.nextDouble() * largeur, generateur.nextDouble() * hauteur,generateur.nextDouble()*profondeur, generateur.nextDouble() * 2 * Math.PI);
 	        }
 	    }

@@ -5,7 +5,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -38,7 +38,7 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
-    AnchorPane uiViewer;
+    Pane uiViewer;
     private int screen_width = 1024;
     private int screen_height = 768;
     private double mousePosX;
