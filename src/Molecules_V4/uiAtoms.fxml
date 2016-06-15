@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
 <?import com.jfoenix.controls.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -13,9 +7,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
-<?import java.net.URL?>
-
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Molecules_V4.AController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
+      fx:controller="Molecules_V4.AController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -56,7 +49,8 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+        <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0"
+                   prefWidth="-1.0" VBox.vgrow="ALWAYS">
             <items>
                 <AnchorPane>
                     <children>
@@ -78,9 +72,11 @@
                 </AnchorPane>
                 <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
                     <content>
-                        <AnchorPane id="Content" fx:id="uiViewer" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+                        <AnchorPane id="Content" fx:id="uiViewer" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0"
+                                    prefWidth="430.0">
                             <children>
-                                <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" textFill="$x2" wrapText="false" />
+                                <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;"
+                                       text="View" textAlignment="CENTER" textFill="$x2" wrapText="false"/>
                             </children>
                         </AnchorPane>
                     </content>
@@ -97,7 +93,11 @@
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                                 <JFXSpinner />
                                 <JFXTextField focusColor="#ff5722" labelFloat="true" promptText="type Molecule" unFocusColor="#c6ff00" />
-                                <JFXButton alignment="CENTER" blendMode="DARKEN" buttonType="RAISED" contentDisplay="CENTER" onAction="#random_elem_gen" prefHeight="41.0" prefWidth="215.0" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="CENTER" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
+                                <JFXButton alignment="CENTER" blendMode="DARKEN" buttonType="RAISED"
+                                           contentDisplay="CENTER" onAction="#random_elem_gen" prefHeight="41.0"
+                                           prefWidth="215.0" ripplerFill="#68beff"
+                                           style="-fx-background-color: #1E88E5;" text="Random generation"
+                                           textAlignment="CENTER" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
                                     <effect>
                                         <Blend />
                                     </effect>
