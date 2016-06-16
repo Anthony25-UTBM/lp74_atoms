@@ -43,7 +43,7 @@ public class Atome extends Agent {
     protected int    liaisons [] = {0,1,0,0,0,0,4,0,2};
     //protected double rayons   [] = {0,2.5,0,0,0,0,7,0,6}; // div par 10
     protected double rayons   [] = {0,5,0,0,0,0,10,0,8}; // div par 10
-    protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.RED};
+    static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.RED};
     // Attributs de l'atome
     protected int a_number;		//1 -> H;  6 -> C;  8 -> 0
     protected String symb;
@@ -394,19 +394,17 @@ public class Atome extends Agent {
     {
     	updatePosition();
     	if(!root.getChildren().contains(sphere))
-    	{
-
+        {
+            root.getChildren().add(sphere);
             sphere.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     System.out.println("clicked !");
                     m_tooltip = new Tooltip("Atoms !");
-
                     Tooltip.install(sphere,m_tooltip);
 
                 }
             });
-    		root.getChildren().add(sphere);
     	}
     }
 

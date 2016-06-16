@@ -13,12 +13,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Sphere;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -55,9 +58,9 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
-    JFXTreeTableView    uiTableAtom;
+    VBox uiTableAtom;
     @FXML
-    JFXTreeTableView    uiTableMolecules;
+    VBox    uiTableMolecules;
     @FXML
     Pane uiViewer;
     @FXML
@@ -82,9 +85,47 @@ public class AController {
     private double mouseOldY;
     private double mouseDeltaX;
     private double mouseDeltaY;
+    private String m_draggedAtom;
 
     private void initTables()
     {
+        for(String s : Atome.m_symbole)
+        {
+            HBox box = new HBox();
+            Label l = new Label(s);
+            double [] position = {0,0,0};
+            java.awt.Color couleur = Atome.couleurs[Atome.m_symbole.indexOf(s)%9];
+            double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
+
+            ASphere sphere = new ASphere(10,position,colors);
+            box.getChildren().add(0,sphere);
+            box.getChildren().add(1,l);
+
+            uiTableAtom.getChildren().add(box);
+            box.setOnDragDetected(new EventHandler<MouseEvent>() {
+                public void handle(MouseEvent event) {
+                    System.out.println("OnDrag Detected");
+                    Dragboard db = box.startDragAndDrop(TransferMode.ANY);
+
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString(s);
+                    db.setContent(content);
+                    m_draggedAtom = s;
+
+                    event.consume();
+                }
+            });
+
+            box.setOnMouseDragged(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    m_draggedAtom = s;
+                }
+            });
+
+
+
+        }
     }
 
 
@@ -149,6 +190,30 @@ public class AController {
         m_root3D.getChildren().add(world);
         m_root3D.getChildren().add(cameraRoot);
 
+        uiAnchor.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("drag drop");
+                if (event.getGestureSource() != uiAnchor &&
+                        event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+
+                event.consume();
+            }
+        });
+        uiAnchor.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                if(!m_draggedAtom.equals("")){
+                    System.out.println("Dragged exit");
+
+                    Atome atom = new Atome(Atome.m_symbole.indexOf(m_draggedAtom),event.getSceneX(),event.getSceneY(),0,0);
+                    atom.draw(world);
+                    m_draggedAtom = "";
+                    event.consume();
+                }
+            }
+        });
 
 
 
@@ -206,13 +271,14 @@ public class AController {
         setupScene();
         setupCamera();
         setupAxes();
+        initTables();
 
 
         rootScene = new Scene(parent);
 
         rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
-        env = new Environnement_2(1000, screen_width, screen_height, 1000);
+        env = new Environnement_2(5, screen_width, screen_height, 1000);
 
         AnimationTimer animTimer = new AnimationTimer() {
             @Override
@@ -269,7 +335,7 @@ public class AController {
     }
 
     public void updateStats() {
-        List<StatsElement> elem = Arrays.<StatsElement> asList(
+        List<StatsElement> elem = Arrays.asList(
             new StatsElement("Test", "test_value"),
             new StatsElement("Test", "test_value")
         );

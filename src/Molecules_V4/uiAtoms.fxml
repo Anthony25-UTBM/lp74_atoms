@@ -64,7 +64,7 @@
                             </textFill>
                         </Label>
                         <JFXToggleButton layoutX="4.0" layoutY="489.0" prefHeight="58.0" text="Build mode" toggleColor="#1e88e5" toggleLineColor="#68beff" />
-                        <JFXTreeTableView fx:id="uiStatistics" editable="true" layoutX="-13.0" layoutY="48.0" showRoot="false" prefHeight="444.0" prefWidth="239.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="48.0">
+                        <JFXTreeTableView fx:id="uiStatistics" editable="true" layoutX="-13.0" layoutY="48.0" prefHeight="444.0" prefWidth="239.0" showRoot="false" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="48.0">
                             <effect>
                                 <Blend />
                             </effect>
@@ -85,20 +85,14 @@
                             <children>
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Atomes" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                                 <JFXComboBox fx:id="uiAtomType" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Atom type" />
-                        <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-                          <columns>
-                            <TableColumn prefWidth="75.0" />
-                            <TableColumn prefWidth="124.0" text="Atom" />
-                          </columns>
-                        </TableView>
+                        <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                           <content>
+                              <VBox fx:id="uiTableAtom" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                           </content>
+                        </ScrollPane>
                                 <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <TableView  maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-                          <columns>
-                            <TableColumn prefWidth="75.0" />
-                            <TableColumn maxWidth="1.7976931348623157E308" prefWidth="75.0" text="Molecules" />
-                          </columns>
-                        </TableView>
+                        <VBox fx:id="uiTableMolecules" prefHeight="200.0" prefWidth="100.0" />
                                 <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="25.0" promptText="type Molecule" unFocusColor="#c6ff00" />
                                 <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#random_elem_gen" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" VBox.vgrow="ALWAYS">
                                     <effect>
