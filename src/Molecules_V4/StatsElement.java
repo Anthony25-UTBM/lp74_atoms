@@ -43,4 +43,16 @@ class StatsElement {
     public void setValue(String fValue) {
         value.set(fValue);
     }
+
+    public String globalGetter(String attr) {
+        String val = "";
+        switch (attr){
+            case "value": val = getValue();
+                break;
+            case "description": val = getDescription();
+                break;
+            default: break;
+        }
+        return val;
+    }
 }

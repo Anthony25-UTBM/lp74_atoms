@@ -1,6 +1,7 @@
 package Molecules_V4;
 
 import com.jfoenix.controls.JFXTreeTableView;
+import com.sun.org.glassfish.external.statistics.Stats;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -13,23 +14,21 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
-import javafx.scene.input.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.Sphere;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import sun.reflect.generics.tree.Tree;
 
 import java.awt.*;
-import java.util.Arrays;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.lang.*;
 import com.jfoenix.controls.JFXCheckBox;
@@ -58,9 +57,9 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
-    VBox uiTableAtom;
+    JFXTreeTableView    uiTableAtom;
     @FXML
-    VBox    uiTableMolecules;
+    JFXTreeTableView    uiTableMolecules;
     @FXML
     Pane uiViewer;
     @FXML
@@ -85,47 +84,9 @@ public class AController {
     private double mouseOldY;
     private double mouseDeltaX;
     private double mouseDeltaY;
-    private String m_draggedAtom;
 
     private void initTables()
     {
-        for(String s : Atome.m_symbole)
-        {
-            HBox box = new HBox();
-            Label l = new Label(s);
-            double [] position = {0,0,0};
-            java.awt.Color couleur = Atome.couleurs[Atome.m_symbole.indexOf(s)%9];
-            double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
-
-            ASphere sphere = new ASphere(10,position,colors);
-            box.getChildren().add(0,sphere);
-            box.getChildren().add(1,l);
-
-            uiTableAtom.getChildren().add(box);
-            box.setOnDragDetected(new EventHandler<MouseEvent>() {
-                public void handle(MouseEvent event) {
-                    System.out.println("OnDrag Detected");
-                    Dragboard db = box.startDragAndDrop(TransferMode.ANY);
-
-                    ClipboardContent content = new ClipboardContent();
-                    content.putString(s);
-                    db.setContent(content);
-                    m_draggedAtom = s;
-
-                    event.consume();
-                }
-            });
-
-            box.setOnMouseDragged(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    m_draggedAtom = s;
-                }
-            });
-
-
-
-        }
     }
 
 
@@ -190,30 +151,6 @@ public class AController {
         m_root3D.getChildren().add(world);
         m_root3D.getChildren().add(cameraRoot);
 
-        uiAnchor.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                System.out.println("drag drop");
-                if (event.getGestureSource() != uiAnchor &&
-                        event.getDragboard().hasString()) {
-                    event.acceptTransferModes(TransferMode.MOVE);
-                }
-
-                event.consume();
-            }
-        });
-        uiAnchor.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                if(!m_draggedAtom.equals("")){
-                    System.out.println("Dragged exit");
-
-                    Atome atom = new Atome(Atome.m_symbole.indexOf(m_draggedAtom),event.getSceneX(),event.getSceneY(),0,0);
-                    atom.draw(world);
-                    m_draggedAtom = "";
-                    event.consume();
-                }
-            }
-        });
 
 
 
@@ -271,20 +208,19 @@ public class AController {
         setupScene();
         setupCamera();
         setupAxes();
-        initTables();
 
 
         rootScene = new Scene(parent);
 
         rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
-        env = new Environnement_2(5, screen_width, screen_height, 1000);
+        env = new Environnement_2(1000, screen_width, screen_height, 1000);
 
         AnimationTimer animTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 env.MiseAJourAtomes(world);
-                updateStats();
+                // updateStats();
             }
         };
         animTimer.start();
@@ -303,47 +239,64 @@ public class AController {
 
     public void initStatsTable() {
         ObservableList stats_columns = uiStatistics.getColumns();
+
         TreeTableColumn description_column = (
-                new TreeTableColumn<StatsElement, String>("Description")
+            new TreeTableColumn<StatsElement, String>("Description")
         );
-        description_column.setCellValueFactory(
-                new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
-                    @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
-                        StatsElement e = p.getValue().getValue();
-                        String description =  e.getDescription();
-                        return new ReadOnlyObjectWrapper<String>(description);
-                    }
-                }
+        TreeTableColumn value_column = (
+            new TreeTableColumn<StatsElement, String>("Valeur")
         );
 
-        TreeTableColumn value_column = new TreeTableColumn<String, String>("Valeur");
-        value_column.setCellValueFactory(
+        List<Pair> l_columns_pairs = Arrays.<Pair> asList(
+            new Pair<>(description_column, "description"),
+            new Pair<>(value_column, "value")
+        );
+        l_columns_pairs.forEach((col_p) -> {
+            TreeTableColumn col = (TreeTableColumn) col_p.x;
+            String attr = (String) col_p.y;
+            col.setCellValueFactory(
                 new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
                     @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
                         StatsElement e = p.getValue().getValue();
-                        String value =  e.getValue();
-                        return new ReadOnlyObjectWrapper<String>(value);
+                        return new ReadOnlyObjectWrapper<String>(e.globalGetter(attr));
                     }
                 }
-        );
+            );
+        });
+
         stats_columns.addAll(description_column, value_column);
 
         TreeItem<StatsElement> stats_root = (
-                new TreeItem<StatsElement>(new StatsElement("Root node", ""))
+            new TreeItem<StatsElement>(new StatsElement("Root node", ""))
         );
         uiStatistics.setRoot(stats_root);
     }
 
     public void updateStats() {
-        List<StatsElement> elem = Arrays.asList(
-            new StatsElement("Test", "test_value"),
-            new StatsElement("Test", "test_value")
+        List<StatsElement> elem = Arrays.<StatsElement> asList(
+            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
         elem.stream().forEach((e) -> {
             root.getChildren().add(new TreeItem<StatsElement>(e));
         });
+
+        // show number of each atom
+        TreeItem<StatsElement> atoms_groups = (
+            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+        );
+        {
+            Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
+            SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
+            for (String key : keys) {
+                int nb = atoms_groups_map.get(key);
+                atoms_groups.getChildren().add(
+                    new TreeItem<StatsElement>(new StatsElement(key, String.valueOf(nb)))
+                );
+            }
+        }
+        root.getChildren().add(atoms_groups);
     }
 
 
