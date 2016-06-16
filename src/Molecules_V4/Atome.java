@@ -137,6 +137,10 @@ public class Atome extends Agent {
     	return rayon;
     }
 
+    public String getSymb() {
+        return symb;
+    }
+
     //TODO: exploiter cette m�thode
     public int estlibre() {
     	return liaison;
