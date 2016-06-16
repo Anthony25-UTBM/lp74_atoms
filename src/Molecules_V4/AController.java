@@ -1,6 +1,7 @@
 package Molecules_V4;
 
 import com.jfoenix.controls.JFXTreeTableView;
+import com.sun.org.glassfish.external.statistics.Stats;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -21,8 +22,11 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import sun.reflect.generics.tree.Tree;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -237,33 +241,35 @@ public class AController {
 
     public void initStatsTable() {
         ObservableList stats_columns = uiStatistics.getColumns();
+
         TreeTableColumn description_column = (
-                new TreeTableColumn<StatsElement, String>("Description")
+            new TreeTableColumn<StatsElement, String>("Description")
         );
-        description_column.setCellValueFactory(
-                new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
-                    @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
-                        StatsElement e = p.getValue().getValue();
-                        String description =  e.getDescription();
-                        return new ReadOnlyObjectWrapper<String>(description);
-                    }
-                }
+        TreeTableColumn value_column = (
+            new TreeTableColumn<StatsElement, String>("Valeur")
         );
 
-        TreeTableColumn value_column = new TreeTableColumn<String, String>("Valeur");
-        value_column.setCellValueFactory(
+        List<Pair> l_columns_pairs = Arrays.<Pair> asList(
+            new Pair<>(description_column, "description"),
+            new Pair<>(value_column, "value")
+        );
+        l_columns_pairs.forEach((col_p) -> {
+            TreeTableColumn col = (TreeTableColumn) col_p.x;
+            String attr = (String) col_p.y;
+            col.setCellValueFactory(
                 new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
                     @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
                         StatsElement e = p.getValue().getValue();
-                        String value =  e.getValue();
-                        return new ReadOnlyObjectWrapper<String>(value);
+                        return new ReadOnlyObjectWrapper<String>(e.globalGetter(attr));
                     }
                 }
-        );
+            );
+        });
+
         stats_columns.addAll(description_column, value_column);
 
         TreeItem<StatsElement> stats_root = (
-                new TreeItem<StatsElement>(new StatsElement("Root node", ""))
+            new TreeItem<StatsElement>(new StatsElement("Root node", ""))
         );
         uiStatistics.setRoot(stats_root);
     }
