@@ -1,10 +1,17 @@
 package Molecules_V4;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.*;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -12,8 +19,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
@@ -54,13 +64,11 @@ public class AController {
     AnchorPane uiStatisticsAnchor;
     @FXML
     AnchorPane uiAtomesAnchor;
+    @FXML
+    TreeTableView uiStatistics;
 
     SubScene    m_subScene;
     Group       m_root3D;
-
-
-
-
 
     private int screen_width = 1024;
     private int screen_height = 768;
@@ -201,8 +209,8 @@ public class AController {
             @Override
             public void handle(long l) {
                 env.MiseAJourAtomes(world);
+                updateStats();
             }
-
         };
         animTimer.start();
 
@@ -214,7 +222,53 @@ public class AController {
         stage.show();
 
         //rootScene.setCamera(camera);
+        initStatsTable();
+        updateStats();
+    }
 
+    public void initStatsTable() {
+        ObservableList stats_columns = uiStatistics.getColumns();
+        TreeTableColumn description_column = (
+                new TreeTableColumn<StatsElement, String>("Description")
+        );
+        description_column.setCellValueFactory(
+                new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
+                    @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
+                        StatsElement e = p.getValue().getValue();
+                        String description =  e.getDescription();
+                        return new ReadOnlyObjectWrapper<String>(description);
+                    }
+                }
+        );
+
+        TreeTableColumn value_column = new TreeTableColumn<String, String>("Valeur");
+        value_column.setCellValueFactory(
+                new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
+                    @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
+                        StatsElement e = p.getValue().getValue();
+                        String value =  e.getValue();
+                        return new ReadOnlyObjectWrapper<String>(value);
+                    }
+                }
+        );
+        stats_columns.addAll(description_column, value_column);
+
+        TreeItem<StatsElement> stats_root = (
+                new TreeItem<StatsElement>(new StatsElement("Root node", ""))
+        );
+        uiStatistics.setRoot(stats_root);
+    }
+
+    public void updateStats() {
+        List<StatsElement> elem = Arrays.<StatsElement> asList(
+            new StatsElement("Test", "test_value"),
+            new StatsElement("Test", "test_value")
+        );
+        TreeItem root = uiStatistics.getRoot();
+        root.getChildren().clear();
+        elem.stream().forEach((e) -> {
+            root.getChildren().add(new TreeItem<StatsElement>(e));
+        });
     }
 
 
@@ -265,5 +319,5 @@ public class AController {
 
         });
     }
-
 }
+
