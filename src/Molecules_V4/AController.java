@@ -1,5 +1,6 @@
 package Molecules_V4;
 
+import com.jfoenix.controls.JFXTreeTableView;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -30,7 +31,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.lang.*;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
-import sun.plugin.javascript.navig.Anchor;
 
 /**
  * Created by adahs on 11/06/2016.
@@ -55,6 +55,10 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
+    JFXTreeTableView    uiTableAtom;
+    @FXML
+    JFXTreeTableView    uiTableMolecules;
+    @FXML
     Pane uiViewer;
     @FXML
     JFXComboBox uiAtomType;
@@ -78,6 +82,11 @@ public class AController {
     private double mouseOldY;
     private double mouseDeltaX;
     private double mouseDeltaY;
+
+    private void initTables()
+    {
+    }
+
 
     private void setListeners(boolean addListeners){
         if(addListeners){
@@ -273,6 +282,12 @@ public class AController {
 
 
     private void handleMouse(SubScene scene, final Node root) {
+        scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+
+            }
+        });
         scene.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me) {

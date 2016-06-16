@@ -1,13 +1,24 @@
 package Molecules_V4;
 
 
+import javafx.event.EventHandler;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.*;
+import javafx.scene.shape.*;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+
 import javax.json.*;
 import java.awt.*;
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
 
 
 // Agent Atome
@@ -71,7 +82,8 @@ public class Atome extends Agent {
     public static void parseJson() {
         System.out.println("Reading json file");
         try {
-            InputStream is = new FileInputStream("C:\\Users\\adahs\\workspace\\lp74_atoms\\src\\Molecules_V4\\periodicTable.json");
+            URL url = Atome.class.getClassLoader().getResource("periodicTable.json");
+            InputStream is = new FileInputStream(url.getPath());
             JsonReader reader = Json.createReader(is);
             JsonObject object = reader.readObject();
             JsonArray tables = object.getJsonArray("table");
@@ -375,13 +387,25 @@ public class Atome extends Agent {
     	double [] pos = {posX,posY,posZ};
     	sphere.setT(pos);
     }
-    
-    
+
+    protected Rectangle m_rect;
+    protected Tooltip   m_tooltip;
     protected void draw(AGroup root)
     {
     	updatePosition();
     	if(!root.getChildren().contains(sphere))
     	{
+
+            sphere.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    System.out.println("clicked !");
+                    m_tooltip = new Tooltip("Atoms !");
+
+                    Tooltip.install(sphere,m_tooltip);
+
+                }
+            });
     		root.getChildren().add(sphere);
     	}
     }

@@ -85,10 +85,20 @@
                             <children>
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Atomes" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                                 <JFXComboBox fx:id="uiAtomType" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Atom type" />
-                        <ScrollPane pannable="true" prefHeight="225.0" prefWidth="428.0" />
+                        <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                          <columns>
+                            <TableColumn prefWidth="75.0" />
+                            <TableColumn prefWidth="124.0" text="Atom" />
+                          </columns>
+                        </TableView>
                                 <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
                                 <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <ScrollPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="132.0" prefWidth="428.0" />
+                        <TableView  maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                          <columns>
+                            <TableColumn prefWidth="75.0" />
+                            <TableColumn maxWidth="1.7976931348623157E308" prefWidth="75.0" text="Molecules" />
+                          </columns>
+                        </TableView>
                                 <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="25.0" promptText="type Molecule" unFocusColor="#c6ff00" />
                                 <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#random_elem_gen" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" VBox.vgrow="ALWAYS">
                                     <effect>
