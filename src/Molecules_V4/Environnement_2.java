@@ -1,9 +1,7 @@
 package Molecules_V4;
 //package Molecules;
 
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Random;
+import java.util.*;
 
 //import java.util.Collections;
 
@@ -133,6 +131,16 @@ public class Environnement_2 extends Observable {
 	        setChanged();
 	        notifyObservers();
 	    }
+
+		public Map<String, Integer> nbOfEachAtoms() {
+			Map<String, Integer> atom_groups = new Hashtable<String, Integer>();
+            for (Atome a : atomes) {
+				int current_nb = atom_groups.containsKey(a.getSymb()) ? atom_groups.get(a.getSymb()) : 0;
+				atom_groups.put(a.getSymb(), current_nb + 1);
+			}
+
+			return atom_groups;
+		}
 }
     
     

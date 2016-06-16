@@ -27,10 +27,8 @@ import sun.reflect.generics.tree.Tree;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.lang.*;
 import com.jfoenix.controls.JFXCheckBox;
@@ -222,7 +220,7 @@ public class AController {
             @Override
             public void handle(long l) {
                 env.MiseAJourAtomes(world);
-                updateStats();
+                // updateStats();
             }
         };
         animTimer.start();
@@ -283,6 +281,22 @@ public class AController {
         elem.stream().forEach((e) -> {
             root.getChildren().add(new TreeItem<StatsElement>(e));
         });
+
+        // show number of each atom
+        TreeItem<StatsElement> atoms_groups = (
+            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+        );
+        {
+            Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
+            SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
+            for (String key : keys) {
+                int nb = atoms_groups_map.get(key);
+                atoms_groups.getChildren().add(
+                    new TreeItem<StatsElement>(new StatsElement(key, String.valueOf(nb)))
+                );
+            }
+        }
+        root.getChildren().add(atoms_groups);
     }
 
 
