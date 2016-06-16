@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.effect.*?>
@@ -50,9 +51,9 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <SplitPane dividerPositions="0.26948775055679286, 0.6080178173719376" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-            <items>
-                <AnchorPane focusTraversable="true">
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+                <AnchorPane fx:id="uiStatisticsAnchor" focusTraversable="true">
                     <children>
                         <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Statistics" textAlignment="CENTER" wrapText="false">
                             <font>
@@ -70,8 +71,12 @@
                         </JFXTreeTableView>
                     </children>
                 </AnchorPane>
-            <AnchorPane fx:id="uiViewer" prefHeight="200.0" prefWidth="200.0" />
-                <AnchorPane>
+            <AnchorPane fx:id="uiAnchor" prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <Pane fx:id="uiViewer" layoutX="28.0" layoutY="167.0" prefHeight="547.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+                <AnchorPane fx:id="uiAtomesAnchor">
                     <children>
                         <VBox layoutX="3.0" layoutY="49.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
@@ -105,8 +110,8 @@
                         </VBox>
                     </children>
                 </AnchorPane>
-            </items>
-        </SplitPane>
+         </children>
+      </HBox>
         <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
             <children>
                 <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">

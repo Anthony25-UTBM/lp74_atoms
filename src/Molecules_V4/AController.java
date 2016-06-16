@@ -12,12 +12,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.stage.Stage;
+
+import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.lang.*;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
+import sun.plugin.javascript.navig.Anchor;
 
 /**
  * Created by adahs on 11/06/2016.
@@ -42,9 +45,20 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
-    AnchorPane uiViewer;
+    Pane uiViewer;
     @FXML
     JFXComboBox uiAtomType;
+    @FXML
+    AnchorPane uiAnchor;
+    @FXML
+    AnchorPane uiStatisticsAnchor;
+    @FXML
+    AnchorPane uiAtomesAnchor;
+
+    SubScene    m_subScene;
+    Group       m_root3D;
+
+
 
 
 
@@ -56,6 +70,17 @@ public class AController {
     private double mouseOldY;
     private double mouseDeltaX;
     private double mouseDeltaY;
+
+    private void setListeners(boolean addListeners){
+        if(addListeners){
+            m_subScene.addEventHandler(MouseEvent.ANY, mouseEventHandler);
+        } else {
+            m_subScene.removeEventHandler(MouseEvent.ANY, mouseEventHandler);
+        }
+    }
+    private final EventHandler<MouseEvent> mouseEventHandler = event -> {
+        handleMouse(m_subScene,parent);
+    };
 
     public void setupCamera() {
         cameraRoot.getChildren().add(camera2);
@@ -72,9 +97,44 @@ public class AController {
     }
 
     public void setupScene() {
-        scene = new Scene(uiViewer);
-        uiViewer.getChildren().add(world);
-        uiViewer.getChildren().add(cameraRoot);
+        // calculate size
+
+     /*   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        double width = screenSize.getWidth();
+        double height = screenSize.getHeight();
+        double quotion = 8;
+        screen_width = (int) (4*width/quotion);
+        screen_height = (int) height;
+        uiStatisticsAnchor.setMaxHeight(height);
+        uiAtomesAnchor.setMaxHeight(height);
+        uiViewer.setMaxHeight(height);
+        uiAnchor.setMaxHeight(height);
+
+        uiStatisticsAnchor.setPrefSize(height,width/quotion);
+        uiAtomesAnchor.setPrefSize(height,width/quotion);Z
+        uiViewer.setPrefSize(height,4*width/quotion);
+        uiAnchor.setPrefSize(height,4*width/quotion);
+
+        uiStatisticsAnchor.setMaxWidth(width/quotion);
+        uiAtomesAnchor.setMaxWidth(width/quotion);
+        uiViewer.setMaxWidth(4*width/quotion);
+        uiAnchor.setMaxWidth(4*width/quotion);*/
+
+
+        m_root3D = new Group();
+
+
+        m_subScene = new SubScene(m_root3D,screen_width,screen_height,true,javafx.scene.SceneAntialiasing.DISABLED);
+        uiAnchor.getChildren().add(m_subScene);
+        m_subScene.setCamera(camera);
+        m_subScene.setFill(Color.GRAY);
+        m_root3D.getChildren().add(world);
+        m_root3D.getChildren().add(cameraRoot);
+
+
+
+
         if(!Atome.m_uniqGroup.isEmpty())
         {
             for(String grp : Atome.m_uniqGroup)
@@ -133,7 +193,7 @@ public class AController {
 
         rootScene = new Scene(parent);
 
-        scene.setFill(Color.GREY);
+        rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
         env = new Environnement_2(1000, screen_width, screen_height, 1000);
 
@@ -146,20 +206,19 @@ public class AController {
         };
         animTimer.start();
 
-        handleMouse(scene, world);
+        handleMouse(m_subScene, world);
 
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         stage.setFullScreen(true);
         stage.show();
 
-        ///rootScene.setCamera(camera);
+        //rootScene.setCamera(camera);
 
     }
 
 
-    private void handleMouse(Scene scene, final Node root) {
-
+    private void handleMouse(SubScene scene, final Node root) {
         scene.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me) {
