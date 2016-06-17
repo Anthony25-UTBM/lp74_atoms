@@ -141,6 +141,16 @@ public class Environnement_2 extends Observable {
 
 			return atom_groups;
 		}
+
+		public int nbOfNotActiveAtoms() {
+			int not_active_atoms = 0;
+			for (Atome a : atomes) {
+				if(a.isNotActive())
+					not_active_atoms++;
+			}
+
+			return not_active_atoms;
+		}
 }
     
     

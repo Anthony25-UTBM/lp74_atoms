@@ -349,7 +349,8 @@ public class AController {
 
     public void updateStats() {
         List<StatsElement> elem = Arrays.<StatsElement> asList(
-            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length))
+            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length)),
+            new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms()))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
