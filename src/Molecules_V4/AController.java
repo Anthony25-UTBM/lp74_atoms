@@ -234,7 +234,10 @@ public class AController {
 
     public void random_elem_gen(int nb_atoms) {
         world.getChildren().clear();
-        env = new Environnement_2(nb_atoms, screen_width, screen_height, 1000);
+        env = new Environnement_2(
+            nb_atoms, screen_width*10, screen_height*10,
+            10*(screen_height + screen_width)/2
+        );
     }
 
     public void random_elem_gen() {
@@ -283,7 +286,10 @@ public class AController {
 
         rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
-        env = new Environnement_2(1000, screen_width, screen_height, 1000);
+        env = new Environnement_2(
+            1000, screen_width*10, screen_height*10,
+            10*(screen_height + screen_width)/2
+        );
 
         AnimationTimer animTimer = new AnimationTimer() {
             @Override
