@@ -1,5 +1,6 @@
 package Molecules_V4;
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -55,6 +56,8 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
+    JFXTextField uiSearch;
+    @FXML
     VBox    uiAtomsVbox;
     @FXML
     VBox    uiTableMolecules;
@@ -90,7 +93,22 @@ public class AController {
     javafx.scene.control.ScrollPane uiScrollPane;
 
 
-
+    private void searchListener()
+    {
+        uiSearch.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                uiAtomsVbox.getChildren().clear();
+                for(int i = 0; i < Atome.m_symbole.size();++i)
+                {
+                    if(Atome.m_symbole.get(i).startsWith(newValue))
+                    {
+                        addLabel(Atome.m_symbole.get(i),AController.couleurs[i%9]);
+                    }
+                }
+            }
+        });
+    }
 
     private void addAtomsTableListners()
     {
@@ -148,6 +166,7 @@ public class AController {
             addLabel(s,couleur);
         }
         addAtomsTableListners();
+        searchListener();
 
     }
 
