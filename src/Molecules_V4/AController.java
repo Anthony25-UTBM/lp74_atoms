@@ -2,9 +2,12 @@ package Molecules_V4;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -86,51 +89,65 @@ public class AController {
 
     javafx.scene.control.ScrollPane uiScrollPane;
 
+
+
+
+    private void addAtomsTableListners()
+    {
+        uiAtomType.valueProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                uiAtomsVbox.getChildren().clear();
+                String tmpLabel = ((Label)newValue).getText();
+                for(int i = 0; i < Atome.m_symbole.size();++i)
+                {
+                    if( Atome.m_group.get(i).equals(tmpLabel) )
+                    {
+                        addLabel(Atome.m_symbole.get(i),AController.couleurs[i%9]);
+                    }
+                }
+            }
+        });
+    }
+
+    private void addLabel(String label, Color couleur)
+    {
+        Label l = new Label(label,new Circle(8,couleur));
+
+        uiAtomsVbox.getChildren().add(l);
+        l.setOnDragDetected(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                System.out.println("OnDrag Detected");
+                Dragboard db = l.startDragAndDrop(TransferMode.ANY);
+
+                ClipboardContent content = new ClipboardContent();
+                content.putString(label);
+                db.setContent(content);
+                m_draggedAtom = label;
+
+                event.consume();
+            }
+        });
+
+        l.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                m_draggedAtom = label;
+            }
+        });
+
+
+    }
+
     private void initTables()
     {
         //uiTableAtom.setMaxWidth(uiScrollPane.getPrefViewportWidth());
-        uiScrollPane = new ScrollPane(uiAtomsVbox);
-        VBox uiTableAtom = new VBox();
-        uiScrollPane.setContent(uiTableAtom);
-        uiScrollPane.setVisible(true);
-        uiTableAtom.setVisible(true);
-        uiAtomsVbox.getChildren().add(uiScrollPane);
         for(String s : Atome.m_symbole)
         {
-            double [] position = {0,0,0};
             Color couleur = AController.couleurs[Atome.m_symbole.indexOf(s)%9];
-            double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
-
-            //ASphere sphere = new ASphere(10,position,colors);
-            Label l = new Label(s,new Circle(8,couleur));
-
-            //box.getChildren().add(0,sphere);
-
-            uiTableAtom.getChildren().add(l);
-            l.setOnDragDetected(new EventHandler<MouseEvent>() {
-                public void handle(MouseEvent event) {
-                    System.out.println("OnDrag Detected");
-                    Dragboard db = l.startDragAndDrop(TransferMode.ANY);
-
-                    ClipboardContent content = new ClipboardContent();
-                    content.putString(s);
-                    db.setContent(content);
-                    m_draggedAtom = s;
-
-                    event.consume();
-                }
-            });
-
-            l.setOnMouseDragged(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    m_draggedAtom = s;
-                }
-            });
-
-
-
+            addLabel(s,couleur);
         }
+        addAtomsTableListners();
 
     }
 
@@ -194,7 +211,7 @@ public class AController {
 
 
 
-        m_subScene = new SubScene(m_root3D,screen_width,screen_height,true,javafx.scene.SceneAntialiasing.DISABLED);
+        m_subScene = new SubScene(m_root3D,screen_width,screen_height,true, SceneAntialiasing.BALANCED);
         uiAnchor.getChildren().add(m_subScene);
         m_subScene.setCamera(camera);
         m_subScene.setFill(Color.GRAY);
