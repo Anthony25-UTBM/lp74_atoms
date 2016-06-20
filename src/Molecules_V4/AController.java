@@ -348,9 +348,12 @@ public class AController {
     }
 
     public void updateStats() {
+        TreeItem<StatsElement> atoms_groups = (
+            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+        );
         List<StatsElement> elem = Arrays.<StatsElement> asList(
-            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length)),
-            new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms()))
+            new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
+            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
@@ -359,9 +362,6 @@ public class AController {
         });
 
         // show number of each atom
-        TreeItem<StatsElement> atoms_groups = (
-            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
-        );
         {
             Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
             SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
