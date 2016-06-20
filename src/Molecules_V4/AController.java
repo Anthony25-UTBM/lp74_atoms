@@ -1,39 +1,31 @@
 package Molecules_V4;
 
-import com.jfoenix.controls.JFXTreeTableView;
-import com.sun.org.glassfish.external.statistics.Stats;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.*;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import sun.reflect.generics.tree.Tree;
 
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.lang.*;
-import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 
 /**
@@ -51,6 +43,7 @@ public class AController {
     final Group axisGroup = new Group();
     protected Environnement_2 env;
     protected Timer timer;
+    protected AnimationTimer animTimer;
     //scene
     Parent parent;
     Scene scene;
@@ -59,9 +52,9 @@ public class AController {
     Group rootDraw = new Group();
     TimerTask tache;
     @FXML
-    VBox    uiTableAtom;
+    VBox    uiAtomsVbox;
     @FXML
-    VBox     uiTableMolecules;
+    VBox    uiTableMolecules;
     @FXML
     Pane uiViewer;
     @FXML
@@ -74,6 +67,7 @@ public class AController {
     AnchorPane uiAtomesAnchor;
     @FXML
     TreeTableView uiStatistics;
+
 
     SubScene    m_subScene;
     Group       m_root3D;
@@ -88,26 +82,35 @@ public class AController {
     private double mouseDeltaY;
 
     private String m_draggedAtom;
+    static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
+
+    javafx.scene.control.ScrollPane uiScrollPane;
 
     private void initTables()
     {
+        //uiTableAtom.setMaxWidth(uiScrollPane.getPrefViewportWidth());
+        uiScrollPane = new ScrollPane(uiAtomsVbox);
+        VBox uiTableAtom = new VBox();
+        uiScrollPane.setContent(uiTableAtom);
+        uiScrollPane.setVisible(true);
+        uiTableAtom.setVisible(true);
+        uiAtomsVbox.getChildren().add(uiScrollPane);
         for(String s : Atome.m_symbole)
         {
-            HBox box = new HBox();
-            Label l = new Label(s);
             double [] position = {0,0,0};
-            java.awt.Color couleur = Atome.couleurs[Atome.m_symbole.indexOf(s)%9];
+            Color couleur = AController.couleurs[Atome.m_symbole.indexOf(s)%9];
             double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
 
-            ASphere sphere = new ASphere(10,position,colors);
-            box.getChildren().add(0,sphere);
-            box.getChildren().add(1,l);
+            //ASphere sphere = new ASphere(10,position,colors);
+            Label l = new Label(s,new Circle(8,couleur));
 
-            uiTableAtom.getChildren().add(box);
-            box.setOnDragDetected(new EventHandler<MouseEvent>() {
+            //box.getChildren().add(0,sphere);
+
+            uiTableAtom.getChildren().add(l);
+            l.setOnDragDetected(new EventHandler<MouseEvent>() {
                 public void handle(MouseEvent event) {
                     System.out.println("OnDrag Detected");
-                    Dragboard db = box.startDragAndDrop(TransferMode.ANY);
+                    Dragboard db = l.startDragAndDrop(TransferMode.ANY);
 
                     ClipboardContent content = new ClipboardContent();
                     content.putString(s);
@@ -118,7 +121,7 @@ public class AController {
                 }
             });
 
-            box.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            l.setOnMouseDragged(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     m_draggedAtom = s;
@@ -128,6 +131,7 @@ public class AController {
 
 
         }
+
     }
 
 
@@ -158,6 +162,9 @@ public class AController {
     }
 
     public void setupScene() {
+       // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        //screen_height = (int)screenSize.getHeight();
+        //screen_width = (int)screenSize.getWidth();
         // calculate size
 
      /*   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -263,6 +270,7 @@ public class AController {
         final Box yAxis = new Box(1, 240.0, 1);
         final Box zAxis = new Box(1, 1, 240.0);
 
+
         xAxis.setMaterial(redMaterial);
         yAxis.setMaterial(greenMaterial);
         zAxis.setMaterial(blueMaterial);
@@ -285,13 +293,14 @@ public class AController {
         final ReentrantLock lock = new ReentrantLock();
         env = new Environnement_2(1000, screen_width, screen_height, 1000);
 
-        AnimationTimer animTimer = new AnimationTimer() {
+        animTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 env.MiseAJourAtomes(world);
                 // updateStats();
             }
         };
+
         animTimer.start();
 
         handleMouse(m_subScene, world);

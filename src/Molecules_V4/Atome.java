@@ -5,13 +5,13 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 import javax.json.*;
 import java.awt.*;
-import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -43,14 +43,17 @@ public class Atome extends Agent {
     protected int    liaisons [] = {0,1,0,0,0,0,4,0,2};
     //protected double rayons   [] = {0,2.5,0,0,0,0,7,0,6}; // div par 10
     protected double rayons   [] = {0,5,0,0,0,0,10,0,8}; // div par 10
-    static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.RED};
+    //static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.RED};
+    static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
+
     // Attributs de l'atome
     protected int a_number;		//1 -> H;  6 -> C;  8 -> 0
     protected String symb;
     protected int    etat;		//0 -> libre;    1 -> partiellement li�;	2 -> li� (stable)
     protected int    liaison;
     protected double rayon;
-    protected Color couleur;
+   // protected Color couleur;
+    protected javafx.scene.paint.Color jcouleur;
     //attributs simulation
     protected double vitesseX;
     protected double vitesseY;
@@ -64,7 +67,9 @@ public class Atome extends Agent {
         etat = 0;
         liaison = m_liaisons.get(a_number);
         rayon = m_rayons.get(a_number);
-        couleur = couleurs[a_number % 9];
+        //couleur = couleurs[a_number % 9];
+        jcouleur = couleurs[a_number % 9];
+
         posX = _x;
         posY = _y;
         posZ = _z;
@@ -72,7 +77,7 @@ public class Atome extends Agent {
         vitesseY = Math.sin(_dir);
         vitesseZ = 0;
         double [] pos = {posX,posY,posZ};
-        double [] colors = {couleur.getRed()/255,couleur.getGreen()/255,couleur.getBlue()/255};
+        double [] colors = {jcouleur.getRed(),jcouleur.getGreen(),jcouleur.getBlue()};
         sphere = new ASphere(rayon,pos,colors);
 
 
