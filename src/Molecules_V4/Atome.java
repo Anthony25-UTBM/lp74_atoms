@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 
+import static java.lang.Math.pow;
+
 
 // Agent Atome
 public class Atome extends Agent {
@@ -417,6 +419,15 @@ public class Atome extends Agent {
     	}
     }
 
+    public boolean isNotActive() {
+        double threshold = pow(10, -9);
+
+        return (
+            vitesseX < threshold &&
+            vitesseY < threshold &&
+            vitesseZ < threshold
+        );
+    }
 }
 
 

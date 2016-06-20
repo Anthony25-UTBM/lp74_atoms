@@ -241,7 +241,10 @@ public class AController {
 
     public void random_elem_gen(int nb_atoms) {
         world.getChildren().clear();
-        env = new Environnement_2(nb_atoms, screen_width, screen_height, 1000);
+        env = new Environnement_2(
+            nb_atoms, screen_width*10, screen_height*10,
+            10*(screen_height + screen_width)/2
+        );
     }
 
     public void random_elem_gen() {
@@ -291,7 +294,10 @@ public class AController {
 
         rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
-        env = new Environnement_2(1000, screen_width, screen_height, 1000);
+        env = new Environnement_2(
+            1000, screen_width*10, screen_height*10,
+            10*(screen_height + screen_width)/2
+        );
 
         animTimer = new AnimationTimer() {
             @Override
@@ -351,7 +357,11 @@ public class AController {
     }
 
     public void updateStats() {
+        TreeItem<StatsElement> atoms_groups = (
+            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+        );
         List<StatsElement> elem = Arrays.<StatsElement> asList(
+            new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
             new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length))
         );
         TreeItem root = uiStatistics.getRoot();
@@ -361,9 +371,6 @@ public class AController {
         });
 
         // show number of each atom
-        TreeItem<StatsElement> atoms_groups = (
-            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
-        );
         {
             Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
             SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
