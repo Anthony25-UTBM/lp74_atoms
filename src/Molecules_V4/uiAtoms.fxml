@@ -82,7 +82,7 @@
           <AnchorPane fx:id="uiAnchor" prefHeight="768.0" prefWidth="1024.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
-            <VBox alignment="TOP_RIGHT" maxWidth="300.0" minWidth="200.0" BorderPane.alignment="CENTER">
+            <VBox alignment="TOP_RIGHT" maxWidth="300.0" minWidth="100.0" prefWidth="250.0" BorderPane.alignment="CENTER">
                 <children>
                     <Label alignment="CENTER" font="$x1" style="&#10;" text="Atomes" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                     <JFXComboBox fx:id="uiAtomType" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Atom type" />
