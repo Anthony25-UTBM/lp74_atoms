@@ -221,7 +221,13 @@ public class AController {
         screen_height = (int)uiAnchor.getPrefHeight();
         screen_width = (int)uiAnchor.getPrefWidth();
 
-        m_subScene = new SubScene(m_root3D,screen_width,screen_height,true, SceneAntialiasing.BALANCED);
+        m_subScene = new SubScene(m_root3D, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
+        m_subScene.setHeight((double) screen_height);
+        m_subScene.setWidth((double) screen_width);
+        m_subScene.setHeight(Control.USE_COMPUTED_SIZE);
+        m_subScene.setWidth(Control.USE_COMPUTED_SIZE);
+        m_subScene.setManaged(false);
+
         uiAnchor.getChildren().add(m_subScene);
         m_subScene.setCamera(camera);
         m_subScene.setFill(Color.GRAY);
@@ -331,10 +337,9 @@ public class AController {
             public void handle(long l) {
                 env.MiseAJourAtomes(world);
 
-                screen_height = (int)uiAnchor.getHeight();
-                screen_width = (int)uiAnchor.getWidth();
-                m_subScene.setHeight((double) screen_height);
-                m_subScene.setWidth((double) screen_width);
+                m_subScene.heightProperty().bind(uiAnchor.heightProperty());
+                m_subScene.widthProperty().bind(uiAnchor.widthProperty());
+
                 // updateStats();
             }
         };
