@@ -276,6 +276,9 @@ public class AController {
         m_root3D.getChildren().add(world);
         m_root3D.getChildren().add(cameraRoot);
 
+        // set slide colors
+        uiSpeedSlider.getStylesheets().add(AController.class.getResource("/customSlider.css").toExternalForm());
+
         uiAnchor.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 System.out.println("drag drop");
@@ -405,6 +408,7 @@ public class AController {
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         // stage.setFullScreen(true);
+
         stage.show();
         updateStat = true;
 
