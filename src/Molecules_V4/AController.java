@@ -62,8 +62,6 @@ public class AController {
     @FXML
     VBox    uiTableMolecules;
     @FXML
-    Pane uiViewer;
-    @FXML
     JFXComboBox uiAtomType;
     @FXML
     AnchorPane uiAnchor;
@@ -170,8 +168,6 @@ public class AController {
 
     }
 
-
-
     private void setListeners(boolean addListeners){
         if(addListeners){
             m_subScene.addEventHandler(MouseEvent.ANY, mouseEventHandler);
@@ -198,11 +194,6 @@ public class AController {
     }
 
     public void setupScene() {
-       // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        //screen_height = (int)screenSize.getHeight();
-        //screen_width = (int)screenSize.getWidth();
-        // calculate size
-
      /*   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         double width = screenSize.getWidth();
@@ -227,10 +218,16 @@ public class AController {
 
 
         m_root3D = new Group();
+        screen_height = (int)uiAnchor.getPrefHeight();
+        screen_width = (int)uiAnchor.getPrefWidth();
 
+        m_subScene = new SubScene(m_root3D, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
+        m_subScene.setHeight((double) screen_height);
+        m_subScene.setWidth((double) screen_width);
+        m_subScene.setHeight(Control.USE_COMPUTED_SIZE);
+        m_subScene.setWidth(Control.USE_COMPUTED_SIZE);
+        m_subScene.setManaged(false);
 
-
-        m_subScene = new SubScene(m_root3D,screen_width,screen_height,true, SceneAntialiasing.BALANCED);
         uiAnchor.getChildren().add(m_subScene);
         m_subScene.setCamera(camera);
         m_subScene.setFill(Color.GRAY);
@@ -339,6 +336,10 @@ public class AController {
             @Override
             public void handle(long l) {
                 env.MiseAJourAtomes(world);
+
+                m_subScene.heightProperty().bind(uiAnchor.heightProperty());
+                m_subScene.widthProperty().bind(uiAnchor.widthProperty());
+
                 // updateStats();
             }
         };
@@ -349,7 +350,7 @@ public class AController {
 
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
-        stage.setFullScreen(true);
+        // stage.setFullScreen(true);
         stage.show();
 
         //rootScene.setCamera(camera);
