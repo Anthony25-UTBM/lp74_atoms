@@ -2,15 +2,24 @@ package Molecules_V4;
 
 
 import com.jfoenix.controls.*;
+import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 
 import javax.json.*;
 import java.io.FileInputStream;
@@ -411,14 +420,15 @@ public class Atome extends Agent {
             sphere.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    System.out.println("clicked !");
-                    m_tooltip = new Tooltip("Atoms !");
-                    Tooltip.install(root, m_tooltip);
-                    //
+                    AController.items.clear();
+
+                    AController.items.add(" Atome : " + getSymb());
+                    AController.items.add(" Speed : " + getSpeed());
+                    AController.items.add(" Rayon : " + getRayon());
+
 
                 }
             });
-
         }
     }
 

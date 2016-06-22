@@ -5,6 +5,7 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -79,6 +80,8 @@ public class AController {
     Button uiPlayBtn;
     @FXML
     Slider uiSpeedSlider;
+    @FXML
+    ListView<String> uiList;
 
 
 
@@ -93,11 +96,26 @@ public class AController {
     private double mouseOldY;
     private double mouseDeltaX;
     private double mouseDeltaY;
+    private double ratio = 10;
 
     private String m_draggedAtom;
     static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
-
+    protected  static ObservableList<String> items = FXCollections.observableArrayList ();
     javafx.scene.control.ScrollPane uiScrollPane;
+
+    static protected void setElement(String string)
+    {
+        items.add(string);
+    }
+    private void refresh()
+    {
+        uiList.refresh();
+    }
+    private void initListView()
+    {
+
+        uiList.setItems(items);
+    }
 
 
     private void searchListener()
@@ -167,6 +185,7 @@ public class AController {
     private void initTables()
     {
         //uiTableAtom.setMaxWidth(uiScrollPane.getPrefViewportWidth());
+        initListView();
         for(String s : Atome.m_symbole)
         {
             Color couleur = AController.couleurs[Atome.m_symbole.indexOf(s)%9];
@@ -189,14 +208,16 @@ public class AController {
     };
 
     public void setupCamera() {
+
         cameraRoot.getChildren().add(camera2);
         camera2.getChildren().add(camera3);
         camera3.getChildren().add(camera);
 
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
-        camera.setTranslateZ(-cameraDistance);
-
+        camera.setTranslateZ((screen_height+screen_width)*ratio/2);
+        camera.setTranslateX(screen_height*ratio/2);
+        camera.setTranslateY(screen_width*ratio/2);
         camera3.setRotateZ(180.0);
         camera2.ry.setAngle(320.0);
         camera2.rx.setAngle(40);
@@ -284,8 +305,8 @@ public class AController {
     public void random_elem_gen(int nb_atoms) {
         world.getChildren().clear();
         env = new Environnement_2(
-            nb_atoms, screen_width*10, screen_height*10,
-            10*(screen_height + screen_width)/2
+            nb_atoms, screen_width*ratio, screen_height*ratio,
+            ratio*(screen_height + screen_width)/2
         );
     }
 
@@ -328,7 +349,7 @@ public class AController {
         stage.show();
         setupScene();
         setupCamera();
-        setupAxes();
+       // setupAxes();
         initTables();
 
 
@@ -337,8 +358,8 @@ public class AController {
         rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
         env = new Environnement_2(
-            1000, screen_width*10, screen_height*10,
-            10*(screen_height + screen_width)/2
+            1000, screen_width*ratio, screen_height*ratio,
+            ratio*(screen_height + screen_width)/2
         );
         setSpeed(0);
 
@@ -349,6 +370,8 @@ public class AController {
 
                 m_subScene.heightProperty().bind(uiAnchor.heightProperty());
                 m_subScene.widthProperty().bind(uiAnchor.widthProperty());
+                refresh();
+
 
                 // updateStats();
             }
@@ -434,6 +457,7 @@ public class AController {
     public void stop()
     {
         uiPlayBtn.setText("Play");
+        uiPlayBtn.setStyle("-fx-Background-color: #1E88E5;");
         uiPlayBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -446,6 +470,8 @@ public class AController {
     public void play()
     {
         uiPlayBtn.setText("Stop");
+        uiPlayBtn.setStyle("-fx-Background-color: #F44336;");
+
         uiPlayBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {

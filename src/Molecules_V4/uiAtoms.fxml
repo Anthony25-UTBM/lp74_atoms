@@ -71,6 +71,7 @@
                           <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                       </columnResizePolicy>
                   </JFXTreeTableView>
+            <ListView fx:id="uiList" editable="true" prefHeight="98.0" prefWidth="239.0" />
                   <JFXToggleButton layoutX="4.0" maxHeight="60.0" prefHeight="58.0" text="Build mode" toggleColor="#1e88e5" toggleLineColor="#68beff" />
          </children>
          <BorderPane.margin>
@@ -95,7 +96,10 @@
                           </ScrollPane>
                           <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
                           <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false" />
-                          <VBox fx:id="uiTableMolecules" minHeight="100.0" prefHeight="400.0" VBox.vgrow="NEVER" />
+                          <VBox fx:id="uiTableMolecules" minHeight="100.0" prefHeight="400.0" VBox.vgrow="NEVER">
+                     <children>
+                        <JFXSpinner />
+                     </children></VBox>
                           <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="type Molecule" unFocusColor="#c6ff00" />
                </children>
             </VBox>
