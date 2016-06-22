@@ -10,15 +10,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventTarget;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -27,12 +26,12 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.lang.*;
 import com.jfoenix.controls.JFXComboBox;
+
 
 /**
  * Created by adahs on 11/06/2016.
@@ -83,7 +82,8 @@ public class AController {
     @FXML
     ListView<String> uiList;
 
-
+    @FXML
+    MenuItem uiEgg;
 
     SubScene    m_subScene;
     Group       m_root3D;
@@ -162,6 +162,17 @@ public class AController {
         });
     }
 
+    @FXML
+    public void eggLaunch()
+    {
+        EasterEgg egg = new EasterEgg(screen_width,screen_height-120);
+        uiAnchor.getChildren().removeAll();
+        uiAnchor.getChildren().clear();
+        m_subScene = new SubScene(egg, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
+        uiAnchor.getChildren().add(egg);
+        egg.play();
+    }
+
     private void addLabel(String label, Color couleur)
     {
         Label l = new Label(label,new Circle(8,couleur));
@@ -193,7 +204,6 @@ public class AController {
 
     private void initTables()
     {
-        //uiTableAtom.setMaxWidth(uiScrollPane.getPrefViewportWidth());
         initListView();
         for(String s : Atome.m_symbole)
         {
@@ -202,6 +212,13 @@ public class AController {
         }
         addAtomsTableListners();
         searchListener();
+        uiEgg.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                eggLaunch();
+            }
+        });
+
 
     }
 
@@ -233,27 +250,6 @@ public class AController {
     }
 
     public void setupScene() {
-     /*   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-        double width = screenSize.getWidth();
-        double height = screenSize.getHeight();
-        double quotion = 8;
-        screen_width = (int) (4*width/quotion);
-        screen_height = (int) height;
-        uiStatisticsAnchor.setMaxHeight(height);
-        uiAtomesAnchor.setMaxHeight(height);
-        uiViewer.setMaxHeight(height);
-        uiAnchor.setMaxHeight(height);
-
-        uiStatisticsAnchor.setPrefSize(height,width/quotion);
-        uiAtomesAnchor.setPrefSize(height,width/quotion);Z
-        uiViewer.setPrefSize(height,4*width/quotion);
-        uiAnchor.setPrefSize(height,4*width/quotion);
-
-        uiStatisticsAnchor.setMaxWidth(width/quotion);
-        uiAtomesAnchor.setMaxWidth(width/quotion);
-        uiViewer.setMaxWidth(4*width/quotion);
-        uiAnchor.setMaxWidth(4*width/quotion);*/
 
 
         m_root3D = new Group();
@@ -530,14 +526,14 @@ public class AController {
                 mouseDeltaX = (mousePosX - mouseOldX);
                 mouseDeltaY = (mousePosY - mouseOldY);
 
-                double modifier = 1.0;
-                double modifierFactor = 0.1;
+                double modifier = 0.1;
+                double modifierFactor = 10;
 
                 if (me.isControlDown()) {
-                    modifier = 0.1;
+                    modifier = 1;
                 }
                 if (me.isShiftDown()) {
-                    modifier = 10.0;
+                    modifier = 0.1;
                 }
                 if (me.isPrimaryButtonDown()) {
                     camera2.ry.setAngle(camera2.ry.getAngle() - mouseDeltaX * modifierFactor * modifier * 2.0);  // +
