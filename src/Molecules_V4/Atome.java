@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import javax.json.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
@@ -208,14 +209,14 @@ public class Atome extends Agent {
     }
     
     //TODO: URGENT
-    protected boolean LierAtomes(Atome[] atomes) {
+    protected boolean LierAtomes(ArrayList<Atome> atomes) {
         // Recherche de l'atome le plus proche
         Atome a;
-        if (!atomes[0].equals(this)) {
-            a = atomes[0];
+        if (!atomes.get(0).equals(this)) {
+            a = atomes.get(0);
         }
         else {
-            a = atomes[1];
+            a = atomes.get(1);
         }
         double distanceCarre = DistanceCarre(a);
         for (Atome atome : atomes) {
@@ -244,15 +245,15 @@ public class Atome extends Agent {
         return false;
     }    
     
-    protected boolean EviterAtomes(Atome[] atomes) {
+    protected boolean EviterAtomes(ArrayList<Atome> atomes) {
         // Recherche de l'atome le plus proche
         Atome a;
         generateur = new Random();
-        if (!atomes[0].equals(this)) {
-            a = atomes[0];
+        if (!atomes.get(0).equals(this)) {
+            a = atomes.get(0);
         }
         else {
-            a = atomes[1];
+            a = atomes.get(1);
         }
         double distanceCarre = DistanceCarre(a);
         for (Atome atome : atomes) {
@@ -363,7 +364,7 @@ public class Atome extends Agent {
     
     
     
-    protected void CalculerDirectionMoyenne(Atome[] atomes) {
+    protected void CalculerDirectionMoyenne(ArrayList<Atome> atomes) {
         double vitesseXTotal = 0;
         double vitesseYTotal = 0;
         double vitesseZTotal = 0;
@@ -385,7 +386,7 @@ public class Atome extends Agent {
     }
 
     
-    public void MiseAJour(Atome[] atomes, ArrayList<Molecule> molecules, double largeur, double hauteur,double profondeur) {
+    public void MiseAJour(ArrayList<Atome> atomes, ArrayList<Molecule> molecules, double largeur, double hauteur, double profondeur) {
     	tempsRestant--;
     	if (etat == 0) {
     		if (!EviterLimiteEnv(0,0,0,largeur,hauteur,profondeur)) {

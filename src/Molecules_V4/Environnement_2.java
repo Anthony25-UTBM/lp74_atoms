@@ -1,6 +1,7 @@
 package Molecules_V4;
 //package Molecules;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 //import java.util.Collections;
@@ -78,7 +79,8 @@ public class Environnement_2 extends Observable {
 */   
    
 	    // Attributs
-	    protected Atome[] atomes;
+	   // protected Atome[] atomes;
+		protected ArrayList<Atome> atomes;
 	    protected ArrayList<Molecule> molecules;
 	    protected Random generateur;
 	    protected double largeur;
@@ -92,14 +94,14 @@ public class Environnement_2 extends Observable {
 	        profondeur = _profondeur;
 	        generateur = new Random();
 	        molecules = new ArrayList();        
-	        atomes = new Atome[_nbAtomes];
+	        atomes = new ArrayList();
 	        for (int i = 0; i < _nbAtomes; i++) {
 	        	int number=0;
 				if(Atome.m_symbole.size() == 0) break;
 
 				number = generateur.nextInt(Atome.m_symbole.size() - 1);
 
-	        	atomes[i] = new Atome(number, generateur.nextDouble() * largeur, generateur.nextDouble() * hauteur,generateur.nextDouble()*profondeur, generateur.nextDouble() * 2 * Math.PI);
+	        	atomes.add( new Atome(number, generateur.nextDouble() * largeur, generateur.nextDouble() * hauteur,generateur.nextDouble()*profondeur, generateur.nextDouble() * 2 * Math.PI));
 	        }
 	    }
 	    
@@ -124,6 +126,11 @@ public class Environnement_2 extends Observable {
 				a.draw(world);
 	        }
 	    }
+		public void addAtome(Atome a)
+		{
+
+			atomes.add(a);
+		}
 	    
 	    public void MiseAJourEnv(AGroup world) {
 	        MiseAJourAtomes(world);
@@ -163,7 +170,7 @@ public class Environnement_2 extends Observable {
 
 	public double getSpeed ()
 	{
-		return atomes[0].getSpeed();
+		return atomes.get(0).getSpeed();
 	}
 }
     

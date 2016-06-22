@@ -87,6 +87,7 @@ public class AController {
 
     SubScene    m_subScene;
     Group       m_root3D;
+    private boolean updateStat;
 
     private int screen_width = 1024;
     private int screen_height = 768;
@@ -97,6 +98,7 @@ public class AController {
     private double mouseDeltaX;
     private double mouseDeltaY;
     private double ratio = 10;
+    private  TreeItem<StatsElement> atoms_groups;
 
     private String m_draggedAtom;
     static protected Color  couleurs [] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
@@ -117,6 +119,11 @@ public class AController {
         uiList.setItems(items);
     }
 
+
+    public void setStatsUpdate(boolean update)
+    {
+        updateStat = update;
+    }
 
     private void searchListener()
     {
@@ -277,6 +284,7 @@ public class AController {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
 
+
                 event.consume();
             }
         });
@@ -289,6 +297,8 @@ public class AController {
                     Atome atom = new Atome(Atome.m_symbole.indexOf(m_draggedAtom),event.getSceneX(),event.getSceneY(),0,0);
                     atom.draw(world);
                     m_draggedAtom = "";
+                    updateStat = true;
+                    env.addAtome(atom);
                     event.consume();
                 }
             }
@@ -314,10 +324,12 @@ public class AController {
             nb_atoms, screen_width*ratio, screen_height*ratio,
             ratio*(screen_height + screen_width)/2
         );
+        updateStat = true;
     }
 
     public void random_elem_gen() {
         random_elem_gen(1000);
+        updateStat = true;
     }
 
     void setParent(Parent p) {
@@ -357,6 +369,7 @@ public class AController {
         setupCamera();
        // setupAxes();
         initTables();
+        updateStat = true;
 
 
         rootScene = new Scene(parent);
@@ -368,6 +381,7 @@ public class AController {
             ratio*(screen_height + screen_width)/2
         );
         setSpeed(0);
+        initStatsTable();
 
         animTimer = new AnimationTimer() {
             @Override
@@ -377,6 +391,7 @@ public class AController {
                 m_subScene.heightProperty().bind(uiAnchor.heightProperty());
                 m_subScene.widthProperty().bind(uiAnchor.widthProperty());
                 refresh();
+                updateStats();
 
 
                 // updateStats();
@@ -391,10 +406,10 @@ public class AController {
         stage.setScene(rootScene);
         // stage.setFullScreen(true);
         stage.show();
+        updateStat = true;
+
 
         //rootScene.setCamera(camera);
-        initStatsTable();
-        updateStats();
     }
 
     public void initStatsTable() {
@@ -429,34 +444,41 @@ public class AController {
         TreeItem<StatsElement> stats_root = (
             new TreeItem<StatsElement>(new StatsElement("Root node", ""))
         );
+        atoms_groups = (
+                new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+        );
         uiStatistics.setRoot(stats_root);
     }
 
     public void updateStats() {
-        TreeItem<StatsElement> atoms_groups = (
-            new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
-        );
+
         List<StatsElement> elem = Arrays.<StatsElement> asList(
             new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
-            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.length))
+            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.size()))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
         elem.stream().forEach((e) -> {
             root.getChildren().add(new TreeItem<StatsElement>(e));
         });
-
-        // show number of each atom
-        {
-            Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
-            SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
-            for (String key : keys) {
-                int nb = atoms_groups_map.get(key);
-                atoms_groups.getChildren().add(
-                    new TreeItem<StatsElement>(new StatsElement(key, String.valueOf(nb)))
-                );
+        if(updateStat) {
+            atoms_groups = (
+                    new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+            );
+            // show number of each atom
+            {
+                updateStat = false;
+                Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
+                SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
+                for (String key : keys) {
+                    int nb = atoms_groups_map.get(key);
+                    atoms_groups.getChildren().add(
+                            new TreeItem<StatsElement>(new StatsElement(key, String.valueOf(nb)))
+                    );
+                }
             }
         }
+
         root.getChildren().add(atoms_groups);
     }
 
