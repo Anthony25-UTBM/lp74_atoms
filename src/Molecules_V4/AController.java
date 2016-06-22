@@ -49,6 +49,7 @@ public class AController {
     protected Environnement_2 env;
     protected Timer timer;
     protected AnimationTimer animTimer;
+    protected boolean is_playing = false;
     //scene
     Parent parent;
     Scene scene;
@@ -396,7 +397,7 @@ public class AController {
             1000, screen_width*ratio, screen_height*ratio,
             ratio*(screen_height + screen_width)/2
         );
-        setSpeed(0);
+        stop();
         initStatsTable();
 
         animTimer = new AnimationTimer() {
@@ -511,6 +512,7 @@ public class AController {
             }
         });
         setSpeed(0);
+        is_playing = false;
     }
 
     public void play()
@@ -524,17 +526,18 @@ public class AController {
                 stop();
             }
         });
-        setSpeed(10);
+        is_playing = true;
+        speedSliderHandler();
     }
 
     public void setSpeed(int speed)
     {
-        env.setAtomesSpeed(speed);
+        if(is_playing || speed == 0)
+            env.setAtomesSpeed(speed);
     }
 
     public void speedSliderHandler()
     {
-        System.out.println("update");
         setSpeed((int) uiSpeedSlider.getValue());
     }
 
