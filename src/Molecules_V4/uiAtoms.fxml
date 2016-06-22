@@ -114,6 +114,17 @@
                             <Font size="14.0" />
                         </font>
                     </JFXButton>
+            <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" layoutX="10.0" layoutY="625.0" maxHeight="150.0" maxWidth="1.7976931348623157E308" minHeight="50.0" onAction="#clear_pool" prefHeight="100.0" ripplerFill="#ff697c" style="-fx-background-color: #F44336;" text="Clear" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP">
+               <effect>
+                  <Blend />
+               </effect>
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </JFXButton>
                 </children>
             </VBox>
    </right>

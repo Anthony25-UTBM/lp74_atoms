@@ -328,16 +328,24 @@ public class AController {
 
     public void random_elem_gen(int nb_atoms) {
         world.getChildren().clear();
-        env = new Environnement_2(
-            nb_atoms, screen_width*ratio, screen_height*ratio,
-            ratio*(screen_height + screen_width)/2
-        );
+        if(nb_atoms > 0) {
+            env = new Environnement_2(
+                nb_atoms, screen_width*ratio, screen_height*ratio,
+                ratio*(screen_height + screen_width)/2
+            );
+        }
+        else
+            env.atomes.clear();
         updateStat = true;
     }
 
     public void random_elem_gen() {
         random_elem_gen(1000);
         updateStat = true;
+    }
+
+    public void clear_pool() {
+        random_elem_gen(0);
     }
 
     void setParent(Parent p) {
