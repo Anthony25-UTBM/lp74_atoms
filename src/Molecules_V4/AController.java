@@ -126,7 +126,7 @@ public class AController {
                 uiAtomsVbox.getChildren().clear();
                 for(int i = 0; i < Atome.m_symbole.size();++i)
                 {
-                    if(Atome.m_symbole.get(i).startsWith(newValue))
+                    if(Atome.m_symbole.get(i).toLowerCase().startsWith(newValue.toLowerCase()))
                     {
                         addLabel(Atome.m_symbole.get(i),AController.couleurs[i%9]);
                     }
@@ -137,16 +137,25 @@ public class AController {
 
     private void addAtomsTableListners()
     {
+
         uiAtomType.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                uiAtomsVbox.getChildren().clear();
                 String tmpLabel = ((Label)newValue).getText();
-                for(int i = 0; i < Atome.m_symbole.size();++i)
+                String ancienLabel = ((Label)newValue).getText();
+                if(!tmpLabel.equals ("Show all")) {
+                    uiAtomsVbox.getChildren().clear();
+                    for (int i = 0; i < Atome.m_symbole.size(); ++i) {
+                        if (Atome.m_group.get(i).equals(tmpLabel)) {
+                            addLabel(Atome.m_symbole.get(i), AController.couleurs[i % 9]);
+                        }
+                    }
+                }
+                else
                 {
-                    if( Atome.m_group.get(i).equals(tmpLabel) )
-                    {
-                        addLabel(Atome.m_symbole.get(i),AController.couleurs[i%9]);
+                    uiAtomsVbox.getChildren().clear();
+                    for (int i = 0; i < Atome.m_symbole.size(); ++i) {
+                            addLabel(Atome.m_symbole.get(i), AController.couleurs[i % 9]);
                     }
                 }
             }
@@ -294,6 +303,7 @@ public class AController {
 
         if(!Atome.m_uniqGroup.isEmpty())
         {
+            uiAtomType.getItems().add(new Label("Show all"));
             for(String grp : Atome.m_uniqGroup)
                 uiAtomType.getItems().add(new Label(grp));
             uiAtomType.setEditable(false);
