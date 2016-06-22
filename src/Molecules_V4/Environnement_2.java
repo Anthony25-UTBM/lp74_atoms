@@ -160,20 +160,6 @@ public class Environnement_2 extends Observable {
 				a.setSpeed(speed);
 			}
 		}
-		public void stop()
-		{
-			for(Atome a : atomes)
-			{
-				a.setSpeed(0);
-			}
-		}
-		public void play()
-		{
-			for(Atome a : atomes)
-			{
-				a.setSpeed(10);
-			}
-		}
 
 	public double getSpeed ()
 	{

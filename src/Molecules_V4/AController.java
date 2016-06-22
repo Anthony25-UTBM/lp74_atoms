@@ -12,6 +12,7 @@ import javafx.event.EventTarget;
 import javafx.fxml.FXML;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.*;
@@ -55,6 +56,7 @@ public class AController {
     Group cameraRoot = new Group();
     Group rootDraw = new Group();
     TimerTask tache;
+    // right menu
     @FXML
     JFXTextField uiSearch;
     @FXML
@@ -69,8 +71,15 @@ public class AController {
     AnchorPane uiStatisticsAnchor;
     @FXML
     AnchorPane uiAtomesAnchor;
+    // left menu
     @FXML
     TreeTableView uiStatistics;
+    // bottom bar
+    @FXML
+    Button uiPlayBtn;
+    @FXML
+    Slider uiSpeedSlider;
+
 
 
     SubScene    m_subScene;
@@ -331,6 +340,7 @@ public class AController {
             1000, screen_width*10, screen_height*10,
             10*(screen_height + screen_width)/2
         );
+        setSpeed(0);
 
         animTimer = new AnimationTimer() {
             @Override
@@ -421,6 +431,39 @@ public class AController {
         root.getChildren().add(atoms_groups);
     }
 
+    public void stop()
+    {
+        uiPlayBtn.setText("Play");
+        uiPlayBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                play();
+            }
+        });
+        setSpeed(0);
+    }
+
+    public void play()
+    {
+        uiPlayBtn.setText("Stop");
+        uiPlayBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                stop();
+            }
+        });
+        setSpeed(10);
+    }
+
+    public void setSpeed(int speed)
+    {
+        env.setAtomesSpeed(speed);
+    }
+
+    public void speedSliderHandler()
+    {
+        setSpeed((int) uiSpeedSlider.getValue());
+    }
 
     private void handleMouse(SubScene scene, final Node root) {
         scene.setOnMouseClicked(new EventHandler<MouseEvent>() {

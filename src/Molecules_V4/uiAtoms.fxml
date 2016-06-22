@@ -79,7 +79,7 @@
       </VBox>
    </left>
    <center>
-          <AnchorPane fx:id="uiAnchor" prefHeight="768.0" prefWidth="1024.0" BorderPane.alignment="CENTER" />
+          <AnchorPane fx:id="uiAnchor" onMouseDragReleased="#speedSliderHandler" prefHeight="768.0" prefWidth="1024.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
             <VBox alignment="TOP_RIGHT" maxWidth="300.0" minWidth="100.0" prefWidth="250.0" BorderPane.alignment="CENTER">
@@ -94,7 +94,7 @@
                               </content>
                           </ScrollPane>
                           <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
-                          <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
+                          <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false" />
                           <VBox fx:id="uiTableMolecules" minHeight="100.0" prefHeight="400.0" VBox.vgrow="NEVER" />
                           <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="type Molecule" unFocusColor="#c6ff00" />
                </children>
@@ -110,35 +110,28 @@
                             <Font size="14.0" />
                         </font>
                     </JFXButton>
-                    <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="150.0" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" ripplerFill="#fa7878" style="-fx-background-color: #FF5252;" text="Launch simulation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" wrapText="true" VBox.vgrow="ALWAYS">
-                        <effect>
-                            <Blend />
-                        </effect>
-                        <font>
-                            <Font size="14.0" />
-                        </font>
-                    </JFXButton>
                 </children>
             </VBox>
    </right>
    <bottom>
         <HBox id="HBox" alignment="CENTER_LEFT" fillHeight="false" prefHeight="48.0" prefWidth="907.0" spacing="5.0" BorderPane.alignment="CENTER">
-            <children>
-                <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status">
-                    <font>
-                        <Font size="11.0" fx:id="x3" />
-                    </font>
-                    <textFill>
-                        <Color blue="0.625" green="0.625" red="0.625" fx:id="x4" />
-                    </textFill>
-                </Label>
-                <JFXProgressBar />
-                <Pane prefHeight="-1.0" prefWidth="-1.0" />
-                <Label font="$x3" maxWidth="-1.0" text="Right status" textFill="$x4" />
-            </children>
             <padding>
                 <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
             </padding>
+         <children>
+            <AnchorPane HBox.hgrow="ALWAYS" />
+            <JFXButton fx:id="uiPlayBtn" maxHeight="1.7976931348623157E308" onAction="#play" prefWidth="100.0" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Play" textFill="WHITE" textOverrun="CLIP">
+               <font>
+                  <Font size="18.0" />
+               </font></JFXButton>
+            <VBox minWidth="0.0" prefWidth="30.0" />
+            <Label contentDisplay="RIGHT" text="Speed" textAlignment="CENTER" textFill="#9f9f9f">
+               <graphic>
+                  <JFXSlider fx:id="uiSpeedSlider" max="50.0" min="1.0" onDragDetected="#speedSliderHandler" onDragDone="#speedSliderHandler" onDragDropped="#speedSliderHandler" style="-fx-control-inner-background: #1E88E5;" value="25.0" />
+               </graphic>
+            </Label>
+            <AnchorPane HBox.hgrow="ALWAYS" />
+         </children>
         </HBox>
    </bottom>
 </BorderPane>
