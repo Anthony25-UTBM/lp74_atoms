@@ -462,9 +462,10 @@ public class AController {
             root.getChildren().add(new TreeItem<StatsElement>(e));
         });
         if(updateStat) {
-            atoms_groups = (
-                    new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
-            );
+
+
+            atoms_groups.getChildren().clear();
+
             // show number of each atom
             {
                 updateStat = false;
