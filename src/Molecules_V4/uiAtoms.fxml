@@ -84,18 +84,22 @@
    <right>
             <VBox alignment="TOP_RIGHT" maxWidth="300.0" minWidth="100.0" prefWidth="250.0" BorderPane.alignment="CENTER">
                 <children>
-                    <Label alignment="CENTER" font="$x1" style="&#10;" text="Atomes" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                    <JFXComboBox fx:id="uiAtomType" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Atom type" />
-                    <ScrollPane prefHeight="200.0">
-                        <content>
-                            <VBox fx:id="uiAtomsVbox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-                        </content>
-                    </ScrollPane>
-                    <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
-                    <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                    <VBox fx:id="uiTableMolecules" prefHeight="200.0" />
-                    <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="type Molecule" unFocusColor="#c6ff00" />
-                    <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#random_elem_gen" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" VBox.vgrow="ALWAYS">
+            <VBox VBox.vgrow="ALWAYS">
+               <children>
+                          <Label alignment="CENTER" font="$x1" style="&#10;" text="Atomes" textAlignment="CENTER" textFill="$x2" wrapText="false" />
+                          <JFXComboBox fx:id="uiAtomType" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Atom type" />
+                          <ScrollPane minHeight="100.0" VBox.vgrow="NEVER">
+                              <content>
+                                  <VBox fx:id="uiAtomsVbox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                              </content>
+                          </ScrollPane>
+                          <JFXTextField fx:id="uiSearch" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Type atom" />
+                          <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules" textAlignment="CENTER" textFill="$x2" wrapText="false" />
+                          <VBox fx:id="uiTableMolecules" minHeight="100.0" prefHeight="400.0" VBox.vgrow="NEVER" />
+                          <JFXTextField focusColor="#ff5722" labelFloat="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="type Molecule" unFocusColor="#c6ff00" />
+               </children>
+            </VBox>
+                    <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="150.0" maxWidth="1.7976931348623157E308" minHeight="50.0" onAction="#random_elem_gen" prefHeight="100.0" ripplerFill="#68beff" style="-fx-background-color: #1E88E5;" text="Random generation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" VBox.vgrow="ALWAYS">
                         <effect>
                             <Blend />
                         </effect>
@@ -106,7 +110,7 @@
                             <Font size="14.0" />
                         </font>
                     </JFXButton>
-                    <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" ripplerFill="#fa7878" style="-fx-background-color: #FF5252;" text="Launch simulation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" wrapText="true" VBox.vgrow="ALWAYS">
+                    <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER" maxHeight="150.0" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" ripplerFill="#fa7878" style="-fx-background-color: #FF5252;" text="Launch simulation" textAlignment="JUSTIFY" textFill="WHITE" textOverrun="CLIP" wrapText="true" VBox.vgrow="ALWAYS">
                         <effect>
                             <Blend />
                         </effect>
