@@ -278,6 +278,11 @@ public class AController {
 
         // set slide colors
         uiSpeedSlider.getStylesheets().add(AController.class.getResource("/customSlider.css").toExternalForm());
+        uiSpeedSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+                speedSliderHandler();
+            }
+        });
 
         uiAnchor.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
@@ -521,6 +526,7 @@ public class AController {
 
     public void speedSliderHandler()
     {
+        System.out.println("update");
         setSpeed((int) uiSpeedSlider.getValue());
     }
 

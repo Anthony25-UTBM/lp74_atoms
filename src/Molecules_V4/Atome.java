@@ -236,8 +236,8 @@ public class Atome extends Agent {
             vitesseY = vitesseY - diffY / 2;
             Normaliser();*/
         	if (a.liaison != 0) {
-        		System.out.println("Une liaison avec Distance Carre = "+distanceCarre);
-        	    liaison --; a.liaison--; 
+        		// System.out.println("Une liaison avec Distance Carre = "+distanceCarre);
+        	    liaison --; a.liaison--;
         		etat = 1; a.etat = 1; 
         		return true;
         	}
