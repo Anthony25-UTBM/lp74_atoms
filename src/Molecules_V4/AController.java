@@ -568,7 +568,7 @@ public class AController {
                 mouseDeltaY = (mousePosY - mouseOldY);
 
                 double modifier = 0.1;
-                double modifierFactor = 10;
+                double modifierFactor = 1.0;
 
                 if (me.isControlDown()) {
                     modifier = 1;
