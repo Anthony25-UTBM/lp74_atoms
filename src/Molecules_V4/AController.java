@@ -215,12 +215,12 @@ public class AController {
 
         camera.setNearClip(0.1);
         camera.setFarClip(10000.0);
-        camera.setTranslateZ((screen_height+screen_width)*ratio/2);
-        camera.setTranslateX(screen_height*ratio/2);
-        camera.setTranslateY(screen_width*ratio/2);
-        camera3.setRotateZ(180.0);
-        camera2.ry.setAngle(320.0);
-        camera2.rx.setAngle(40);
+        camera.setTranslateZ(cameraDistance);
+        camera.setTranslateX(screen_height);
+        camera.setTranslateY(screen_width);
+        camera3.setRotateZ(0);
+        camera2.ry.setAngle(0);
+        camera2.rx.setAngle(0);
     }
 
     public void setupScene() {
