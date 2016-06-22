@@ -151,6 +151,34 @@ public class Environnement_2 extends Observable {
 
 			return not_active_atoms;
 		}
+
+
+		public void setAtomesSpeed(int speed)
+		{
+			for(Atome a : atomes)
+			{
+				a.setSpeed(speed);
+			}
+		}
+		public void stop()
+		{
+			for(Atome a : atomes)
+			{
+				a.setSpeed(0);
+			}
+		}
+		public void play()
+		{
+			for(Atome a : atomes)
+			{
+				a.setSpeed(10);
+			}
+		}
+
+	public double getSpeed ()
+	{
+		return atomes[0].getSpeed();
+	}
 }
     
     

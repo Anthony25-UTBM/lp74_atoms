@@ -1,24 +1,23 @@
 package Molecules_V4;
 
 
+import com.jfoenix.controls.*;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 
 import javax.json.*;
-import java.awt.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
 
 import static java.lang.Math.pow;
 
@@ -26,7 +25,7 @@ import static java.lang.Math.pow;
 // Agent Atome
 public class Atome extends Agent {
     // Constantes
-    public static final double PAS = 3;
+    public static  double PAS = 1;
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
     public static final double DISTANCE_MAX = 40;
@@ -62,8 +61,10 @@ public class Atome extends Agent {
     protected double vitesseZ;
     protected Random generateur;
     protected int tempsRestant = 500;
+    protected double ratioSpeed;
     private ASphere sphere;
     public Atome(int _n, double _x, double _y,double _z, double _dir) {
+        ratioSpeed = 1;
     	a_number = _n;
         symb = m_symbole.get(a_number);
         etat = 0;
@@ -412,11 +413,13 @@ public class Atome extends Agent {
                 public void handle(MouseEvent event) {
                     System.out.println("clicked !");
                     m_tooltip = new Tooltip("Atoms !");
-                    Tooltip.install(sphere,m_tooltip);
+                    Tooltip.install(root, m_tooltip);
+                    //
 
                 }
             });
-    	}
+
+        }
     }
 
     public boolean isNotActive() {
@@ -428,6 +431,27 @@ public class Atome extends Agent {
             vitesseZ < threshold
         );
     }
+
+
+    public void setSpeed(double speed)
+    {
+        PAS = speed;
+    }
+
+    public double getSpeed()
+    {
+        return PAS;
+    }
+
+
+    public void toStringDialog(AGroup world)
+    {
+        JFXDialog dialog = new JFXDialog();
+
+        world.getChildren().add(dialog);
+    }
+
+
 }
 
 
