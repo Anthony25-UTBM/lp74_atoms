@@ -100,7 +100,7 @@ public class Atome extends Agent {
     public static void parseJson() {
         System.out.println("Reading json file");
         try {
-            URL url = Atome.class.getClassLoader().getResource("periodicTable.json");
+            URL url = Atome.class.getClassLoader().getResource("./periodicTable.json");
             InputStream is = new FileInputStream(url.getPath());
             JsonReader reader = Json.createReader(is);
             JsonObject object = reader.readObject();

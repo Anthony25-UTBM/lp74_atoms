@@ -18,14 +18,14 @@ public class ApplicationV4 extends Application {
         AController c = new AController();
         try {
             Atome.parseJson();
-            FXMLLoader f = new FXMLLoader(getClass().getResource("uiAtoms.fxml"));
+            FXMLLoader f = new FXMLLoader(ApplicationV4.class.getClassLoader().getResource(("./uiAtoms.fxml")));
             Parent parent = f.load();
             c = f.getController();
             c.setParent(parent);
 
 
         } catch (Exception ex) {
-            System.out.println("cant read fxml file");
+            System.out.println("cant read fxml file Error message : " + ex.getMessage());
         }
         c.AStart(stage);
     }

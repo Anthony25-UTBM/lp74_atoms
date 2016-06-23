@@ -9,8 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventTarget;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -35,6 +33,18 @@ import com.jfoenix.controls.JFXComboBox;
 
 /**
  * Created by adahs on 11/06/2016.
+ * @author Aymen DAHECH Anthony ruhier Elbaroudi Soumaya
+ * @version 1.0
+ *
+ * cette classe permet de controller toutes actions et d'intéragir avec FXML
+ * la variable env qui contient l'environnement génére les atomes
+ * La composition de molécule peut etre speedy en utilisant le slider
+ * la caméra a été placé à l'intérieur de cube //TODO shortkey to navigate from different point of view
+ * les axes sont masqué //TODO décommenté la ligne //setupAxes() a fin de les avoirs
+ * la tree de la scene peut etre nettoyé suite aux tests quelque dirty node peut etre supprimer (redondance)
+ * features : les molécules peuvent etre géré il faut adopté la classe molécule
+ * ABranch : contient des cylindres peut etre implémenté afin de former des molécules H=O=H
+ *
  */
 public class AController {
 
@@ -85,6 +95,10 @@ public class AController {
 
     @FXML
     MenuItem uiEgg;
+    @FXML
+    JFXTextField uiGenAtomNumber;
+
+    private double m_numberOfAtoms;
 
     SubScene    m_subScene;
     Group       m_root3D;
@@ -163,7 +177,7 @@ public class AController {
                 {
                     uiAtomsVbox.getChildren().clear();
                     for (int i = 0; i < Atome.m_symbole.size(); ++i) {
-                            addLabel(Atome.m_symbole.get(i), AController.couleurs[i % 9]);
+                        addLabel(Atome.m_symbole.get(i), AController.couleurs[i % 9]);
                     }
                 }
             }
@@ -207,6 +221,15 @@ public class AController {
             }
         });
 
+
+    }
+    private void initAtomsNumber()
+    {
+        m_numberOfAtoms = 0;
+
+        uiGenAtomNumber.textProperty().addListener((observable, oldValue, newValue) -> {
+            m_numberOfAtoms = Double.parseDouble(newValue);
+        });
 
     }
 
@@ -331,8 +354,8 @@ public class AController {
         world.getChildren().clear();
         if(nb_atoms > 0) {
             env = new Environnement_2(
-                nb_atoms, screen_width*ratio, screen_height*ratio,
-                ratio*(screen_height + screen_width)/2
+                    nb_atoms, screen_width*ratio, screen_height*ratio,
+                    ratio*(screen_height + screen_width)/2
             );
         }
         else
@@ -341,7 +364,7 @@ public class AController {
     }
 
     public void random_elem_gen() {
-        random_elem_gen(1000);
+        random_elem_gen((int)m_numberOfAtoms);
         updateStat = true;
     }
 
@@ -384,8 +407,9 @@ public class AController {
         stage.show();
         setupScene();
         setupCamera();
-       // setupAxes();
+        // setupAxes();
         initTables();
+        initAtomsNumber();
         updateStat = true;
 
 
@@ -394,8 +418,8 @@ public class AController {
         rootScene.setFill(Color.GREY);
         final ReentrantLock lock = new ReentrantLock();
         env = new Environnement_2(
-            1000, screen_width*ratio, screen_height*ratio,
-            ratio*(screen_height + screen_width)/2
+                (int) m_numberOfAtoms, screen_width*ratio, screen_height*ratio,
+                ratio*(screen_height + screen_width)/2
         );
         stop();
         initStatsTable();
@@ -434,33 +458,33 @@ public class AController {
         ObservableList stats_columns = uiStatistics.getColumns();
 
         TreeTableColumn description_column = (
-            new TreeTableColumn<StatsElement, String>("Description")
+                new TreeTableColumn<StatsElement, String>("Description")
         );
         TreeTableColumn value_column = (
-            new TreeTableColumn<StatsElement, String>("Valeur")
+                new TreeTableColumn<StatsElement, String>("Valeur")
         );
 
         List<Pair> l_columns_pairs = Arrays.<Pair> asList(
-            new Pair<>(description_column, "description"),
-            new Pair<>(value_column, "value")
+                new Pair<>(description_column, "description"),
+                new Pair<>(value_column, "value")
         );
         l_columns_pairs.forEach((col_p) -> {
             TreeTableColumn col = (TreeTableColumn) col_p.x;
             String attr = (String) col_p.y;
             col.setCellValueFactory(
-                new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
-                    @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
-                        StatsElement e = p.getValue().getValue();
-                        return new ReadOnlyObjectWrapper<String>(e.globalGetter(attr));
+                    new Callback<TreeTableColumn.CellDataFeatures<StatsElement, String>, ObservableValue<String>>() {
+                        @Override public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<StatsElement, String> p) {
+                            StatsElement e = p.getValue().getValue();
+                            return new ReadOnlyObjectWrapper<String>(e.globalGetter(attr));
+                        }
                     }
-                }
             );
         });
 
         stats_columns.addAll(description_column, value_column);
 
         TreeItem<StatsElement> stats_root = (
-            new TreeItem<StatsElement>(new StatsElement("Root node", ""))
+                new TreeItem<StatsElement>(new StatsElement("Root node", ""))
         );
         atoms_groups = (
                 new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
@@ -471,8 +495,8 @@ public class AController {
     public void updateStats() {
 
         List<StatsElement> elem = Arrays.<StatsElement> asList(
-            new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
-            new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.size()))
+                new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
+                new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.size()))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
@@ -574,10 +598,10 @@ public class AController {
                 double modifierFactor = 1.0;
 
                 if (me.isControlDown()) {
-                    modifier = 1;
+                    modifierFactor = 10;
                 }
                 if (me.isShiftDown()) {
-                    modifier = 0.1;
+                    modifier = 20;
                 }
                 if (me.isPrimaryButtonDown()) {
                     camera2.ry.setAngle(camera2.ry.getAngle() - mouseDeltaX * modifierFactor * modifier * 2.0);  // +
