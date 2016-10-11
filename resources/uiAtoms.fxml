@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.validation.*?>
-<?import javafx.scene.*?>
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
 <?import com.jfoenix.controls.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.*?>
-
-<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Molecules_V4.AController">
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8"
+            fx:controller="TX52.AController">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -52,6 +49,7 @@
                 </Menu>
             </menus>
         </MenuBar>
+
     </top>
     <left>
         <VBox layoutY="14.0" maxHeight="1.7976931348623157E308" prefWidth="239.0">
