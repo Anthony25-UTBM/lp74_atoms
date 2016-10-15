@@ -3,54 +3,13 @@
 <?import com.jfoenix.controls.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8"
             fx:controller="TX52.AController">
-    <top>
-        <MenuBar BorderPane.alignment="CENTER">
-            <menus>
-                <Menu mnemonicParsing="false" text="File">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="New" />
-                        <MenuItem mnemonicParsing="false" text="Open…" />
-                        <Menu mnemonicParsing="false" text="Open Recent" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Close" />
-                        <MenuItem mnemonicParsing="false" text="Save" />
-                        <MenuItem mnemonicParsing="false" text="Save As…" />
-                        <MenuItem mnemonicParsing="false" text="Revert" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Preferences…" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Quit" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Undo" />
-                        <MenuItem mnemonicParsing="false" text="Redo" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Cut" />
-                        <MenuItem mnemonicParsing="false" text="Copy" />
-                        <MenuItem mnemonicParsing="false" text="Paste" />
-                        <MenuItem mnemonicParsing="false" text="Delete" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Select All" />
-                        <MenuItem mnemonicParsing="false" text="Unselect All" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem fx:id="uiEgg" mnemonicParsing="false" text="About us" />
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-
-    </top>
     <left>
         <VBox layoutY="14.0" maxHeight="1.7976931348623157E308" prefWidth="239.0">
             <children>
@@ -147,4 +106,19 @@
             </children>
         </HBox>
     </bottom>
+    <top>
+        <ToolBar prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #3E50B4;"
+                 BorderPane.alignment="TOP_CENTER">
+            <cursor>
+                <Cursor fx:constant="HAND"/>
+            </cursor>
+            <items>
+                <JFXButton alignment="CENTER" contentDisplay="CENTER" ripplerFill="WHITE"
+                           style="-fx-background-color: #FF3F80;" text="Atom" textAlignment="CENTER" textFill="WHITE"/>
+                <JFXButton style="-fx-background-color: #FF3F80;" text="Molecule" textFill="WHITE"/>
+                <JFXButton style="-fx-background-color: #FF3F80;" text="Reaction" textAlignment="CENTER"
+                           textFill="WHITE"/>
+            </items>
+        </ToolBar>
+    </top>
 </BorderPane>

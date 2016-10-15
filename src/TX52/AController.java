@@ -225,12 +225,6 @@ public class AController {
         }
         addAtomsTableListners();
         searchListener();
-        uiEgg.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                eggLaunch();
-            }
-        });
 
 
     }
@@ -327,7 +321,7 @@ public class AController {
     }
 
     public void random_elem_gen(int nb_atoms) {
-        System.out.println("Error number of element");
+
         world.getChildren().clear();
         if (nb_atoms > 0) {
             env = new Environnement_2(

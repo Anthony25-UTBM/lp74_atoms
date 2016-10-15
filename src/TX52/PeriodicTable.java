@@ -60,6 +60,11 @@ public class PeriodicTable {
                 for (Object element : elementsArray) {
 
                     JsonObject e = (JsonObject) element;
+
+                    if (e.getJsonString("name").getString().isEmpty()) continue;
+
+
+
                     JsonString symbol = e.getJsonString("small");
                     JsonString _group = e.getJsonString("group");
                     group.add(i, _group.getString());
