@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../lp74_atoms/src/ATOMES.iml" filepath="$PROJECT_DIR$/../../lp74_atoms/src/ATOMES.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ATOMES.iml" filepath="$PROJECT_DIR$/ATOMES.iml" />
     </modules>
   </component>
 </project>
