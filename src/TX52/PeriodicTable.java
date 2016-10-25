@@ -1,5 +1,6 @@
 package TX52;
 
+
 import javafx.scene.paint.Color;
 
 import javax.json.*;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by adah on 10/10/16.
  */
-public class PeriodicTable {
+public class PeriodicTable implements IPeriodicTable {
     private static PeriodicTable instance = null;
     private ArrayList<String> symbole;
     private ArrayList<Integer> liaisons;
@@ -30,6 +31,7 @@ public class PeriodicTable {
 
 
     }
+
 
     public static PeriodicTable getInstance() {
         if (instance == null) instance = new PeriodicTable();
@@ -86,6 +88,7 @@ public class PeriodicTable {
                     rayons.add(i, Double.parseDouble(rayon.toString()));
                     System.out.println(" element : " + symbole.get(i) + " "
                             + "electrons " + rayons.get(i) + " "
+                            + " groupe  " + uniq_g
                             + " molar " + liaisons.get(i)
                     );
                     i++;

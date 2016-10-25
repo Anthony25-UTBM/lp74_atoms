@@ -2,6 +2,7 @@ package TX52;
 
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -58,8 +59,6 @@ public class AController {
     protected Timer timer;
     protected AnimationTimer animTimer;
     protected boolean is_playing = false;
-    //scene
-    Parent parent;
     Scene scene;
     Scene rootScene;
     Group cameraRoot = new Group();
@@ -93,10 +92,15 @@ public class AController {
     @FXML
     MenuItem uiEgg;
     @FXML
+    JFXToggleButton fullmode;
+    @FXML
     JFXTextField uiGenAtomNumber;
     SubScene m_subScene;
     Group m_root3D;
     ScrollPane uiScrollPane;
+    private
+    //scene
+            Parent parent;
     private boolean isCHNO;
     private double m_numberOfAtoms;
     private boolean updateStat;
@@ -111,6 +115,7 @@ public class AController {
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
         handleMouse(m_subScene, parent);
     };
+    private IPeriodicTableFactory periodicTableFactory;
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
     private String m_draggedAtom;
@@ -137,9 +142,9 @@ public class AController {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 uiAtomsVbox.getChildren().clear();
-                for (int i = 0; i < PeriodicTable.getInstance().getSymbole().size(); ++i) {
-                    if (PeriodicTable.getInstance().getSymbole().get(i).toLowerCase().startsWith(newValue.toLowerCase())) {
-                        addLabel(PeriodicTable.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                for (int i = 0; i < periodicTableFactory.getInstance().getSymbole().size(); ++i) {
+                    if (periodicTableFactory.getInstance().getSymbole().get(i).toLowerCase().startsWith(newValue.toLowerCase())) {
+                        addLabel(periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
                     }
                 }
             }
@@ -151,19 +156,21 @@ public class AController {
         uiAtomType.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                String tmpLabel = ((Label) newValue).getText();
-                String ancienLabel = ((Label) newValue).getText();
-                if (!tmpLabel.equals("Show all")) {
-                    uiAtomsVbox.getChildren().clear();
-                    for (int i = 0; i < PeriodicTable.getInstance().getSymbole().size(); ++i) {
-                        if (PeriodicTable.getInstance().getGroup().get(i).equals(tmpLabel)) {
-                            addLabel(PeriodicTable.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                if (newValue != null) {
+                    String tmpLabel = ((Label) newValue).getText();
+                    String ancienLabel = ((Label) newValue).getText();
+                    if (!tmpLabel.equals("Show all")) {
+                        uiAtomsVbox.getChildren().clear();
+                        for (int i = 0; i < periodicTableFactory.getInstance().getSymbole().size(); ++i) {
+                            if (periodicTableFactory.getInstance().getGroup().get(i).equals(tmpLabel)) {
+                                addLabel(periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                            }
                         }
-                    }
-                } else {
-                    uiAtomsVbox.getChildren().clear();
-                    for (int i = 0; i < PeriodicTable.getInstance().getSymbole().size(); ++i) {
-                        addLabel(PeriodicTable.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                    } else {
+                        uiAtomsVbox.getChildren().clear();
+                        for (int i = 0; i < periodicTableFactory.getInstance().getSymbole().size(); ++i) {
+                            addLabel(periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                        }
                     }
                 }
             }
@@ -219,14 +226,12 @@ public class AController {
 
     private void initTables() {
         initListView();
-        for (String s : PeriodicTable.getInstance().getSymbole()) {
-            Color couleur = AController.couleurs[PeriodicTable.getInstance().getSymbole().indexOf(s) % 9];
+        for (String s : periodicTableFactory.getInstance().getSymbole()) {
+            Color couleur = AController.couleurs[(periodicTableFactory.getInstance()).getSymbole().indexOf(s) % 9];
             addLabel(s, couleur);
         }
         addAtomsTableListners();
         searchListener();
-
-
     }
 
     private void setListeners(boolean addListeners) {
@@ -299,7 +304,7 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     System.out.println("Dragged exit");
 
-                    Atome atom = new Atome(PeriodicTable.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(world);
                     m_draggedAtom = "";
                     updateStat = true;
@@ -309,15 +314,19 @@ public class AController {
             }
         });
 
+        addSearchLabel();
 
-        if (!PeriodicTable.getInstance().getUniqGroup().isEmpty()) {
+    }
+
+    private void addSearchLabel() {
+        uiAtomType.getItems().clear();
+        if (!periodicTableFactory.getInstance().getUniqGroup().isEmpty()) {
             uiAtomType.getItems().add(new Label("Show all"));
-            for (String grp : PeriodicTable.getInstance().getUniqGroup())
+            for (String grp : periodicTableFactory.getInstance().getUniqGroup())
                 uiAtomType.getItems().add(new Label(grp));
             uiAtomType.setEditable(false);
             uiAtomType.setPromptText("Atome Type");
         }
-
     }
 
     public void random_elem_gen(int nb_atoms) {
@@ -375,6 +384,7 @@ public class AController {
     }
 
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
+        this.periodicTableFactory = new IPeriodicTableFactory(isCHNO);
         stage.show();
         setupScene();
         setupCamera();
@@ -594,8 +604,26 @@ public class AController {
         return isCHNO;
     }
 
+
     public void setCHNO(boolean CHNO) {
         isCHNO = CHNO;
     }
+
+    @FXML
+    //TODO fix switching mode
+    public void switchMode(ActionEvent event) {
+        clear_pool();
+        this.isCHNO = !this.isCHNO;
+        this.periodicTableFactory.setIsCHNO(isCHNO);
+        uiAtomsVbox.getChildren().clear();
+        addSearchLabel();
+        initTables();
+        initAtomsNumber();
+        updateStat = true;
+        initListView();
+        refresh();
+
+    }
+
 }
 
