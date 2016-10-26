@@ -609,8 +609,8 @@ public class AController {
         isCHNO = CHNO;
     }
 
+
     @FXML
-    //TODO fix switching mode
     public void switchMode(ActionEvent event) {
         clear_pool();
         this.isCHNO = !this.isCHNO;
@@ -622,7 +622,15 @@ public class AController {
         updateStat = true;
         initListView();
         refresh();
+    }
 
+    public void setAtomMode() {
+    }
+
+    public void setMolecularMode() {
+    }
+
+    public void setReactionMode() {
     }
 
 }

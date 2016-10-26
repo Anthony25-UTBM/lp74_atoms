@@ -10,7 +10,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="library" exported="" name="org.glassfish:javax.json:1.0.4" level="project" />
-    <orderEntry type="library" exported="" name="com.jfoenix:jfoenix:1.0.0" level="project" />
     <orderEntry type="library" exported="" name="com.zenjava:javafx-maven-plugin:8.7.0" level="project" />
+    <orderEntry type="library" name="com.jfoenix:jfoenix:1.0.0" level="application" />
   </component>
 </module>

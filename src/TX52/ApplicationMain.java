@@ -27,7 +27,7 @@ public class ApplicationMain extends Application {
         } catch (Exception ex) {
             System.out.println("cant read fxml file Error message : " + ex.getMessage());
         }
-        c.AStart(stage, false);
+        c.AStart(stage, true);
     }
 
 }

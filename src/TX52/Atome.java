@@ -13,8 +13,10 @@ import java.util.Random;
 
 import static java.lang.Math.pow;
 
+/*
+Class atom
+ */
 
-// Agent Atome
 public class Atome extends Agent {
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
@@ -41,6 +43,7 @@ public class Atome extends Agent {
     protected Rectangle m_rect;
     protected Tooltip m_tooltip;
     private ASphere sphere;
+    private ArrayList<Covalence> covalence;
 
     public Atome(int _n, double _x, double _y, double _z, double _dir, boolean isCHNO) {
         ratioSpeed = 1;
@@ -361,6 +364,17 @@ public class Atome extends Agent {
     }
 
 
+    public ArrayList<Covalence> getCovalence() {
+        return covalence;
+    }
+
+    public void setCovalence(ArrayList<Covalence> covalence) {
+        this.covalence = covalence;
+    }
+
+    public void computeCovalence() {
+
+    }
 }
 
 
