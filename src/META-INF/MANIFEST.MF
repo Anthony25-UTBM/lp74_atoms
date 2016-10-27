@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: Molecules_V4.ApplicationV4
-
