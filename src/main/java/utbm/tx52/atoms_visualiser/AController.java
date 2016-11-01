@@ -45,7 +45,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *          la tree de la scene peut etre nettoyé suite aux tests quelque dirty node peut etre supprimer (redondance)
  *          features : les molécules peuvent etre géré il faut adopté la classe molécule
  */
-//TODO REFACTOR CAMERA IN NEW CLASS REFACTOR subSCENE CONSTRUCTION  !!!!
+//TODO fix subscene width and height
+
 public class AController {
     static protected Color couleurs[] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
     protected static ObservableList<String> items = FXCollections.observableArrayList();
@@ -93,7 +94,10 @@ public class AController {
     @FXML
     AnchorPane uiAnchorAtome;
     AScene subSceneAtome;
-
+    //Molecular tab//
+    @FXML
+    AnchorPane uiAnchorMolecule;
+    AScene subSceneMolecule;
 
 
 
@@ -116,6 +120,7 @@ public class AController {
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
         handleMouse(subScene, parent);
         handleMouse(subSceneAtome, parent);
+        handleMouse(subSceneMolecule, parent);
     };
 
     private IPeriodicTableFactory periodicTableFactory;
@@ -245,8 +250,40 @@ public class AController {
         }
     }
 
+    public void setupMoleculeScene() {
+        screen_height = (int) uiAnchorMolecule.getPrefHeight();
+        screen_width = (int) uiAnchorMolecule.getPrefWidth();
+        subSceneMolecule = new AScene(screen_width, screen_height);
+        uiAnchorMolecule.getChildren().add(subSceneMolecule);
+        uiAnchorMolecule.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("drag drop");
+                if (event.getGestureSource() != uiAnchorMolecule &&
+                        event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            }
+        });
+        uiAnchorMolecule.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                if (!m_draggedAtom.equals("")) {
+                    System.out.println("Dragged exit");
 
-    //TODO CAMERA PROP
+                    Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    atom.draw(subSceneMolecule.getWorld());
+                    m_draggedAtom = "";
+                    updateStat = true;
+                    env.addAtome(atom);
+                    event.consume();
+                }
+            }
+        });
+
+
+    }
+
     public void setupAtomeScene() {
         screen_height = (int) uiAnchorAtome.getPrefHeight();
         screen_width = (int) uiAnchorAtome.getPrefWidth();
@@ -396,6 +433,7 @@ public class AController {
         stage.show();
         setupScene();
         setupAtomeScene();
+        setupMoleculeScene();
         // setupAxes();
         initTables();
         initAtomsNumber();
