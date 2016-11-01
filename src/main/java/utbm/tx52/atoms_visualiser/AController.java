@@ -12,7 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
@@ -42,15 +45,11 @@ import java.util.concurrent.locks.ReentrantLock;
  *          la tree de la scene peut etre nettoyé suite aux tests quelque dirty node peut etre supprimer (redondance)
  *          features : les molécules peuvent etre géré il faut adopté la classe molécule
  */
+//TODO REFACTOR CAMERA IN NEW CLASS REFACTOR subSCENE CONSTRUCTION  !!!!
 public class AController {
     static protected Color couleurs[] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
     protected static ObservableList<String> items = FXCollections.observableArrayList();
-    final AGroup world = new AGroup();
-    //camera
-    final PerspectiveCamera camera = new PerspectiveCamera(true);
-    final AGroup camera2 = new AGroup();
-    final AGroup camera3 = new AGroup();
-    final int cameraDistance = 450;
+
     //axis
     final Group axisGroup = new Group();
     protected Stage mainStage;
@@ -58,11 +57,8 @@ public class AController {
     protected Timer timer;
     protected AnimationTimer animTimer;
     protected boolean is_playing = false;
-    Scene scene;
     Scene rootScene;
-    Group cameraRoot = new Group();
-    Group rootDraw = new Group();
-    TimerTask tache;
+
     // right menu
     @FXML
     JFXTextField uiSearch;
@@ -74,10 +70,6 @@ public class AController {
     JFXComboBox uiAtomType;
     @FXML
     AnchorPane uiAnchor;
-    @FXML
-    AnchorPane uiStatisticsAnchor;
-    @FXML
-    AnchorPane uiAtomesAnchor;
     // left menu
     @FXML
     TreeTableView uiStatistics;
@@ -94,9 +86,19 @@ public class AController {
     JFXToggleButton fullmode;
     @FXML
     JFXTextField uiGenAtomNumber;
-    SubScene m_subScene;
-    Group m_root3D;
-    ScrollPane uiScrollPane;
+    AScene subScene;
+
+    //Atom tab //
+
+    @FXML
+    AnchorPane uiAnchorAtome;
+    AScene subSceneAtome;
+
+
+
+
+
+
     private
     //scene
             Parent parent;
@@ -112,8 +114,10 @@ public class AController {
     private double mouseDeltaX;
     private double mouseDeltaY;
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
-        handleMouse(m_subScene, parent);
+        handleMouse(subScene, parent);
+        handleMouse(subSceneAtome, parent);
     };
+
     private IPeriodicTableFactory periodicTableFactory;
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
@@ -181,7 +185,7 @@ public class AController {
         EasterEgg egg = new EasterEgg(screen_width, screen_height - 120);
         uiAnchor.getChildren().removeAll();
         uiAnchor.getChildren().clear();
-        m_subScene = new SubScene(egg, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
+        //m_subScene = new SubScene(egg, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
         uiAnchor.getChildren().add(egg);
         egg.play();
     }
@@ -235,48 +239,55 @@ public class AController {
 
     private void setListeners(boolean addListeners) {
         if (addListeners) {
-            m_subScene.addEventHandler(MouseEvent.ANY, mouseEventHandler);
+            subScene.addEventHandler(MouseEvent.ANY, mouseEventHandler);
         } else {
-            m_subScene.removeEventHandler(MouseEvent.ANY, mouseEventHandler);
+            subScene.removeEventHandler(MouseEvent.ANY, mouseEventHandler);
         }
     }
 
-    public void setupCamera() {
 
-        cameraRoot.getChildren().add(camera2);
-        camera2.getChildren().add(camera3);
-        camera3.getChildren().add(camera);
+    //TODO CAMERA PROP
+    public void setupAtomeScene() {
+        screen_height = (int) uiAnchorAtome.getPrefHeight();
+        screen_width = (int) uiAnchorAtome.getPrefWidth();
+        subSceneAtome = new AScene(screen_width, screen_height);
+        uiAnchorAtome.getChildren().add(subSceneAtome);
+        uiAnchorAtome.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("drag drop");
+                if (event.getGestureSource() != uiAnchorAtome &&
+                        event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            }
+        });
+        uiAnchorAtome.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                if (!m_draggedAtom.equals("")) {
+                    System.out.println("Dragged exit");
 
-        camera.setNearClip(0.1);
-        camera.setFarClip(10000.0);
-        camera.setTranslateZ(cameraDistance);
-        camera.setTranslateX(screen_height);
-        camera.setTranslateY(screen_width);
-        camera3.setRotateZ(0);
-        camera2.ry.setAngle(0);
-        camera2.rx.setAngle(0);
+                    Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    atom.draw(subSceneAtome.getWorld());
+                    m_draggedAtom = "";
+                    updateStat = true;
+                    env.addAtome(atom);
+                    event.consume();
+                }
+            }
+        });
+
+
     }
 
+
     public void setupScene() {
-
-
-        m_root3D = new Group();
         screen_height = (int) uiAnchor.getPrefHeight();
         screen_width = (int) uiAnchor.getPrefWidth();
 
-        m_subScene = new SubScene(m_root3D, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
-        m_subScene.setHeight((double) screen_height);
-        m_subScene.setWidth((double) screen_width);
-        m_subScene.setHeight(Control.USE_COMPUTED_SIZE);
-        m_subScene.setWidth(Control.USE_COMPUTED_SIZE);
-        m_subScene.setManaged(false);
-
-        uiAnchor.getChildren().add(m_subScene);
-        m_subScene.setCamera(camera);
-        m_subScene.setFill(Color.GRAY);
-        m_root3D.getChildren().add(world);
-        m_root3D.getChildren().add(cameraRoot);
-
+        subScene = new AScene(screen_width, screen_height);
+        uiAnchor.getChildren().add(subScene);
         // set slide colors
         uiSpeedSlider.getStylesheets().add(AController.class.getClassLoader().getResource("customSlider.css").toExternalForm());
         uiSpeedSlider.valueProperty().addListener(new ChangeListener<Number>() {
@@ -292,8 +303,6 @@ public class AController {
                         event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
-
-
                 event.consume();
             }
         });
@@ -304,7 +313,7 @@ public class AController {
                     System.out.println("Dragged exit");
 
                     Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
-                    atom.draw(world);
+                    atom.draw(subScene.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
                     env.addAtome(atom);
@@ -330,7 +339,7 @@ public class AController {
 
     public void random_elem_gen(int nb_atoms) {
 
-        world.getChildren().clear();
+        subScene.getWorld().getChildren().clear();
         if (nb_atoms > 0) {
             env = new Environnement(
                     nb_atoms, screen_width * ratio, screen_height * ratio,
@@ -379,14 +388,14 @@ public class AController {
         zAxis.setMaterial(blueMaterial);
 
         axisGroup.getChildren().addAll(xAxis, yAxis, zAxis);
-        world.getChildren().addAll(axisGroup);
+        this.subScene.getWorld().getChildren().addAll(axisGroup);
     }
 
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
         this.periodicTableFactory = new IPeriodicTableFactory(isCHNO);
         stage.show();
         setupScene();
-        setupCamera();
+        setupAtomeScene();
         // setupAxes();
         initTables();
         initAtomsNumber();
@@ -396,7 +405,7 @@ public class AController {
 
         rootScene = new Scene(parent);
 
-        rootScene.setFill(Color.GREY);
+        rootScene.setFill(Color.GRAY);
         final ReentrantLock lock = new ReentrantLock();
         env = new Environnement(
                 (int) m_numberOfAtoms, screen_width * ratio, screen_height * ratio,
@@ -409,10 +418,10 @@ public class AController {
         animTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                env.MiseAJourAtomes(world);
+                env.MiseAJourAtomes(subScene.getWorld());
 
-                m_subScene.heightProperty().bind(uiAnchor.heightProperty());
-                m_subScene.widthProperty().bind(uiAnchor.widthProperty());
+                subScene.heightProperty().bind(uiAnchor.heightProperty());
+                subScene.widthProperty().bind(uiAnchor.widthProperty());
                 refresh();
                 updateStats();
 
@@ -423,11 +432,11 @@ public class AController {
 
         animTimer.start();
 
-        handleMouse(m_subScene, world);
-
+        handleMouse(subScene, subScene.getWorld());
+        handleMouse(subSceneAtome, subSceneAtome.getWorld());
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
-        // stage.setFullScreen(true);
+        //stage.setFullScreen(true);
 
         stage.show();
         updateStat = true;
@@ -544,7 +553,7 @@ public class AController {
         setSpeed((int) uiSpeedSlider.getValue());
     }
 
-    private void handleMouse(SubScene scene, final Node root) {
+    private void handleMouse(AScene scene, final Node root) {
         scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -583,15 +592,15 @@ public class AController {
                     modifier = 20;
                 }
                 if (me.isPrimaryButtonDown()) {
-                    camera2.ry.setAngle(camera2.ry.getAngle() - mouseDeltaX * modifierFactor * modifier * 2.0);  // +
-                    camera2.rx.setAngle(camera2.rx.getAngle() + mouseDeltaY * modifierFactor * modifier * 2.0);  // -
+                    scene.getCamera2().ry.setAngle(scene.getCamera2().ry.getAngle() - mouseDeltaX * modifierFactor * modifier * 2.0);  // +
+                    scene.getCamera2().rx.setAngle(scene.getCamera2().rx.getAngle() + mouseDeltaY * modifierFactor * modifier * 2.0);  // -
                 } else if (me.isSecondaryButtonDown()) {
-                    double z = camera.getTranslateZ();
+                    double z = scene.getCamera1().getTranslateZ();
                     double newZ = z + mouseDeltaX * modifierFactor * modifier;
-                    camera.setTranslateZ(newZ);
+                    scene.getCamera1().setTranslateZ(newZ);
                 } else if (me.isMiddleButtonDown()) {
-                    camera3.t.setX(camera3.t.getX() + mouseDeltaX * modifierFactor * modifier * 0.3);  // -
-                    camera3.t.setY(camera3.t.getY() + mouseDeltaY * modifierFactor * modifier * 0.3);  // -
+                    scene.getCamera3().t.setX(scene.getCamera3().t.getX() + mouseDeltaX * modifierFactor * modifier * 0.3);  // -
+                    scene.getCamera3().t.setY(scene.getCamera3().t.getY() + mouseDeltaY * modifierFactor * modifier * 0.3);  // -
                 }
             }
 

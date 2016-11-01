@@ -7,9 +7,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.*?>
-<TabPane xmlns:fx="http://javafx.com/fxml/1" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="20.0" tabMaxWidth="100.0"
-         tabMinHeight="20.0" tabMinWidth="50.0" xmlns="http://javafx.com/javafx/8.0.76-ea"
-         fx:controller="utbm.tx52.atoms_visualiser.AController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.76-ea"
+            fx:controller="utbm.tx52.atoms_visualiser.AController">
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE" tabMaxHeight="20.0" tabMaxWidth="100.0" tabMinHeight="20.0"
+                 tabMinWidth="50.0">
     <tabs>
         <Tab text="Atom">
             <content>
@@ -19,19 +21,7 @@
                               spacing="5.0" BorderPane.alignment="CENTER">
                             <children>
                                 <AnchorPane HBox.hgrow="ALWAYS"/>
-                                <JFXButton fx:id="uiPlayBtnAtom" maxHeight="1.7976931348623157E308" onAction="#play"
-                                           prefWidth="100.0" ripplerFill="#68beff"
-                                           style="-fx-background-color: #1E88E5;" text="Play" textFill="WHITE"
-                                           textOverrun="CLIP">
-                                    <font>
-                                        <Font size="18.0"/>
-                                    </font>
-                                </JFXButton>
                                 <VBox minWidth="0.0" prefWidth="30.0"/>
-                                <Label contentDisplay="RIGHT" text="Speed" textAlignment="CENTER" textFill="#9f9f9f"/>
-                                <JFXSlider fx:id="uiSpeedAtomSlider" max="50.0" min="1.0"
-                                           onDragDropped="#speedSliderHandler"
-                                           style="-fx-control-inner-background: #1E88E5;" value="25.0"/>
                                 <AnchorPane HBox.hgrow="ALWAYS"/>
                             </children>
                             <padding>
@@ -40,14 +30,14 @@
                         </HBox>
                     </bottom>
                     <center>
-                        <AnchorPane fx:id="uiAnchor" prefHeight="720.0" prefWidth="960.0"
+                        <AnchorPane fx:id="uiAnchorAtome" prefHeight="720.0" prefWidth="960.0"
                                     BorderPane.alignment="CENTER"/>
                     </center>
                     <left>
                         <VBox maxHeight="1.7976931348623157E308" prefWidth="239.0" BorderPane.alignment="CENTER">
                             <children>
                                 <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0"
-                                       style="&#10;" text="Statistics" textAlignment="CENTER" wrapText="false">
+                                       style="&#10;" text="StatisticsAtome" textAlignment="CENTER" wrapText="false">
                                     <font>
                                         <Font size="18.0" fx:id="x1"/>
                                     </font>
@@ -55,7 +45,7 @@
                                         <Color blue="0.624" green="0.624" red="0.624" fx:id="x2"/>
                                     </textFill>
                                 </Label>
-                                <ListView fx:id="uiAtomDetail" editable="true" prefHeight="276.0" prefWidth="239.0"/>
+                                <ListView fx:id="uiAtomDetail" editable="true" prefHeight="719.0" prefWidth="239.0"/>
                                 <JFXToggleButton fx:id="fullmode" layoutX="4.0" maxHeight="60.0" onAction="#switchMode"
                                                  prefHeight="58.0" text="Full mode" toggleColor="#1e88e5"
                                                  toggleLineColor="#68beff"/>
@@ -76,7 +66,8 @@
                                         <JFXComboBox fx:id="uiAtomType" editable="true"
                                                      maxHeight="1.7976931348623157E308"
                                                      maxWidth="1.7976931348623157E308" promptText="Atom type"/>
-                                        <ScrollPane minHeight="100.0" VBox.vgrow="NEVER">
+                                        <ScrollPane minHeight="100.0" prefHeight="586.0" prefWidth="250.0"
+                                                    VBox.vgrow="NEVER">
                                             <content>
                                                 <VBox fx:id="uiAtomsVbox" maxHeight="1.7976931348623157E308"
                                                       maxWidth="1.7976931348623157E308"/>
@@ -156,7 +147,7 @@
                         </HBox>
                     </bottom>
                     <center>
-                        <AnchorPane fx:id="uiAnchor" prefHeight="720.0" prefWidth="960.0"
+                        <AnchorPane fx:id="uiAnchorMolecule" prefHeight="720.0" prefWidth="960.0"
                                     BorderPane.alignment="CENTER"/>
                     </center>
                     <left>
@@ -171,11 +162,11 @@
                                         <Color blue="0.624" green="0.624" red="0.624" fx:id="x2"/>
                                     </textFill>
                                 </Label>
-                                <JFXTreeTableView fx:id="uiStatistics" editable="true" layoutX="-13.0" layoutY="48.0"
-                                                  prefWidth="239.0" showRoot="false" tableMenuButtonVisible="true"
-                                                  AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0"
-                                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="48.0"
-                                                  VBox.vgrow="ALWAYS">
+                                <JFXTreeTableView fx:id="uiStatisticsMolecule" editable="true" layoutX="-13.0"
+                                                  layoutY="48.0" prefWidth="239.0" showRoot="false"
+                                                  tableMenuButtonVisible="true" AnchorPane.bottomAnchor="59.0"
+                                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                  AnchorPane.topAnchor="48.0" VBox.vgrow="ALWAYS">
                                     <columnResizePolicy>
                                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                                     </columnResizePolicy>
@@ -411,3 +402,29 @@
         </Tab>
     </tabs>
 </TabPane>
+    </center>
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Close"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Delete"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <bottom>
+        <ProgressBar fx:id="uiLoader" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+    </bottom>
+</BorderPane>
