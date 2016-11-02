@@ -50,7 +50,7 @@ public class Environnement extends Observable {
 
     protected void MiseAJourMolecule() {
         for (Molecule m : molecules) {
-            m.MiseAJour();
+            m.update();
         }
         //TODO:
         //atomes.removeIf(a2 -> a2.estMort());

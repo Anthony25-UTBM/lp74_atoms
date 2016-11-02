@@ -28,17 +28,16 @@ public class Atome extends Agent {
     // Attributs de l'atome
     protected int a_number;
     protected String symb;
-    protected int etat;        //0 -> libre;    1 -> partiellement lié;	2 -> lié (stable)
+    protected ElementState state;
     protected int liaison;
     protected double rayon;
     // protected Color couleur;
     protected Color jcouleur;
     //attributs simulation
-    protected double vitesseX;
-    protected double vitesseY;
-    protected double vitesseZ;
+    protected double speedX;
+    protected double speedY;
+    protected double speedZ;
     protected Random generateur;
-    protected int tempsRestant = 500;
     protected double ratioSpeed;
     protected Rectangle m_rect;
     protected Tooltip m_tooltip;
@@ -65,14 +64,14 @@ public class Atome extends Agent {
             rayon = t_periodic.getRayons().get(a_number);
             jcouleur = t_periodic.getCouleurs()[a_number % t_periodic.getCouleurs().length];
         }
-        etat = 0;
+        state = ElementState.free;
 
         posX = _x;
         posY = _y;
         posZ = _z;
-        vitesseX = Math.cos(_dir);
-        vitesseY = Math.sin(_dir);
-        vitesseZ = 0;
+        speedX = Math.cos(_dir);
+        speedY = Math.sin(_dir);
+        speedZ = 0;
         double[] pos = {posX, posY, posZ};
         double[] colors = {jcouleur.getRed(), jcouleur.getGreen(), jcouleur.getBlue()};
         sphere = new ASphere(rayon, pos, colors);
@@ -98,29 +97,29 @@ public class Atome extends Agent {
     //
     // mouvement des atomes
     //
-    public double getVitesseX() {
-        return vitesseX;
+    public double getSpeedX() {
+        return speedX;
     }
 
-    public double getVitesseY() {
-        return vitesseY;
+    public double getSpeedY() {
+        return speedY;
     }
 
-    public double getVitesseZ() {
-        return vitesseZ;
+    public double getSpeedZ() {
+        return speedZ;
     }
 
     protected void Normaliser() {
-        double longueur = Math.sqrt(vitesseX * vitesseX + vitesseY * vitesseY + vitesseZ * vitesseZ);
-        vitesseX /= longueur;
-        vitesseY /= longueur;
-        vitesseZ /= longueur;
+        double longueur = Math.sqrt(speedX * speedX + speedY * speedY + speedZ * speedZ);
+        speedX /= longueur;
+        speedY /= longueur;
+        speedZ /= longueur;
     }
 
     protected void MiseAJourPosition() {
-        posX += PAS * vitesseX;
-        posY += PAS * vitesseY;
-        posZ += PAS * vitesseZ;
+        posX += PAS * speedX;
+        posY += PAS * speedY;
+        posZ += PAS * speedZ;
     }
 
     protected double DistanceLimiteEnv(double envXMin, double envYMin, double envZMin, double envXMax, double envYMax, double envZMax) {
@@ -160,15 +159,15 @@ public class Atome extends Agent {
             /*double distance = Math.sqrt(distanceCarre);
             double diffX = (a.posX - posX) / distance;
             double diffY = (a.posY - posY) / distance;
-            vitesseX = vitesseX - diffX / 2;
-            vitesseY = vitesseY - diffY / 2;
+            speedX = speedX - diffX / 2;
+            speedY = speedY - diffY / 2;
             Normaliser();*/
             if (a.liaison != 0) {
                 // System.out.println("Une liaison avec Distance Carre = "+distanceCarre);
                 liaison--;
                 a.liaison--;
-                etat = 1;
-                a.etat = 1;
+                state = ElementState.partially_attached;
+                a.state = ElementState.partially_attached;
                 return true;
             }
         }
@@ -200,9 +199,9 @@ public class Atome extends Agent {
             double diffY = (a.posY - posY) / distance;
             double diffZ = (a.posZ - posZ) / distance;
             double alea = generateur.nextDouble() * 4;
-            vitesseX = vitesseX - diffX / alea;
-            vitesseY = vitesseY - diffY / alea;
-            vitesseZ = vitesseZ - diffZ / alea;
+            speedX = speedX - diffX / alea;
+            speedY = speedY - diffY / alea;
+            speedZ = speedZ - diffZ / alea;
             //System.out.println("Atome �vit�!!");
             Normaliser();
             return true;
@@ -230,17 +229,17 @@ public class Atome extends Agent {
         double distance = DistanceLimiteEnv(envXMin, envYMin, envZMin, envXMax, envYMax, envZMax);
         if (distance < DISTANCE_MIN) {
             if (distance == (posX - envXMin)) {
-                vitesseX += 0.3;
+                speedX += 0.3;
             } else if (distance == (posY - envYMin)) {
-                vitesseY += 0.3;
+                speedY += 0.3;
             } else if (distance == (envXMax - posX)) {
-                vitesseX -= 0.3;
+                speedX -= 0.3;
             } else if (distance == (envYMax - posY)) {
-                vitesseY -= 0.3;
+                speedY -= 0.3;
             } else if (distance == (envZMax - posZ)) {
-                vitesseZ -= 0.3;
+                speedZ -= 0.3;
             } else if (distance == (posZ - envZMin)) {
-                vitesseZ += 0.3;
+                speedZ += 0.3;
             }
             Normaliser();
             return true;
@@ -260,15 +259,15 @@ public class Atome extends Agent {
                 }
             }
 
-            if (distanceCarre < (m.rayon * m.rayon * 4)) {
+            if (distanceCarre < (m.radius * m.radius * 4)) {
                 // Si collision, calcul du vecteur diff
                 double distance = Math.sqrt(distanceCarre);
                 double diffX = (m.posX - posX) / distance;
                 double diffY = (m.posY - posY) / distance;
                 double diffZ = (m.posZ - posZ) / distance;
-                vitesseX = vitesseX - diffX / 2;
-                vitesseY = vitesseY - diffY / 2;
-                vitesseZ = vitesseZ - diffZ / 2;
+                speedX = speedX - diffX / 2;
+                speedY = speedY - diffY / 2;
+                speedZ = speedZ - diffZ / 2;
                 Normaliser();
                 return true;
             }
@@ -283,23 +282,23 @@ public class Atome extends Agent {
         int nbTotal = 0;
         for (Atome a : atomes) {
             if (DansAlignement(a)) {
-                vitesseXTotal += a.vitesseX;
-                vitesseYTotal += a.vitesseY;
-                vitesseZTotal += a.vitesseZ;
+                vitesseXTotal += a.speedX;
+                vitesseYTotal += a.speedY;
+                vitesseZTotal += a.speedZ;
                 nbTotal++;
             }
         }
         if (nbTotal >= 1) {
-            vitesseX = (vitesseXTotal / nbTotal + vitesseX) / 2;
-            vitesseY = (vitesseYTotal / nbTotal + vitesseY) / 2;
-            vitesseZ = (vitesseZTotal / nbTotal + vitesseZ) / 2;
+            speedX = (vitesseXTotal / nbTotal + speedX) / 2;
+            speedY = (vitesseYTotal / nbTotal + speedY) / 2;
+            speedZ = (vitesseZTotal / nbTotal + speedZ) / 2;
             Normaliser();
         }
     }
 
     public void MiseAJour(ArrayList<Atome> atomes, ArrayList<Molecule> molecules, double largeur, double hauteur, double profondeur) {
-        tempsRestant--;
-        if (etat == 0) {
+        lifetime--;
+        if (state == ElementState.free) {
             if (!EviterLimiteEnv(0, 0, 0, largeur, hauteur, profondeur)) {
                 if (!LierAtomes(atomes)) {
                     if (!EviterMolecule(molecules)) {
@@ -309,10 +308,10 @@ public class Atome extends Agent {
                     }
                 }
             }
-            if (liaison == 0) etat = 2;
+            if (liaison == 0) state = ElementState.attached;
             MiseAJourPosition();
         }
-        if (liaison == 0) etat = 2;
+        if (liaison == 0) state = ElementState.attached;
     }
 
     protected void updatePosition() {
@@ -343,9 +342,9 @@ public class Atome extends Agent {
         double threshold = pow(10, -9);
 
         return (
-                vitesseX < threshold &&
-                        vitesseY < threshold &&
-                        vitesseZ < threshold
+                speedX < threshold &&
+                        speedY < threshold &&
+                        speedZ < threshold
         );
     }
 

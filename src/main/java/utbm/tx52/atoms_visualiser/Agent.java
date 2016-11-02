@@ -5,7 +5,7 @@ public class Agent {
     public double posX;
     public double posY;
     public double posZ;
-    //public int type;	//0 : atome;    1 : molecule
+    protected int lifetime = 500;
 
     public Agent() {
     }
@@ -17,17 +17,19 @@ public class Agent {
     }
 
     public double Distance(Agent a) {
-        return
-                Math.sqrt(
-                        (a.posX - posX) * (a.posX - posX)
-                                + (a.posY - posY) * (a.posY - posY)
-                                + (a.posZ - posZ) * (a.posZ - posZ));
+        return Math.sqrt(
+            (a.posX - posX) * (a.posX - posX) +
+            (a.posY - posY) * (a.posY - posY) +
+            (a.posZ - posZ) * (a.posZ - posZ)
+        );
     }
 
     public double DistanceCarre(Agent a) {
-        return (a.posX - posX) * (a.posX - posX)
-                + (a.posY - posY) * (a.posY - posY)
-                + (a.posZ - posZ) * (a.posZ - posZ);
+        return (
+            (a.posX - posX) * (a.posX - posX) +
+            (a.posY - posY) * (a.posY - posY) +
+            (a.posZ - posZ) * (a.posZ - posZ)
+        );
     }
 
 }

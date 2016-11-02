@@ -5,28 +5,27 @@ package utbm.tx52.atoms_visualiser;
 
 // Agent Molecule
 public class Molecule extends Agent {
-    protected double rayon;
-    protected int tempsRestant = 500;
-    protected double vitesseX;
-    protected double vitesseY;
-    protected int etat = 2;
+    protected double radius;
+    protected double speedX;
+    protected double speedY;
+    protected ElementState state = ElementState.attached;
 
-    public Molecule(double _x, double _y, double _rayon) {
-        posX = _x;
-        posY = _y;
-        rayon = _rayon;
+    public Molecule(double posX, double posY, double radius) {
+        this.posX = posX;
+        this.posY = posY;
+        this.radius = radius;
     }
 
-    public double getRayon() {
-        return rayon;
+    public double getRadius() {
+        return radius;
     }
 
-    public void MiseAJour() {
-        tempsRestant--;
+    public void update() {
+        lifetime--;
     }
 
-    public boolean estMort() {
-        return tempsRestant <= 0;
+    public boolean isDead() {
+        return lifetime <= 0;
     }
 }
     
