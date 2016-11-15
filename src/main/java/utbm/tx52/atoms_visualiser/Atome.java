@@ -95,7 +95,7 @@ public class Atome extends Agent {
     }
 
     //
-    // mouvement des atomes
+    // mouvement des atoms
     //
     public double getSpeedX() {
         return speedX;
@@ -132,7 +132,7 @@ public class Atome extends Agent {
 
     //TODO: Interet de cette methode !!
     protected boolean DansAlignement(Atome a) {
-        double distanceCarre = DistanceCarre(a);
+        double distanceCarre = distanceSquared(a);
         return (distanceCarre < DISTANCE_MAX_CARRE && distanceCarre > DISTANCE_MIN_CARRE);
     }
 
@@ -145,11 +145,11 @@ public class Atome extends Agent {
         } else {
             a = atomes.get(1);
         }
-        double distanceCarre = DistanceCarre(a);
+        double distanceCarre = distanceSquared(a);
         for (Atome atome : atomes) {
-            if (DistanceCarre(atome) < distanceCarre && !atome.equals(this)) {
+            if (distanceSquared(atome) < distanceCarre && !atome.equals(this)) {
                 a = atome;
-                distanceCarre = DistanceCarre(a);
+                distanceCarre = distanceSquared(a);
             }
         }
 
@@ -163,7 +163,7 @@ public class Atome extends Agent {
             speedY = speedY - diffY / 2;
             Normaliser();*/
             if (a.liaison != 0) {
-                // System.out.println("Une liaison avec Distance Carre = "+distanceCarre);
+                // System.out.println("Une liaison avec distance Carre = "+distanceCarre);
                 liaison--;
                 a.liaison--;
                 state = ElementState.partially_attached;
@@ -183,11 +183,11 @@ public class Atome extends Agent {
         } else {
             a = atomes.get(1);
         }
-        double distanceCarre = DistanceCarre(a);
+        double distanceCarre = distanceSquared(a);
         for (Atome atome : atomes) {
-            if (DistanceCarre(atome) < distanceCarre && !atome.equals(this)) {
+            if (distanceSquared(atome) < distanceCarre && !atome.equals(this)) {
                 a = atome;
-                distanceCarre = DistanceCarre(a);
+                distanceCarre = distanceSquared(a);
             }
         }
 
@@ -251,11 +251,11 @@ public class Atome extends Agent {
         if (!molecules.isEmpty()) {
             // Recherche de la mol�cule la plus proche
             Molecule m = molecules.get(0);
-            double distanceCarre = DistanceCarre(m);
+            double distanceCarre = distanceSquared(m);
             for (Molecule m_2 : molecules) {
-                if (DistanceCarre(m) < distanceCarre) {
+                if (distanceSquared(m) < distanceCarre) {
                     m = m_2;
-                    distanceCarre = DistanceCarre(m_2);
+                    distanceCarre = distanceSquared(m_2);
                 }
             }
 

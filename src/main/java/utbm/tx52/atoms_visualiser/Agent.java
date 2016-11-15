@@ -16,19 +16,15 @@ public class Agent {
         posZ = _z;
     }
 
-    public double Distance(Agent a) {
-        return Math.sqrt(
-            (a.posX - posX) * (a.posX - posX) +
-            (a.posY - posY) * (a.posY - posY) +
-            (a.posZ - posZ) * (a.posZ - posZ)
-        );
+    public double distance(Agent a) {
+        return Math.sqrt(distanceSquared(a));
     }
 
-    public double DistanceCarre(Agent a) {
+    public double distanceSquared(Agent a) {
         return (
-            (a.posX - posX) * (a.posX - posX) +
-            (a.posY - posY) * (a.posY - posY) +
-            (a.posZ - posZ) * (a.posZ - posZ)
+            Math.pow(a.posX - posX, 2) +
+            Math.pow(a.posY - posY, 2) +
+            Math.pow(a.posZ - posZ, 2)
         );
     }
 

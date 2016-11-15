@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  *          <p>
  *          cette classe permet de controller toutes actions et d'intéragir avec FXML
- *          la variable env qui contient l'environnement génére les atomes
+ *          la variable env qui contient l'environnement génére les atoms
  *          La composition de molécule peut etre speedy en utilisant le slider
  *          la caméra a été placé à l'intérieur de cube //TODO shortkey to navigate from different point of view
  *          les axes sont masqué //TODO décommenté la ligne //setupAxes() a fin de les avoirs
@@ -54,7 +54,7 @@ public class AController {
     //axis
     final Group axisGroup = new Group();
     protected Stage mainStage;
-    protected Environnement env;
+    protected Environment env;
     protected Timer timer;
     protected AnimationTimer animTimer;
     protected boolean is_playing = false;
@@ -275,7 +275,7 @@ public class AController {
                     atom.draw(subSceneMolecule.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
-                    env.addAtome(atom);
+                    env.addAtom(atom);
                     event.consume();
                 }
             }
@@ -309,7 +309,7 @@ public class AController {
                     atom.draw(subSceneAtome.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
-                    env.addAtome(atom);
+                    env.addAtom(atom);
                     event.consume();
                 }
             }
@@ -353,7 +353,7 @@ public class AController {
                     atom.draw(subScene.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
-                    env.addAtome(atom);
+                    env.addAtom(atom);
                     event.consume();
                 }
             }
@@ -378,13 +378,13 @@ public class AController {
 
         subScene.getWorld().getChildren().clear();
         if (nb_atoms > 0) {
-            env = new Environnement(
+            env = new Environment(
                     nb_atoms, screen_width * ratio, screen_height * ratio,
                     ratio * (screen_height + screen_width) / 2
                     , isCHNO()
             );
         } else
-            env.atomes.clear();
+            env.atoms.clear();
         updateStat = true;
     }
 
@@ -445,7 +445,7 @@ public class AController {
 
         rootScene.setFill(Color.GRAY);
         final ReentrantLock lock = new ReentrantLock();
-        env = new Environnement(
+        env = new Environment(
                 (int) m_numberOfAtoms, screen_width * ratio, screen_height * ratio,
                 ratio * (screen_height + screen_width) / 2
                 , this.isCHNO()
@@ -456,7 +456,7 @@ public class AController {
         animTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                env.MiseAJourAtomes(subScene.getWorld());
+                env.updateAtoms(subScene.getWorld());
 
                 subScene.heightProperty().bind(uiAnchor.heightProperty());
                 subScene.widthProperty().bind(uiAnchor.widthProperty());
@@ -517,7 +517,7 @@ public class AController {
                 new TreeItem<StatsElement>(new StatsElement("Root node", ""))
         );
         atoms_groups = (
-                new TreeItem<StatsElement>(new StatsElement("Nombre d'atomes par groupe", ""))
+                new TreeItem<StatsElement>(new StatsElement("Nombre d'atoms par groupe", ""))
         );
         uiStatistics.setRoot(stats_root);
     }
@@ -526,7 +526,7 @@ public class AController {
 
         List<StatsElement> elem = Arrays.asList(
                 new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
-                new StatsElement("Nombre d'atomes", String.valueOf(env.atomes.size()))
+                new StatsElement("Nombre d'atoms", String.valueOf(env.atoms.size()))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
@@ -564,7 +564,11 @@ public class AController {
                 play();
             }
         });
-        setSpeed(0);
+        try {
+            setSpeed(0);
+        } catch (NegativeSpeedException e) {
+            e.printStackTrace();
+        }
         is_playing = false;
     }
 
@@ -582,13 +586,21 @@ public class AController {
         speedSliderHandler();
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(int speed) throws NegativeSpeedException {
         if (is_playing || speed == 0)
-            env.setAtomesSpeed(speed);
+            env.setAtomsSpeed(speed);
     }
 
     public void speedSliderHandler() {
-        setSpeed((int) uiSpeedSlider.getValue());
+        try {
+            setSpeed((int) uiSpeedSlider.getValue());
+        } catch (NegativeSpeedException e) {
+            try {
+                setSpeed(0);
+            } catch (NegativeSpeedException e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 
     private void handleMouse(AScene scene, final Node root) {
