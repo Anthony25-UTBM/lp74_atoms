@@ -3,10 +3,8 @@ package utbm.tx52.atoms_visualiser;
 
 import com.jfoenix.controls.JFXDialog;
 import javafx.event.EventHandler;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -24,6 +22,7 @@ public class Atome extends Agent {
     public static final double DISTANCE_MAX_CARRE = 1600;
     // Constantes
     public static double PAS = 1;
+    public static double PLANCK_CONSTANT = 6.62607 * pow(10, -34);// en J/s
     // nouvelle architecture proposé pr aymen
     // Attributs de l'atome
     protected int a_number;
@@ -39,14 +38,15 @@ public class Atome extends Agent {
     protected double speedZ;
     protected Random generateur;
     protected double ratioSpeed;
-    protected Rectangle m_rect;
-    protected Tooltip m_tooltip;
     private ASphere sphere;
     private ArrayList<Covalence> covalence;
+    private long vanderWaalsRadius;
+    private boolean isCHNO;
 
     public Atome(int _n, double _x, double _y, double _z, double _dir, boolean isCHNO) {
         ratioSpeed = 1;
         a_number = _n;
+        this.isCHNO = isCHNO;
         if (isCHNO) {
 
             CHNO t_chno = CHNO.getInstance();
@@ -55,6 +55,8 @@ public class Atome extends Agent {
             liaison = t_chno.getLimitedAtomsLiaison()[nb];
             rayon = t_chno.getLimitedAtomsRayon()[nb];
             jcouleur = t_chno.getLimitedAtomsColor()[nb];
+            vanderWaalsRadius = t_chno.getVanderWaalsRadius()[nb];
+
 
 
         } else {
@@ -169,6 +171,14 @@ public class Atome extends Agent {
                 state = ElementState.partially_attached;
                 a.state = ElementState.partially_attached;
                 return true;
+            }
+            if (this.isCHNO && liaison == 0) {
+                //TODO FIX UNIT !
+                double deltaEnergy = this.PLANCK_CONSTANT * Math.abs(a.getSpeed() - getSpeed());
+                double A = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 12);
+                double B = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 6);
+                double V = (A / Math.pow(getRayon(), 12)) * (B / Math.pow(getRayon(), 6));
+                this.setSpeed(V);
             }
         }
         return false;
@@ -311,6 +321,7 @@ public class Atome extends Agent {
             if (liaison == 0) state = ElementState.attached;
             MiseAJourPosition();
         }
+
         if (liaison == 0) state = ElementState.attached;
     }
 
@@ -373,6 +384,14 @@ public class Atome extends Agent {
 
     public void computeCovalence() {
 
+    }
+
+    public long getVanderWaalsRadius() {
+        return vanderWaalsRadius;
+    }
+
+    public void setVanderWaalsRadius(short vanderWaalsRadius) {
+        this.vanderWaalsRadius = vanderWaalsRadius;
     }
 }
 

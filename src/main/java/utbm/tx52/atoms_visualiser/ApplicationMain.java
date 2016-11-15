@@ -10,7 +10,7 @@ public class ApplicationMain extends Application {
 
     public static void main(String[] args) {
         System.setProperty("prism.dirtyopts", "false");
-        launch(args);
+        Application.launch(args);
     }
 
     @Override

@@ -11,14 +11,16 @@ import java.util.Arrays;
  */
 public class CHNO implements IPeriodicTable {
     private static CHNO instance = null;
+    //en pico meter 10E-12
+    private static long PICO_METER = 1;//(long)Math.pow(10,-12);
     private String[] limitedAtomsSymbole = {"H", "C", "N", "O"};
     private short[] limitedAtomsNumber = {1, 6, 7, 8};
     private short[] limitedAtomsLiaison = {1, 4, 0, 2};//VERIFY
-    private short[] limitedAtomsRayon = {25, 100, 10, 80};//TODO fix with correct values
+    private long[] limitedAtomsRayon = {25 * PICO_METER, 70 * PICO_METER, 65 * PICO_METER, 60 * PICO_METER};
     private Color[] limitedAtomsColor = {Color.BLACK, Color.WHITE, Color.BLUE, Color.RED};
     private String[] limitedUniqGroup = {"Hydrogene", "Element Nonmetal", "Element Nonmetal", "Nonmetal"};
     private String[] limitedGroup = {"Element Nonmetal", "Hydrogene"};
-
+    private long[] vanderWaalsRadius = {120 * PICO_METER, 170 * PICO_METER, 155 * PICO_METER, 152 * PICO_METER};
     protected CHNO() {
     }
 
@@ -91,11 +93,11 @@ public class CHNO implements IPeriodicTable {
         this.limitedAtomsLiaison = limitedAtomsLiaison;
     }
 
-    public short[] getLimitedAtomsRayon() {
+    public long[] getLimitedAtomsRayon() {
         return limitedAtomsRayon;
     }
 
-    public void setLimitedAtomsRayon(short[] limitedAtomsRayon) {
+    public void setLimitedAtomsRayon(long[] limitedAtomsRayon) {
         this.limitedAtomsRayon = limitedAtomsRayon;
     }
 
@@ -105,5 +107,13 @@ public class CHNO implements IPeriodicTable {
 
     public void setLimitedAtomsColor(Color[] limitedAtomsColor) {
         this.limitedAtomsColor = limitedAtomsColor;
+    }
+
+    public long[] getVanderWaalsRadius() {
+        return vanderWaalsRadius;
+    }
+
+    public void setVanderWaalsRadius(long[] vanderWaalsRadius) {
+        this.vanderWaalsRadius = vanderWaalsRadius;
     }
 }
