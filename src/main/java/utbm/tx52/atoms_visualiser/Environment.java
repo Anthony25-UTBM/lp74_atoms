@@ -22,21 +22,21 @@ public class Environment extends Observable {
         atoms = new ArrayList();
         int nbSamples;
 
+        PeriodicTable t_periodic = PeriodicTable.getInstance();
         if (isCHNO) {
             nbSamples = 4;
         } else {
-            PeriodicTable t_periodic = PeriodicTable.getInstance();
             nbSamples = t_periodic.getSymbole().size();
             System.out.println("Number of samples " + nbSamples);
             if (nbSamples == 0) return;
         }
 
-
         for (int i = 0; i < nbAtoms; i++) {
-            int number = 0;
-            number = random_generator.nextInt(nbSamples - 1);
+            int number = random_generator.nextInt(nbSamples - 1);
             if (isCHNO)
                 number = CHNO.getInstance().getANumber(number);
+            else
+                number = t_periodic.getNumber().get(number);
 
             double a_x = random_generator.nextDouble() * this.width;
             double a_y = random_generator.nextDouble() * this.height;

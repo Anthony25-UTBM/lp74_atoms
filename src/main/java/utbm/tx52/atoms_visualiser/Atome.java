@@ -89,7 +89,6 @@ public class Atome extends Agent {
         a_number = _n;
         this.isCHNO = isCHNO;
         if (isCHNO) {
-
             CHNO t_chno = CHNO.getInstance();
             int nb = t_chno.getNumber(a_number);
             symb = t_chno.getLimitedAtomsSymbole()[nb];
@@ -97,9 +96,6 @@ public class Atome extends Agent {
             rayon = t_chno.getLimitedAtomsRayon()[nb];
             jcouleur = t_chno.getLimitedAtomsColor()[nb];
             vanderWaalsRadius = t_chno.getVanderWaalsRadius()[nb];
-
-
-
         } else {
             PeriodicTable t_periodic = PeriodicTable.getInstance();
             int index = t_periodic.getNumber().indexOf(a_number);
