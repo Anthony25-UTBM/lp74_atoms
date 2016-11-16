@@ -46,11 +46,15 @@ public class Environment extends Observable {
         }
     }
 
-    public void AjouterMolecule(double _posX, double _posY, double rayon) {
+    public void addMolecule(double _posX, double _posY, double rayon) {
         molecules.add(new Molecule(_posX, _posY, rayon));
         if (!molecules.isEmpty()) {
             System.out.println("Molecule Yes");
         } else System.out.println("Molecule NO");
+    }
+
+    public void addAtom(Atome a) {
+        atoms.add(a);
     }
 
     protected void updateMolecules() {
@@ -64,10 +68,6 @@ public class Environment extends Observable {
             a.MiseAJour(atoms, molecules, width, height, depth);
             a.draw(world);
         }
-    }
-
-    public void addAtom(Atome a) {
-        atoms.add(a);
     }
 
     public void updateEnv(AGroup world) {
@@ -97,6 +97,9 @@ public class Environment extends Observable {
         return not_active_atoms;
     }
 
+    public double getSpeed() {
+        return atoms.get(0).getSpeed();
+    }
 
     public void setAtomsSpeed(int speed) throws NegativeSpeedException {
         if (speed < 0) {
@@ -105,9 +108,5 @@ public class Environment extends Observable {
         atoms.forEach(a->{
             a.setSpeed(speed);
         });
-    }
-
-    public double getSpeed() {
-        return atoms.get(0).getSpeed();
     }
 }
