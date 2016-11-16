@@ -19,6 +19,7 @@ public class PeriodicTable implements IPeriodicTable {
     private ArrayList<Double> rayons;
     private ArrayList<String> group;
     private ArrayList<String> uniqGroup;
+    private ArrayList<Integer> number;
     private Color[] couleurs = {Color.WHITE, Color.BLUE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.RED};
 
     private PeriodicTable() {
@@ -27,11 +28,11 @@ public class PeriodicTable implements IPeriodicTable {
         rayons = new ArrayList<>();
         group = new ArrayList<>();
         uniqGroup = new ArrayList<>();
+        number = new ArrayList<>();
         parseJson();
 
 
     }
-
 
     public static PeriodicTable getInstance() {
         if (instance == null) instance = new PeriodicTable();
@@ -40,6 +41,14 @@ public class PeriodicTable implements IPeriodicTable {
 
     public static void setInstance(PeriodicTable instance) {
         PeriodicTable.instance = instance;
+    }
+
+    public ArrayList<Integer> getNumber() {
+        return number;
+    }
+
+    public void setNumber(ArrayList<Integer> number) {
+        this.number = number;
     }
 
     private void parseJson() {
@@ -68,6 +77,8 @@ public class PeriodicTable implements IPeriodicTable {
 
                     JsonString symbol = e.getJsonString("small");
                     JsonString _group = e.getJsonString("group");
+                    JsonNumber _number = e.getJsonNumber("number");
+                    this.number.add(_number.intValue());
                     group.add(i, _group.getString());
                     String uniq_g = _group.getString();
 

@@ -43,6 +43,47 @@ public class Atome extends Agent {
     private long vanderWaalsRadius;
     private boolean isCHNO;
 
+    public Atome(String symbole, boolean isCHNO) {
+        ratioSpeed = 1;
+        this.isCHNO = isCHNO;
+        if (isCHNO) {
+
+            CHNO t_chno = CHNO.getInstance();
+            int indexOfSymbole = t_chno.getSymbole().indexOf(symbole);
+            a_number = t_chno.getANumber(indexOfSymbole);
+            symb = t_chno.getLimitedAtomsSymbole()[indexOfSymbole];
+            liaison = t_chno.getLimitedAtomsLiaison()[indexOfSymbole];
+            rayon = t_chno.getLimitedAtomsRayon()[indexOfSymbole];
+            jcouleur = t_chno.getLimitedAtomsColor()[indexOfSymbole];
+            vanderWaalsRadius = t_chno.getVanderWaalsRadius()[indexOfSymbole];
+
+
+        } else {
+            PeriodicTable t_periodic = PeriodicTable.getInstance();
+            a_number = t_periodic.getNumber().get(t_periodic.getSymbole().indexOf(symbole));
+            int index = t_periodic.getNumber().indexOf(a_number);
+            symb = t_periodic.getSymbole().get(index);
+            liaison = t_periodic.getLiaisons().get(index);
+            rayon = t_periodic.getRayons().get(index);
+            jcouleur = t_periodic.getCouleurs()[index % t_periodic.getCouleurs().length];
+        }
+        state = ElementState.free;
+        //TODO RANDOM !
+        posX = 0;
+        posY = 0;
+        posZ = 0;
+        speedX = Math.cos(45);
+        speedY = Math.sin(45);
+        speedZ = 0;
+        double[] pos = {posX, posY, posZ};
+        double[] colors = {jcouleur.getRed(), jcouleur.getGreen(), jcouleur.getBlue()};
+        sphere = new ASphere(rayon, pos, colors);
+
+
+        System.out.println("Atome crée" +
+                " (" + symb + ")");
+    }
+
     public Atome(int _n, double _x, double _y, double _z, double _dir, boolean isCHNO) {
         ratioSpeed = 1;
         a_number = _n;
@@ -61,10 +102,11 @@ public class Atome extends Agent {
 
         } else {
             PeriodicTable t_periodic = PeriodicTable.getInstance();
-            symb = t_periodic.getSymbole().get(a_number);
-            liaison = t_periodic.getLiaisons().get(a_number);
-            rayon = t_periodic.getRayons().get(a_number);
-            jcouleur = t_periodic.getCouleurs()[a_number % t_periodic.getCouleurs().length];
+            int index = t_periodic.getNumber().indexOf(a_number);
+            symb = t_periodic.getSymbole().get(index);
+            liaison = t_periodic.getLiaisons().get(index);
+            rayon = t_periodic.getRayons().get(index);
+            jcouleur = t_periodic.getCouleurs()[index % t_periodic.getCouleurs().length];
         }
         state = ElementState.free;
 

@@ -206,23 +206,19 @@
                                         <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules"
                                                textAlignment="CENTER" textFill="#9f9f9f" wrapText="false"/>
                                         <VBox fx:id="uiTableMolecules" minHeight="100.0" prefHeight="400.0"
-                                              VBox.vgrow="NEVER">
-                                            <children>
-                                                <JFXSpinner/>
-                                            </children>
-                                        </VBox>
+                                              VBox.vgrow="NEVER"/>
                                         <JFXTextField focusColor="#ff5722" labelFloat="true"
                                                       maxHeight="1.7976931348623157E308"
                                                       maxWidth="1.7976931348623157E308" promptText="type Molecule"
                                                       unFocusColor="#c6ff00"/>
                                     </children>
                                 </VBox>
-                                <JFXTextField fx:id="uiGenAtomNumber" maxHeight="1.7976931348623157E308"
-                                              maxWidth="1.7976931348623157E308" promptText="Number of atoms"/>
+                                <JFXTextField fx:id="uiFormula" maxHeight="1.7976931348623157E308"
+                                              maxWidth="1.7976931348623157E308" promptText="Formula"/>
                                 <JFXButton alignment="CENTER" blendMode="DARKEN" contentDisplay="CENTER"
-                                           maxWidth="1.7976931348623157E308" onAction="#random_elem_gen"
+                                           maxWidth="1.7976931348623157E308" onAction="#generateAtomsByFormula"
                                            ripplerFill="#68beff" style="-fx-background-color: #1E88E5;"
-                                           text="Random generation" textAlignment="JUSTIFY" textFill="WHITE"
+                                           text="Generate Molecule" textAlignment="JUSTIFY" textFill="WHITE"
                                            textOverrun="CLIP">
                                     <effect>
                                         <Blend/>
@@ -346,11 +342,7 @@
                                         <Label alignment="CENTER" font="$x1" style="&#10;" text="Molecules"
                                                textAlignment="CENTER" textFill="#9f9f9f" wrapText="false"/>
                                         <VBox fx:id="uiTableMolecules" minHeight="100.0" prefHeight="400.0"
-                                              VBox.vgrow="NEVER">
-                                            <children>
-                                                <JFXSpinner/>
-                                            </children>
-                                        </VBox>
+                                              VBox.vgrow="NEVER"/>
                                         <JFXTextField focusColor="#ff5722" labelFloat="true"
                                                       maxHeight="1.7976931348623157E308"
                                                       maxWidth="1.7976931348623157E308" promptText="type Molecule"

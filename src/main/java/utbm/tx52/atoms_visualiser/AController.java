@@ -98,7 +98,8 @@ public class AController {
     @FXML
     AnchorPane uiAnchorMolecule;
     AScene subSceneMolecule;
-
+    @FXML
+    JFXTextField uiFormula;
 
 
 
@@ -127,6 +128,7 @@ public class AController {
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
     private String m_draggedAtom;
+    private String m_Formula;
 
     static protected void setElement(String string) {
         items.add(string);
@@ -139,6 +141,17 @@ public class AController {
     private void initListView() {
 
         uiList.setItems(items);
+    }
+
+    @FXML
+    public void generateAtomsByFormula() {
+        Formula f = new Formula();
+        ArrayList<Atome> atoms = f.parse(m_Formula, isCHNO);
+        for (Atome a : atoms) {
+            env.addAtom(a);
+        }
+        uiFormula.setText("");
+        refresh();
     }
 
     public void setStatsUpdate(boolean update) {
@@ -221,6 +234,12 @@ public class AController {
         });
 
 
+    }
+
+    private void initFormula() {
+        uiFormula.textProperty().addListener((observable, oldValue, newValue) -> {
+            m_Formula = newValue;
+        });
     }
 
     private void initAtomsNumber() {
@@ -437,6 +456,7 @@ public class AController {
         // setupAxes();
         initTables();
         initAtomsNumber();
+        initFormula();
         updateStat = true;
         setCHNO(isCHNO);
 
@@ -677,6 +697,7 @@ public class AController {
         addSearchLabel();
         initTables();
         initAtomsNumber();
+        initFormula();
         updateStat = true;
         initListView();
         refresh();
