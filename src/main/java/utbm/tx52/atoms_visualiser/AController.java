@@ -146,7 +146,8 @@ public class AController {
     @FXML
     public void generateAtomsByFormula() {
         Formula f = new Formula();
-        ArrayList<Atome> atoms = f.parse(m_Formula, isCHNO);
+        ArrayList<Atome> atoms = null;
+        atoms = f.parse(m_Formula, isCHNO);
         for (Atome a : atoms) {
             env.addAtom(a);
         }

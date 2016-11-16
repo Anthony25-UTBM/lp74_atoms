@@ -97,6 +97,7 @@ public class PeriodicTable implements IPeriodicTable {
                     JsonValue rayon = e.get("molar");
                     rayons.add(i, Double.parseDouble(rayon.toString()));
                     System.out.println(" element : " + symbole.get(i) + " "
+                            + "number " + number.get(i) + " "
                             + "electrons " + rayons.get(i) + " "
                             + " groupe  " + uniq_g
                             + " molar " + liaisons.get(i)

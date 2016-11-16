@@ -15,8 +15,13 @@ public class Formula {
 
         while (matcher.find()) {
             String symbole = matcher.group(2);
+            if (!verifyCHNO(isCHNO, matcher.group(1))) {
+                continue;
+            }
+            System.out.println("adding atom " + matcher.group(1));
             if (!symbole.isEmpty()) {
                 int count = Integer.parseInt(matcher.group(2));
+
 
                 for (int i = 1; i < count; i++) {
                     atoms.add(new Atome(matcher.group(1), isCHNO));
@@ -25,5 +30,15 @@ public class Formula {
             atoms.add(new Atome(matcher.group(1), isCHNO));
         }
         return atoms;
+    }
+
+    private boolean verifyCHNO(boolean isCHNO, String symb) {
+        if (isCHNO) {
+            CHNO t_chno = CHNO.getInstance();
+            int index = t_chno.getSymbole().indexOf(symb);
+
+            return (index >= 0);
+        }
+        return true;
     }
 }

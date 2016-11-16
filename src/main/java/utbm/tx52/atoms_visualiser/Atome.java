@@ -103,6 +103,7 @@ public class Atome extends Agent {
         } else {
             PeriodicTable t_periodic = PeriodicTable.getInstance();
             int index = t_periodic.getNumber().indexOf(a_number);
+            System.out.println(" index  = " + index + " a_number " + a_number);
             symb = t_periodic.getSymbole().get(index);
             liaison = t_periodic.getLiaisons().get(index);
             rayon = t_periodic.getRayons().get(index);
