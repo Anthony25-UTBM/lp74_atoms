@@ -1,0 +1,6 @@
+Atoms simulation [WORK IN PROGRESS]
+===================================
+
+[![Build Status](https://travis-ci.org/Anthony25-UTBM/lp74_atoms/badge.svg?branch=master)](https://travis-ci.org/Anthony25-UTBM/lp74_atoms)  [![Coverage Status](https://coveralls.io/repos/github/Anthony25-UTBM/lp74_atoms/badge.svg?branch=master)](https://coveralls.io/github/Anthony25-UTBM/lp74_atoms?branch=master)
+
+Visualize a simulation of atoms, and how they form molecules to react.
