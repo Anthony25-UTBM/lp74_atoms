@@ -16,6 +16,8 @@ public class Molecule extends Agent {
         this.radius = radius;
     }
 
+    public void start() {};
+
     public double getRadius() {
         return radius;
     }

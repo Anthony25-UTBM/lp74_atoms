@@ -1,7 +1,7 @@
 package utbm.tx52.atoms_visualiser;
 //package Molecules;
 
-public class Agent {
+public abstract class Agent {
     public double posX;
     public double posY;
     public double posZ;
@@ -15,6 +15,11 @@ public class Agent {
         posY = _y;
         posZ = _z;
     }
+
+    /**
+     * Start the agent
+     */
+    public abstract void start();
 
     public double distance(Agent a) {
         return Math.sqrt(distanceSquared(a));

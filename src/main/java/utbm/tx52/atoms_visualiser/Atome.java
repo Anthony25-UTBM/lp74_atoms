@@ -122,6 +122,7 @@ public class Atome extends Agent {
                 " (" + symb + ")");
     }
 
+
     public double getRayon() {
         return rayon;
     }
@@ -130,14 +131,6 @@ public class Atome extends Agent {
         return symb;
     }
 
-    //TODO: exploiter cette m�thode
-    public int estlibre() {
-        return liaison;
-    }
-
-    //
-    // mouvement des atoms
-    //
     public double getSpeedX() {
         return speedX;
     }
@@ -148,6 +141,13 @@ public class Atome extends Agent {
 
     public double getSpeedZ() {
         return speedZ;
+    }
+
+    public void start() {}
+
+    //TODO: exploiter cette m�thode
+    public int estlibre() {
+        return liaison;
     }
 
     protected void Normaliser() {
