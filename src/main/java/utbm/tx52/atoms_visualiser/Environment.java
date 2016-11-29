@@ -53,6 +53,10 @@ public class Environment extends Observable {
         } else System.out.println("Molecule NO");
     }
 
+    public ArrayList<Atome> getAtoms() {
+        return new ArrayList<Atome>(atoms);
+    }
+
     public void addAtom(Atome a) {
         atoms.add(a);
     }
