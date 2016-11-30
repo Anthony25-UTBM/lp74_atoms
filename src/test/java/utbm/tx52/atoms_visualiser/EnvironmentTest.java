@@ -1,13 +1,9 @@
 package utbm.tx52.atoms_visualiser;
 
 import org.junit.*;
-import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.lang.model.type.UnknownTypeException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -20,25 +16,25 @@ public class EnvironmentTest {
     private Environment environment;
     private int nbMolecules;
     private int nbAtoms;
-    private double largeur;
-    private double profondeur;
-    private double hauteur;
+    private double height;
+    private double width;
+    private double depth;
     private boolean isCHNO;
 
     @Before
     public void setUp() {
         nbMolecules = 5;
         nbAtoms = 5;
-        largeur = 100;
-        profondeur = 100;
-        hauteur = 100;
+        width = 100;
+        depth = 100;
+        height = 100;
         isCHNO = false;
 
         initEnvironment();
     }
 
     private void initEnvironment() {
-        environment = new Environment(nbAtoms, largeur, profondeur, hauteur, isCHNO);
+        environment = new Environment(nbAtoms, width, depth, height, isCHNO);
         generatePoolMoleculesFor(environment, nbMolecules);
     }
 
