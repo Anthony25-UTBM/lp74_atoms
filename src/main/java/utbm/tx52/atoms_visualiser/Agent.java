@@ -1,7 +1,10 @@
 package utbm.tx52.atoms_visualiser;
 //package Molecules;
 
-public abstract class Agent {
+import javafx.geometry.Point3D;
+import utbm.tx52.atoms_visualiser.octree.OctreePoint;
+
+public abstract class Agent implements OctreePoint {
     public double posX;
     public double posY;
     public double posZ;
@@ -20,6 +23,10 @@ public abstract class Agent {
      * Start the agent
      */
     public abstract void start();
+
+    public Point3D getCoordinates() {
+        return new Point3D(posX, posY, posZ);
+    }
 
     public double distance(Agent a) {
         return Math.sqrt(distanceSquared(a));
