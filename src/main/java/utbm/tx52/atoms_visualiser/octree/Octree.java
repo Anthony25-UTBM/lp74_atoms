@@ -3,20 +3,20 @@ package utbm.tx52.atoms_visualiser.octree;
 import javafx.geometry.Point3D;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.concurrent.locks.StampedLock;
 
 public class Octree<T extends OctreePoint> {
     private ArrayList<T> objects;
     private int maxObjects;
-    public Octree children[];
+    public Octree children[] = new Octree[0];
     public Octree parent = null;
     private Point3D center;
     public double size;
+    private StampedLock rwlock = new StampedLock();
 
     public Octree(double size, int maxObjects) {
         this.maxObjects = maxObjects;
         this.objects = new ArrayList<T>();
-        this.children = new Octree[0];
         this.center = new Point3D(size/2, size/2, size/2);
         this.size = size;
     }
@@ -24,7 +24,6 @@ public class Octree<T extends OctreePoint> {
     public Octree(double size, int maxObjects, ArrayList<T> objects) {
         this.maxObjects = maxObjects;
         this.objects = new ArrayList<T>(objects);
-        this.children = new Octree[0];
         this.center = new Point3D(size/2, size/2, size/2);
         this.size = size;
     }
@@ -47,13 +46,18 @@ public class Octree<T extends OctreePoint> {
         this.center = center;
     }
 
-    public ArrayList getObjects() {
+    public ArrayList getObjects() throws InterruptedException {
         if(isLeaf())
             return new ArrayList<T>(objects);
 
         ArrayList<Object> childrenObjects = new ArrayList<>();
-        for(Octree child : children) {
-            childrenObjects.addAll(child.getObjects());
+        long stamp = rwlock.readLockInterruptibly();
+        try {
+            for (Octree child : children) {
+                childrenObjects.addAll(child.getObjects());
+            }
+        } finally {
+            rwlock.unlockRead(stamp);
         }
 
         return childrenObjects;
@@ -64,13 +68,18 @@ public class Octree<T extends OctreePoint> {
      * @param coord
      * @return
      */
-    public Octree getOctreeForPoint(Point3D coord) throws PointOutsideOctreeException {
+    public Octree getOctreeForPoint(Point3D coord) throws PointOutsideOctreeException, InterruptedException {
         if(!isPointInOctree(coord))
             throw new PointOutsideOctreeException("Point is not in octree");
 
         if(isParent()) {
-            int i = getChildIndexForPoint(coord);
-            return children[i].getOctreeForPoint(coord);
+            long stamp = rwlock.readLockInterruptibly();
+            try {
+                int i = getChildIndexForPoint(coord);
+                return children[i].getOctreeForPoint(coord);
+            } finally {
+                rwlock.unlockRead(stamp);
+            }
         }
         else
             return this;
@@ -106,19 +115,33 @@ public class Octree<T extends OctreePoint> {
      * @param object: object to add
      * @return storedIn: octree where the object has been stored
      */
-    public Octree add(T object) throws OctreeSubdivisionException {
-        // TODO: to be thread safe, should lock here
-        if(!isParent() && maxObjects < objects.size() + 1)
-            subdivide();
+    public Octree add(T object) throws OctreeSubdivisionException, InterruptedException {
+        long stamp;
+        stamp = rwlock.writeLock();
+        try {
+            if(!isParent() && maxObjects < objects.size() + 1)
+                subdivide();
+        } catch(OctreeAlreadyParentException ignored) {
+        } finally {
+            rwlock.unlockWrite(stamp);
+        }
 
-        if(isParent()) {
-            int childIndex = getChildIndexForPoint(object.getCoordinates());
-            return children[childIndex].add(object);
+        Octree addedIn;
+        stamp = rwlock.readLock();
+        try {
+            if(isParent()) {
+                int childIndex = getChildIndexForPoint(object.getCoordinates());
+                addedIn = children[childIndex].add(object);
+            }
+            else {
+                objects.add(object);
+                addedIn = this;
+            }
+        } finally {
+            rwlock.unlockRead(stamp);
         }
-        else {
-            objects.add(object);
-            return this;
-        }
+
+        return addedIn;
     }
 
     /**
@@ -126,17 +149,17 @@ public class Octree<T extends OctreePoint> {
      *
      * @throws OctreeSubdivisionException if the octree is already parent
      */
-    protected void subdivide() throws OctreeSubdivisionException {
-        if(isParent())
-            throw new OctreeSubdivisionException("Octree already has children");
-        else if(size % 2 > 0)
+    protected void subdivide() throws OctreeSubdivisionException, InterruptedException, OctreeAlreadyParentException {
+        if (isParent())
+            throw new OctreeAlreadyParentException("Octree already has children");
+        else if (size % 2 > 0)
             throw new OctreeSubdivisionException("Size cannot be subdivided anymore");
 
         children = new Octree[8];
-        for(int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             Octree child = new Octree<T>(size, maxObjects);
             child.parent = this;
-            child.size = size/2;
+            child.size = size / 2;
             child.setCenter(getNewChildCenter(i));
             children[i] = child;
         }
@@ -144,8 +167,10 @@ public class Octree<T extends OctreePoint> {
         ArrayList<T> objectsCopy = objects;
         objects = new ArrayList<T>();
 
-        for(T o : objectsCopy)
-            add(o);
+        for (T o : objectsCopy) {
+            int childIndex = getChildIndexForPoint(o.getCoordinates());
+            children[childIndex].add(o);
+        }
     }
 
     /**
@@ -170,13 +195,13 @@ public class Octree<T extends OctreePoint> {
         return new Point3D(x, y, z);
     }
 
-    public void remove(T object) throws PointOutsideOctreeException, OctreeSubdivisionException {
-        if(isParent())
+    public void remove(T object) throws PointOutsideOctreeException, OctreeSubdivisionException, Exception {
+        if (isParent())
             getOctreeForPoint(object.getCoordinates()).remove(object);
         else {
             objects.remove(object);
-            if(!isRoot())
-                try { parent.mergeAllChildren(); } catch (Exception ignore) { };
+            if (!isRoot())
+                try { parent.mergeAllChildren(); } catch (OctreeCannotMergeException ignore) { };
         }
     }
 
@@ -185,20 +210,27 @@ public class Octree<T extends OctreePoint> {
      * @throws Exception
      * @throws OctreeSubdivisionException
      */
-    protected void mergeAllChildren() throws Exception, OctreeSubdivisionException {
-        if(!isPossibleToMergeChildren())
-            throw new Exception("One of the children is not leaf and/or max objects limit would be reached");
+    protected void mergeAllChildren() throws Exception, OctreeSubdivisionException, OctreeCannotMergeException {
+        ArrayList<T> oldObjects;
+        long stamp = rwlock.readLock();
+        try {
+            if (!isPossibleToMergeChildren())
+                throw new OctreeCannotMergeException(
+                    "One of the children is not leaf and/or max objects limit would be reached"
+                );
+            oldObjects = getObjects();
+        } finally {
+            rwlock.unlockRead(stamp);
+        }
 
-        ArrayList<T> oldObjects = getObjects();
         children = new Octree[0];
-
-        for(T o : oldObjects)
+        for (T o : oldObjects)
             add(o);
     }
 
-    protected boolean isPossibleToMergeChildren() {
+    protected boolean isPossibleToMergeChildren() throws InterruptedException {
         boolean allChildrenAreLeaf = true;
-        for(Octree c : children)
+        for (Octree c : children)
             allChildrenAreLeaf = allChildrenAreLeaf && c.isLeaf();
 
         boolean underMaxObjects = getObjects().size() <= maxObjects;
@@ -210,11 +242,11 @@ public class Octree<T extends OctreePoint> {
         return parent == null;
     }
 
-    public boolean isParent(){
+    public boolean isParent() {
         return children.length > 0;
     }
 
-    public boolean isLeaf() {
-        return children.length == 0;
+    public boolean isLeaf() throws InterruptedException {
+        return !isParent();
     }
 }
