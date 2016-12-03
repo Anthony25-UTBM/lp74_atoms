@@ -2,6 +2,8 @@ package utbm.tx52.atoms_visualiser.octree;
 
 import javafx.geometry.Point3D;
 import org.junit.*;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import utbm.tx52.atoms_visualiser.Atome;
 import utbm.tx52.atoms_visualiser.Environment;
@@ -20,7 +22,7 @@ public class OctreeTest {
 
     // Tests will timeout and break if they wait for too long
     @Rule
-    public Timeout globalTimeout = Timeout.seconds(5);
+    public TestRule timeout = new DisableOnDebug(Timeout.seconds(20));
 
     @Before
     public void setUp() {
@@ -201,15 +203,14 @@ public class OctreeTest {
 
     @Test
     public void removeAndMerge() throws Exception, OctreeSubdivisionException, PointOutsideOctreeException {
-        Environment environment = genEnvironment(maxObjects, false);
-        for(Atome a : environment.getAtoms())
-            octree.add(a);
+        octree.add(new Atome(1, 0, 0, 0, 0, false));
+        octree.add(new Atome(1, 1, 1, 0, 0, false));
 
-        Atome a = new Atome(1, 0, 0, 0, 0, false);
+        Atome a = new Atome(1, 1, 2, 0, 0, false);
         octree.add(a);
         octree.remove(a);
 
-        assertEquals("The root cube should have re-merged all children", 0, octree.children.length);
+        assertTrue("The root cube should have re-merged all children", octree.isLeaf());
     }
 
     @Test

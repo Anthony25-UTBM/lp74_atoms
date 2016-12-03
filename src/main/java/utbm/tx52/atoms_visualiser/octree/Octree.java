@@ -12,13 +12,14 @@ public class Octree<T extends OctreePoint> {
     public Octree parent = null;
     private Point3D center;
     public double size;
-    private StampedLock rwlock = new StampedLock();
+    private StampedLock rwlock;
 
     public Octree(double size, int maxObjects) {
         this.maxObjects = maxObjects;
         this.objects = new ArrayList<T>();
         this.center = new Point3D(size/2, size/2, size/2);
         this.size = size;
+        rwlock =  new StampedLock();
     }
 
     public Octree(double size, int maxObjects, ArrayList<T> objects) {
@@ -26,6 +27,7 @@ public class Octree<T extends OctreePoint> {
         this.objects = new ArrayList<T>(objects);
         this.center = new Point3D(size/2, size/2, size/2);
         this.size = size;
+        rwlock =  new StampedLock();
     }
 
     public int getMaxObjects() {
@@ -102,9 +104,9 @@ public class Octree<T extends OctreePoint> {
      * @return childIndex
      */
     private int getChildIndexForPoint(Point3D coord) {
-        int x_split = (coord.getX() > center.getX()) ? 1 : 0;
-        int y_split = (coord.getY() > center.getY()) ? 1 : 0;
-        int z_split = (coord.getZ() > center.getZ()) ? 1 : 0;
+        int x_split = (coord.getX() < center.getX()) ? 0 : 1;
+        int y_split = (coord.getY() < center.getY()) ? 0 : 1;
+        int z_split = (coord.getZ() < center.getZ()) ? 0 : 1;
 
         return x_split + 2 * y_split + 4 * z_split;
     }
@@ -119,7 +121,7 @@ public class Octree<T extends OctreePoint> {
         long stamp;
         stamp = rwlock.writeLock();
         try {
-            if(!isParent() && maxObjects < objects.size() + 1)
+            if(isLeaf() && maxObjects < objects.size() + 1)
                 subdivide();
         } catch(OctreeAlreadyParentException ignored) {
         } finally {
@@ -152,8 +154,6 @@ public class Octree<T extends OctreePoint> {
     protected void subdivide() throws OctreeSubdivisionException, InterruptedException, OctreeAlreadyParentException {
         if (isParent())
             throw new OctreeAlreadyParentException("Octree already has children");
-        else if (size % 2 > 0)
-            throw new OctreeSubdivisionException("Size cannot be subdivided anymore");
 
         children = new Octree[8];
         for (int i = 0; i < 8; i++) {
@@ -182,7 +182,6 @@ public class Octree<T extends OctreePoint> {
      */
     protected Point3D getNewChildCenter(int index) {
         final double CHILD_SIZE = size/2;
-        String binaryIndex = String.format("%03d", Integer.valueOf(Integer.toBinaryString(index)));
 
         double z = (index < 4) ? center.getZ() - CHILD_SIZE/2 : center.getZ() + CHILD_SIZE/2;
         index -= (int)(index/4) * 4;
@@ -226,6 +225,9 @@ public class Octree<T extends OctreePoint> {
         children = new Octree[0];
         for (T o : oldObjects)
             add(o);
+
+        if (!isRoot())
+            try { parent.mergeAllChildren(); } catch (OctreeCannotMergeException ignore) { };
     }
 
     protected boolean isPossibleToMergeChildren() throws InterruptedException {
