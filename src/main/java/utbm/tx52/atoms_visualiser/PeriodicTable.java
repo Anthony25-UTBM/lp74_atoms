@@ -2,6 +2,8 @@ package utbm.tx52.atoms_visualiser;
 
 
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.json.*;
 import java.io.FileInputStream;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
  * Created by adah on 10/10/16.
  */
 public class PeriodicTable implements IPeriodicTable {
+    private static final Logger logger = LogManager.getLogger("PeriodicTable");
     private static PeriodicTable instance = null;
     private ArrayList<String> symbole;
     private ArrayList<Integer> liaisons;
@@ -52,15 +55,15 @@ public class PeriodicTable implements IPeriodicTable {
     }
 
     private void parseJson() {
-        System.out.println("Reading json file");
+        logger.debug("Reading json file");
         try {
             URL url = Atome.class.getClassLoader().getResource("periodicTable.json");
-            System.out.println("Link : " + url.getPath());
+            logger.debug("Link : " + url.getPath());
             InputStream is = new FileInputStream(url.getPath());
             JsonReader reader = Json.createReader(is);
             JsonObject object = reader.readObject();
             JsonArray tables = object.getJsonArray("table");
-            System.out.println("load data");
+            logger.debug("load data");
 
             int i = 0;
 
@@ -96,7 +99,7 @@ public class PeriodicTable implements IPeriodicTable {
 
                     JsonValue rayon = e.get("molar");
                     rayons.add(i, Double.parseDouble(rayon.toString()));
-                    System.out.println(" element : " + symbole.get(i) + " "
+                    logger.debug(" element : " + symbole.get(i) + " "
                             + "number " + number.get(i) + " "
                             + "electrons " + rayons.get(i) + " "
                             + " groupe  " + uniq_g
@@ -107,7 +110,7 @@ public class PeriodicTable implements IPeriodicTable {
             }
 
         } catch (Exception e) {
-            System.out.println("Error reading JSON FILE " + e.getCause());
+            logger.debug("Error reading JSON FILE " + e.getCause());
 
         }
     }
