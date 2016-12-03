@@ -57,7 +57,7 @@ public class PeriodicTable implements IPeriodicTable {
     private void parseJson() {
         logger.debug("Reading json file");
         try {
-            URL url = Atome.class.getClassLoader().getResource("periodicTable.json");
+            URL url = Atom.class.getClassLoader().getResource("periodicTable.json");
             logger.debug("Link : " + url.getPath());
             InputStream is = new FileInputStream(url.getPath());
             JsonReader reader = Json.createReader(is);

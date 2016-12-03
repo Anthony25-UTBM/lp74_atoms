@@ -9,7 +9,7 @@ import java.util.*;
 // Grille repr�sentant l'environnement + les atoms
 public class Environment extends Observable {
     private static final Logger logger = LogManager.getLogger("Environment");
-    protected ArrayList<Atome> atoms;
+    protected ArrayList<Atom> atoms;
     protected ArrayList<Molecule> molecules;
     protected Random random_generator;
     protected double width;
@@ -45,7 +45,7 @@ public class Environment extends Observable {
             double a_y = random_generator.nextDouble() * this.height;
             double a_z = random_generator.nextDouble() * this.depth;
             double a_dir = random_generator.nextDouble() * 2 * Math.PI;
-            atoms.add(new Atome(number, a_x, a_y, a_z, a_dir, isCHNO));
+            atoms.add(new Atom(number, a_x, a_y, a_z, a_dir, isCHNO));
         }
     }
 
@@ -56,7 +56,7 @@ public class Environment extends Observable {
         } else logger.debug("Molecule NO");
     }
 
-    public void addAtom(Atome a) {
+    public void addAtom(Atom a) {
         atoms.add(a);
     }
 
@@ -67,7 +67,7 @@ public class Environment extends Observable {
     }
 
     protected void updateAtoms(AGroup world) {
-        for (Atome a : atoms) {
+        for (Atom a : atoms) {
             a.MiseAJour(atoms, molecules, width, height, depth);
             a.draw(world);
         }
@@ -82,7 +82,7 @@ public class Environment extends Observable {
 
     public Map<String, Integer> nbOfEachAtoms() {
         Map<String, Integer> atom_groups = new Hashtable<String, Integer>();
-        for (Atome a : atoms) {
+        for (Atom a : atoms) {
             int current_nb = atom_groups.containsKey(a.getSymb()) ? atom_groups.get(a.getSymb()) : 0;
             atom_groups.put(a.getSymb(), current_nb + 1);
         }
@@ -92,7 +92,7 @@ public class Environment extends Observable {
 
     public int nbOfNotActiveAtoms() {
         int not_active_atoms = 0;
-        for (Atome a : atoms) {
+        for (Atom a : atoms) {
             if (a.isNotActive())
                 not_active_atoms++;
         }
