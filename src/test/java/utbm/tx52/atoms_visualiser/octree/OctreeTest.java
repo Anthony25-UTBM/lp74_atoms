@@ -8,7 +8,6 @@ import org.junit.rules.Timeout;
 import utbm.tx52.atoms_visualiser.Atom;
 import utbm.tx52.atoms_visualiser.Environment;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
