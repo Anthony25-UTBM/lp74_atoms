@@ -2,6 +2,7 @@ package utbm.tx52.atoms_visualiser;
 
 
 import com.jfoenix.controls.JFXDialog;
+import javafx.application.ConditionalFeature;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -116,7 +117,8 @@ public class Atome extends Agent {
         speedZ = 0;
         double[] pos = {posX, posY, posZ};
         double[] colors = {jcouleur.getRed(), jcouleur.getGreen(), jcouleur.getBlue()};
-        sphere = new ASphere(rayon, pos, colors);
+        if(javafx.application.Platform.isSupported(ConditionalFeature.SCENE3D))
+            sphere = new ASphere(rayon, pos, colors);
 
         logger.debug("Atome crée (" + symb + ")");
     }
