@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
 public class Formula {
     private static final Logger logger = LogManager.getLogger("Environment");
 
-    public ArrayList<Atome> parse(String formula, boolean isCHNO) {
+    public ArrayList<Atom> parse(String formula, boolean isCHNO) {
         Pattern pattern = Pattern.compile("([A-Z][a-z]?)(\\d*)");
         Matcher matcher = pattern.matcher(formula);
-        ArrayList<Atome> atoms = new ArrayList<>();
+        ArrayList<Atom> atoms = new ArrayList<>();
 
         while (matcher.find()) {
             String symbole = matcher.group(2);
@@ -29,10 +29,10 @@ public class Formula {
 
 
                 for (int i = 1; i < count; i++) {
-                    atoms.add(new Atome(matcher.group(1), isCHNO));
+                    atoms.add(new Atom(matcher.group(1), isCHNO));
                 }
             }
-            atoms.add(new Atome(matcher.group(1), isCHNO));
+            atoms.add(new Atom(matcher.group(1), isCHNO));
         }
         return atoms;
     }

@@ -18,8 +18,8 @@ import static java.lang.Math.pow;
 Class atom
  */
 
-public class Atome extends Agent {
-    private static final Logger logger = LogManager.getLogger("Atome");
+public class Atom extends Agent {
+    private static final Logger logger = LogManager.getLogger("Atom");
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
     public static final double DISTANCE_MAX = 40;
@@ -47,7 +47,7 @@ public class Atome extends Agent {
     private long vanderWaalsRadius;
     private boolean isCHNO;
 
-    public Atome(String symbole, boolean isCHNO) {
+    public Atom(String symbole, boolean isCHNO) {
         ratioSpeed = 1;
         this.isCHNO = isCHNO;
         if (isCHNO) {
@@ -83,10 +83,10 @@ public class Atome extends Agent {
         double[] colors = {jcouleur.getRed(), jcouleur.getGreen(), jcouleur.getBlue()};
         sphere = new ASphere(rayon, pos, colors);
 
-        logger.debug("Atome crée" + " (" + symb + ")");
+        logger.debug("Atom crée" + " (" + symb + ")");
     }
 
-    public Atome(int _n, double _x, double _y, double _z, double _dir, boolean isCHNO) {
+    public Atom(int _n, double _x, double _y, double _z, double _dir, boolean isCHNO) {
         ratioSpeed = 1;
         a_number = _n;
         this.isCHNO = isCHNO;
@@ -120,7 +120,7 @@ public class Atome extends Agent {
         if(javafx.application.Platform.isSupported(ConditionalFeature.SCENE3D))
             sphere = new ASphere(rayon, pos, colors);
 
-        logger.debug("Atome crée (" + symb + ")");
+        logger.debug("Atom crée (" + symb + ")");
     }
 
 
@@ -173,24 +173,24 @@ public class Atome extends Agent {
     }
 
     //TODO: Interet de cette methode !!
-    protected boolean DansAlignement(Atome a) {
+    protected boolean DansAlignement(Atom a) {
         double distanceCarre = distanceSquared(a);
         return (distanceCarre < DISTANCE_MAX_CARRE && distanceCarre > DISTANCE_MIN_CARRE);
     }
 
     //TODO: URGENT
-    protected boolean LierAtomes(ArrayList<Atome> atomes) {
+    protected boolean LierAtomes(ArrayList<Atom> atoms) {
         // Recherche de l'atome le plus proche
-        Atome a;
-        if (!atomes.get(0).equals(this)) {
-            a = atomes.get(0);
+        Atom a;
+        if (!atoms.get(0).equals(this)) {
+            a = atoms.get(0);
         } else {
-            a = atomes.get(1);
+            a = atoms.get(1);
         }
         double distanceCarre = distanceSquared(a);
-        for (Atome atome : atomes) {
-            if (distanceSquared(atome) < distanceCarre && !atome.equals(this)) {
-                a = atome;
+        for (Atom atom : atoms) {
+            if (distanceSquared(atom) < distanceCarre && !atom.equals(this)) {
+                a = atom;
                 distanceCarre = distanceSquared(a);
             }
         }
@@ -223,19 +223,19 @@ public class Atome extends Agent {
         return false;
     }
 
-    protected boolean EviterAtomes(ArrayList<Atome> atomes) {
+    protected boolean EviterAtomes(ArrayList<Atom> atoms) {
         // Recherche de l'atome le plus proche
-        Atome a;
+        Atom a;
         generateur = new Random();
-        if (!atomes.get(0).equals(this)) {
-            a = atomes.get(0);
+        if (!atoms.get(0).equals(this)) {
+            a = atoms.get(0);
         } else {
-            a = atomes.get(1);
+            a = atoms.get(1);
         }
         double distanceCarre = distanceSquared(a);
-        for (Atome atome : atomes) {
-            if (distanceSquared(atome) < distanceCarre && !atome.equals(this)) {
-                a = atome;
+        for (Atom atom : atoms) {
+            if (distanceSquared(atom) < distanceCarre && !atom.equals(this)) {
+                a = atom;
                 distanceCarre = distanceSquared(a);
             }
         }
@@ -323,12 +323,12 @@ public class Atome extends Agent {
         return false;
     }
 
-    protected void CalculerDirectionMoyenne(ArrayList<Atome> atomes) {
+    protected void CalculerDirectionMoyenne(ArrayList<Atom> atoms) {
         double vitesseXTotal = 0;
         double vitesseYTotal = 0;
         double vitesseZTotal = 0;
         int nbTotal = 0;
-        for (Atome a : atomes) {
+        for (Atom a : atoms) {
             if (DansAlignement(a)) {
                 vitesseXTotal += a.speedX;
                 vitesseYTotal += a.speedY;
@@ -344,14 +344,14 @@ public class Atome extends Agent {
         }
     }
 
-    public void MiseAJour(ArrayList<Atome> atomes, ArrayList<Molecule> molecules, double largeur, double hauteur, double profondeur) {
+    public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules, double largeur, double hauteur, double profondeur) {
         lifetime--;
         if (state == ElementState.free) {
             if (!EviterLimiteEnv(0, 0, 0, largeur, hauteur, profondeur)) {
-                if (!LierAtomes(atomes)) {
+                if (!LierAtomes(atoms)) {
                     if (!EviterMolecule(molecules)) {
-                        if (!EviterAtomes(atomes)) {
-                            CalculerDirectionMoyenne(atomes);
+                        if (!EviterAtomes(atoms)) {
+                            CalculerDirectionMoyenne(atoms);
                         }
                     }
                 }
@@ -377,7 +377,7 @@ public class Atome extends Agent {
                 public void handle(MouseEvent event) {
                     AController.items.clear();
 
-                    AController.items.add(" Atome : " + getSymb());
+                    AController.items.add(" Atom : " + getSymb());
                     AController.items.add(" Speed : " + getSpeed());
                     AController.items.add(" Rayon : " + getRayon());
 

@@ -3,8 +3,8 @@ package utbm.tx52.atoms_visualiser;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-public class AtomeTest {
-    private Atome atome;
+public class AtomTest {
+    private Atom atom;
     private double posX;
     private double posY;
     private double posZ;
@@ -25,18 +25,18 @@ public class AtomeTest {
     }
 
     private void initAgent() {
-        atome = new Atome(n, posX, posY, posZ, dir, isCHNO);
+        atom = new Atom(n, posX, posY, posZ, dir, isCHNO);
     }
 
     @Test
     public void distance() {
-        Atome a = new Atome(n, 5, 10, 20, dir, isCHNO);
-        assertEquals(Math.sqrt(525), atome.distance(a), 0.001);
+        Atom a = new Atom(n, 5, 10, 20, dir, isCHNO);
+        assertEquals(Math.sqrt(525), atom.distance(a), 0.001);
     }
 
     @Test
     public void distanceSquared() {
-        Atome a = new Atome(n, 0, 10, 10, dir, isCHNO);
-        assertEquals(200, atome.distanceSquared(a), 0.001);
+        Atom a = new Atom(n, 0, 10, 10, dir, isCHNO);
+        assertEquals(200, atom.distanceSquared(a), 0.001);
     }
 }

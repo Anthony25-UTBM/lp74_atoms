@@ -65,19 +65,19 @@ public class EnvironmentTest {
 
     @Test
     public void addAtomCHNO() {
-        Atome a = new Atome("C", true);
+        Atom a = new Atom("C", true);
         environment.addAtom(a);
 
-        Atome addedAtom = environment.atoms.get(environment.atoms.size() - 1);
+        Atom addedAtom = environment.atoms.get(environment.atoms.size() - 1);
         assertEquals(a, addedAtom);
     }
 
     @Test
     public void addAtomNotCHNO() {
-        Atome a = new Atome("Ar", false);
+        Atom a = new Atom("Ar", false);
         environment.addAtom(a);
 
-        Atome addedAtom = environment.atoms.get(environment.atoms.size() - 1);
+        Atom addedAtom = environment.atoms.get(environment.atoms.size() - 1);
         assertEquals(a, addedAtom);
     }
 
@@ -96,7 +96,7 @@ public class EnvironmentTest {
         spyAllAtomsOf(environment);
 
         AGroup world = new AGroup();
-        for(Atome a : environment.atoms) {
+        for(Atom a : environment.atoms) {
             doNothing().when(a).MiseAJour(
                 any(), any(), anyDouble(), anyDouble(), anyDouble()
             );
@@ -104,7 +104,7 @@ public class EnvironmentTest {
         }
 
         environment.updateAtoms(world);
-        for(Atome a : environment.atoms) {
+        for(Atom a : environment.atoms) {
             verify(a).MiseAJour(any(), any(), anyDouble(), anyDouble(), anyDouble());
             verify(a).draw(any());
         }
@@ -115,7 +115,7 @@ public class EnvironmentTest {
     }
 
     private void spyAllAtomsOf(Environment env) {
-        spyAllElemsOf(env, Atome.class);
+        spyAllElemsOf(env, Atom.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -125,7 +125,7 @@ public class EnvironmentTest {
         ArrayList<T> elemList;
         if(elementType == Molecule.class)
             elemList = (ArrayList<T>) environment.molecules;
-        else if(elementType == Atome.class)
+        else if(elementType == Atom.class)
             elemList = (ArrayList<T>) environment.atoms;
         else {
             throw new UnknownTypeException(null, null);
@@ -158,11 +158,11 @@ public class EnvironmentTest {
     @Test
     public void nbOfEachAtoms() {
         environment.atoms = new ArrayList<>();
-        Atome[] atomList = new Atome[] {
-            new Atome("C", true),
-            new Atome("H", true),
-            new Atome("H", true),
-            new Atome("Ar", false),
+        Atom[] atomList = new Atom[] {
+            new Atom("C", true),
+            new Atom("H", true),
+            new Atom("H", true),
+            new Atom("Ar", false),
         };
         environment.atoms.addAll(Arrays.asList(atomList));
 

@@ -5,7 +5,7 @@ import org.junit.*;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import utbm.tx52.atoms_visualiser.Atome;
+import utbm.tx52.atoms_visualiser.Atom;
 import utbm.tx52.atoms_visualiser.Environment;
 
 import java.sql.Time;
@@ -36,10 +36,10 @@ public class OctreeTest {
     }
 
     public class AtomsAdderWorker implements Runnable {
-        ArrayList<Atome> atoms;
+        ArrayList<Atom> atoms;
         Octree octree;
 
-        public AtomsAdderWorker(ArrayList<Atome> atoms, Octree octree) {
+        public AtomsAdderWorker(ArrayList<Atom> atoms, Octree octree) {
             super();
             this.atoms = new ArrayList(atoms);
             this.octree = octree;
@@ -47,7 +47,7 @@ public class OctreeTest {
 
         @Override
         public void run() {
-            for(Atome a : atoms) {
+            for(Atom a : atoms) {
                 try {
                     octree.add(a);
                 } catch (OctreeSubdivisionException | InterruptedException e) {
@@ -78,14 +78,14 @@ public class OctreeTest {
     public void getObjects() throws Exception {
         Environment environment = genEnvironment(2, false);
 
-        Octree t_octree = new Octree<Atome>(size, maxObjects, environment.getAtoms());
+        Octree t_octree = new Octree<Atom>(size, maxObjects, environment.getAtoms());
         assertEquals(environment.getAtoms(), t_octree.getObjects());
     }
 
     @Test
     public void getOctreeForPoint() throws OctreeSubdivisionException, PointOutsideOctreeException, Exception {
         Environment environment = genEnvironment(50, false);
-        for(Atome a : environment.getAtoms()) {
+        for(Atom a : environment.getAtoms()) {
             Octree storedIn = octree.add(a);
             assertEquals(storedIn, octree.getOctreeForPoint(a.getCoordinates()));
         }
@@ -99,7 +99,7 @@ public class OctreeTest {
     @Test
     public void add() throws OctreeSubdivisionException, Exception {
         Environment environment = genEnvironment(1, false);
-        Atome a = environment.getAtoms().get(0);
+        Atom a = environment.getAtoms().get(0);
 
         Octree storedIn = octree.add(a);
         assertEquals(octree, storedIn);
@@ -110,9 +110,9 @@ public class OctreeTest {
     @Test
     public void addMoreThanMaxItems() throws OctreeSubdivisionException, Exception {
         Environment environment = genEnvironment(1000, false);
-        ArrayList<Atome> env_atoms = environment.getAtoms();
+        ArrayList<Atom> env_atoms = environment.getAtoms();
 
-        for(Atome a : env_atoms)
+        for(Atom a : env_atoms)
             octree.add(a);
         ArrayList octree_atoms = octree.getObjects();
 
@@ -126,7 +126,7 @@ public class OctreeTest {
         List<Callable<Object>> calls = new ArrayList<Callable<Object>>();
         for(int i = 0; i < 10; i++) {
             Environment environment = genEnvironment(1000, false);
-            ArrayList<Atome> env_atoms = environment.getAtoms();
+            ArrayList<Atom> env_atoms = environment.getAtoms();
 
             Runnable worker = new AtomsAdderWorker(env_atoms, octree);
             calls.add(Executors.callable(worker));
@@ -142,11 +142,11 @@ public class OctreeTest {
     @Test
     public void addCheckIfPlacedInCorrectChild() throws OctreeSubdivisionException, Exception {
         Environment environment = genEnvironment(maxObjects, false);
-        for(Atome a : environment.getAtoms())
+        for(Atom a : environment.getAtoms())
             octree.add(a);
         octree.subdivide();
 
-        Atome a = new Atome(1, 0, 0, 0, 0, false);
+        Atom a = new Atom(1, 0, 0, 0, 0, false);
 
         a.posX = 0;
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[0]));
@@ -169,7 +169,7 @@ public class OctreeTest {
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[5]));
     }
 
-    private boolean addThenCheckAtomIsInChild(Atome a, Octree child) throws OctreeSubdivisionException, Exception {
+    private boolean addThenCheckAtomIsInChild(Atom a, Octree child) throws OctreeSubdivisionException, Exception {
         octree.add(a);
         return child.getObjects().contains(a);
     }
@@ -194,7 +194,7 @@ public class OctreeTest {
 
     @Test
     public void remove() throws Exception, OctreeSubdivisionException, PointOutsideOctreeException {
-        Atome a = new Atome(1, 0, 0, 0, 0, false);
+        Atom a = new Atom(1, 0, 0, 0, 0, false);
         octree.add(a);
         octree.remove(a);
 
@@ -203,10 +203,10 @@ public class OctreeTest {
 
     @Test
     public void removeAndMerge() throws Exception, OctreeSubdivisionException, PointOutsideOctreeException {
-        octree.add(new Atome(1, 0, 0, 0, 0, false));
-        octree.add(new Atome(1, 1, 1, 0, 0, false));
+        octree.add(new Atom(1, 0, 0, 0, 0, false));
+        octree.add(new Atom(1, 1, 1, 0, 0, false));
 
-        Atome a = new Atome(1, 1, 2, 0, 0, false);
+        Atom a = new Atom(1, 1, 2, 0, 0, false);
         octree.add(a);
         octree.remove(a);
 
@@ -216,10 +216,10 @@ public class OctreeTest {
     @Test
     public void removeButCannotMerge() throws Exception, OctreeSubdivisionException, PointOutsideOctreeException {
         Environment environment = genEnvironment(maxObjects + 1, false);
-        for(Atome a : environment.getAtoms())
+        for(Atom a : environment.getAtoms())
             octree.add(a);
 
-        Atome a = new Atome(1, 0, 0, 0, 0, false);
+        Atom a = new Atom(1, 0, 0, 0, 0, false);
         octree.add(a);
         octree.remove(a);
 

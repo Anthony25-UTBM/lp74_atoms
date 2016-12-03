@@ -149,9 +149,9 @@ public class AController {
     @FXML
     public void generateAtomsByFormula() {
         Formula f = new Formula();
-        ArrayList<Atome> atoms = null;
+        ArrayList<Atom> atoms = null;
         atoms = f.parse(m_Formula, isCHNO);
-        for (Atome a : atoms) {
+        for (Atom a : atoms) {
             env.addAtom(a);
         }
         uiFormula.setText("");
@@ -294,7 +294,7 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     logger.debug("Dragged exit");
 
-                    Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atom atom = new Atom(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(subSceneMolecule.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
@@ -328,7 +328,7 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     logger.debug("Dragged exit");
 
-                    Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atom atom = new Atom(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(subSceneAtome.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
@@ -372,7 +372,7 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     logger.debug("Dragged exit");
 
-                    Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atom atom = new Atom(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(subScene.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
@@ -393,7 +393,7 @@ public class AController {
             for (String grp : periodicTableFactory.getInstance().getUniqGroup())
                 uiAtomType.getItems().add(new Label(grp));
             uiAtomType.setEditable(false);
-            uiAtomType.setPromptText("Atome Type");
+            uiAtomType.setPromptText("Atom Type");
         }
     }
 
