@@ -26,6 +26,8 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,6 +50,7 @@ import java.util.concurrent.locks.ReentrantLock;
 //TODO fix subscene width and height
 
 public class AController {
+    private static final Logger logger = LogManager.getLogger("AController");
     static protected Color couleurs[] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
     protected static ObservableList<String> items = FXCollections.observableArrayList();
 
@@ -215,7 +218,7 @@ public class AController {
         uiAtomsVbox.getChildren().add(l);
         l.setOnDragDetected(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                System.out.println("OnDrag Detected");
+                logger.debug("OnDrag Detected");
                 Dragboard db = l.startDragAndDrop(TransferMode.ANY);
 
                 ClipboardContent content = new ClipboardContent();
@@ -277,7 +280,7 @@ public class AController {
         uiAnchorMolecule.getChildren().add(subSceneMolecule);
         uiAnchorMolecule.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
-                System.out.println("drag drop");
+                logger.debug("drag drop");
                 if (event.getGestureSource() != uiAnchorMolecule &&
                         event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
@@ -289,7 +292,7 @@ public class AController {
             @Override
             public void handle(DragEvent event) {
                 if (!m_draggedAtom.equals("")) {
-                    System.out.println("Dragged exit");
+                    logger.debug("Dragged exit");
 
                     Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(subSceneMolecule.getWorld());
@@ -311,7 +314,7 @@ public class AController {
         uiAnchorAtome.getChildren().add(subSceneAtome);
         uiAnchorAtome.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
-                System.out.println("drag drop");
+                logger.debug("drag drop");
                 if (event.getGestureSource() != uiAnchorAtome &&
                         event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
@@ -323,7 +326,7 @@ public class AController {
             @Override
             public void handle(DragEvent event) {
                 if (!m_draggedAtom.equals("")) {
-                    System.out.println("Dragged exit");
+                    logger.debug("Dragged exit");
 
                     Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(subSceneAtome.getWorld());
@@ -355,7 +358,7 @@ public class AController {
 
         uiAnchor.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
-                System.out.println("drag drop");
+                logger.debug("drag drop");
                 if (event.getGestureSource() != uiAnchor &&
                         event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
@@ -367,7 +370,7 @@ public class AController {
             @Override
             public void handle(DragEvent event) {
                 if (!m_draggedAtom.equals("")) {
-                    System.out.println("Dragged exit");
+                    logger.debug("Dragged exit");
 
                     Atome atom = new Atome(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
                     atom.draw(subScene.getWorld());

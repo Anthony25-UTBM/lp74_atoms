@@ -1,5 +1,8 @@
 package utbm.tx52.atoms_visualiser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,6 +11,8 @@ import java.util.regex.Pattern;
  * Created by adah on 16/11/16.
  */
 public class Formula {
+    private static final Logger logger = LogManager.getLogger("Environment");
+
     public ArrayList<Atome> parse(String formula, boolean isCHNO) {
         Pattern pattern = Pattern.compile("([A-Z][a-z]?)(\\d*)");
         Matcher matcher = pattern.matcher(formula);
@@ -18,7 +23,7 @@ public class Formula {
             if (!verifyCHNO(isCHNO, matcher.group(1))) {
                 continue;
             }
-            System.out.println("adding atom " + matcher.group(1));
+            logger.debug("adding atom " + matcher.group(1));
             if (!symbole.isEmpty()) {
                 int count = Integer.parseInt(matcher.group(2));
 

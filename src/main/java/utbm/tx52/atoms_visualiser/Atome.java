@@ -5,6 +5,8 @@ import com.jfoenix.controls.JFXDialog;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -16,6 +18,7 @@ Class atom
  */
 
 public class Atome extends Agent {
+    private static final Logger logger = LogManager.getLogger("Atome");
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
     public static final double DISTANCE_MAX = 40;
@@ -79,9 +82,7 @@ public class Atome extends Agent {
         double[] colors = {jcouleur.getRed(), jcouleur.getGreen(), jcouleur.getBlue()};
         sphere = new ASphere(rayon, pos, colors);
 
-
-        System.out.println("Atome crée" +
-                " (" + symb + ")");
+        logger.debug("Atome crée" + " (" + symb + ")");
     }
 
     public Atome(int _n, double _x, double _y, double _z, double _dir, boolean isCHNO) {
@@ -99,7 +100,7 @@ public class Atome extends Agent {
         } else {
             PeriodicTable t_periodic = PeriodicTable.getInstance();
             int index = t_periodic.getNumber().indexOf(a_number);
-            System.out.println(" index  = " + index + " a_number " + a_number);
+            logger.debug(" index  = " + index + " a_number " + a_number);
             symb = t_periodic.getSymbole().get(index);
             liaison = t_periodic.getLiaisons().get(index);
             rayon = t_periodic.getRayons().get(index);
@@ -117,9 +118,7 @@ public class Atome extends Agent {
         double[] colors = {jcouleur.getRed(), jcouleur.getGreen(), jcouleur.getBlue()};
         sphere = new ASphere(rayon, pos, colors);
 
-
-        System.out.println("Atome crée" +
-                " (" + symb + ")");
+        logger.debug("Atome crée (" + symb + ")");
     }
 
     public double getRayon() {
@@ -204,7 +203,6 @@ public class Atome extends Agent {
             speedY = speedY - diffY / 2;
             Normaliser();*/
             if (a.liaison != 0) {
-                // System.out.println("Une liaison avec distance Carre = "+distanceCarre);
                 liaison--;
                 a.liaison--;
                 state = ElementState.partially_attached;
@@ -251,7 +249,6 @@ public class Atome extends Agent {
             speedX = speedX - diffX / alea;
             speedY = speedY - diffY / alea;
             speedZ = speedZ - diffZ / alea;
-            //System.out.println("Atome �vit�!!");
             Normaliser();
             return true;
         }

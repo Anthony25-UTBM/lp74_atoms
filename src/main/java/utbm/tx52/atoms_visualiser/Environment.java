@@ -1,11 +1,14 @@
 package utbm.tx52.atoms_visualiser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.*;
 
 
 // Grille repr�sentant l'environnement + les atoms
 public class Environment extends Observable {
-    // protected Atome[] atoms;
+    private static final Logger logger = LogManager.getLogger("Environment");
     protected ArrayList<Atome> atoms;
     protected ArrayList<Molecule> molecules;
     protected Random random_generator;
@@ -27,7 +30,7 @@ public class Environment extends Observable {
             nbSamples = 4;
         } else {
             nbSamples = t_periodic.getSymbole().size();
-            System.out.println("Number of samples " + nbSamples);
+            logger.debug("Number of samples " + nbSamples);
             if (nbSamples == 0) return;
         }
 
@@ -49,8 +52,8 @@ public class Environment extends Observable {
     public void addMolecule(double _posX, double _posY, double rayon) {
         molecules.add(new Molecule(_posX, _posY, rayon));
         if (!molecules.isEmpty()) {
-            System.out.println("Molecule Yes");
-        } else System.out.println("Molecule NO");
+            logger.debug("Molecule Yes");
+        } else logger.debug("Molecule NO");
     }
 
     public void addAtom(Atome a) {
