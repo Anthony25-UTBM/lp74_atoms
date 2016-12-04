@@ -1,8 +1,10 @@
 package utbm.tx52.atoms_visualiser.octree;
 
+import com.google.common.collect.Iterators;
 import javafx.geometry.Point3D;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.locks.StampedLock;
 
 public class Octree<T extends OctreePoint> {
@@ -48,21 +50,36 @@ public class Octree<T extends OctreePoint> {
         this.center = center;
     }
 
-    public ArrayList getObjects() throws InterruptedException {
+    public boolean hasObjects() {
+        return (objects.size() > 0 || isParent());
+    }
+
+    public ArrayList<T> getObjects() throws InterruptedException {
         if(isLeaf())
             return new ArrayList<T>(objects);
 
-        ArrayList<Object> childrenObjects = new ArrayList<>();
-        long stamp = rwlock.readLockInterruptibly();
-        try {
-            for (Octree child : children) {
-                childrenObjects.addAll(child.getObjects());
-            }
-        } finally {
-            rwlock.unlockRead(stamp);
+        ArrayList<T> childrenObjects = new ArrayList<T>();
+        long stamp = rwlock.tryOptimisticRead();
+        for (Octree child : children) {
+            if(child.hasObjects())
+                Iterators.addAll(childrenObjects, child.getObjectsIterator());
         }
 
         return childrenObjects;
+    }
+
+    public Iterator getObjectsIterator() throws InterruptedException {
+        if(isLeaf())
+            return objects.iterator();
+
+        ArrayList childrenObjects = new ArrayList();
+        long stamp = rwlock.tryOptimisticRead();
+        for (Octree child : children) {
+            if(child.hasObjects())
+                childrenObjects.add(child.getObjectsIterator());
+        }
+
+        return Iterators.concat(childrenObjects.iterator());
     }
 
     /**
@@ -88,10 +105,14 @@ public class Octree<T extends OctreePoint> {
     }
 
     public boolean isPointInOctree(Point3D coord) {
+        return isPointInOctree(coord, 0);
+    }
+
+    public boolean isPointInOctree(Point3D coord, double delta) {
         return (
-            (coord.getX() >= (center.getX() - size/2)) && (coord.getX() < (center.getX() + size/2) ) &&
-            (coord.getY() >= (center.getY() - size/2)) && (coord.getY() < (center.getY() + size/2) ) &&
-            (coord.getZ() >= (center.getZ() - size/2)) && (coord.getZ() < (center.getZ() + size/2) )
+            (coord.getX() >= (center.getX() - size/2 - delta)) && (coord.getX() < (center.getX() + size/2 + delta)) &&
+            (coord.getY() >= (center.getY() - size/2 - delta)) && (coord.getY() < (center.getY() + size/2 + delta)) &&
+            (coord.getZ() >= (center.getZ() - size/2 - delta)) && (coord.getZ() < (center.getZ() + size/2 + delta))
         );
     }
 

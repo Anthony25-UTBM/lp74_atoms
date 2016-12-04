@@ -25,7 +25,7 @@ public class OctreeTest {
 
     @Before
     public void setUp() {
-        maxObjects = 2;
+        maxObjects = 100;
         size = Math.pow(2, 20);
         initOctree();
     }
