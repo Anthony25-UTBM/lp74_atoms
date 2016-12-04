@@ -8,14 +8,24 @@ import java.util.ArrayList;
  * Created by anthony on 03/12/16.
  */
 public class OctreeDistanceHelper {
-    public ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target) throws InterruptedException {
+    public ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target) throws Exception {
+        return getSurroundingCubesIn(octree, target, 0);
+    }
+
+    public ArrayList<Octree> getAllCubesInPerimeter(Octree octree, Octree target, double perimeter) throws Exception {
+        return getSurroundingCubesIn(octree, target, perimeter);
+    }
+
+    protected ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target, double minSize) throws Exception {
         ArrayList<Octree> neighbours = new ArrayList<Octree>();
 
         if(target == octree) { }
         else if(target.isLeaf() && areOctreesNeighbours(octree, target))
             neighbours.add(target);
         else if (target.isParent()) {
-            if(target.isPointInOctree(octree.getCenter()) || areOctreesNeighbours(octree, target)) {
+            if(minSize > 0 && (target.size/4 < minSize))
+                neighbours.add(target);
+            else if(target.isPointInOctree(octree.getCenter()) || areOctreesNeighbours(octree, target)) {
                 for (Octree child : target.children)
                     neighbours.addAll(getSurroundingCubesIn(octree, child));
             }

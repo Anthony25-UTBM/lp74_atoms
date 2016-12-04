@@ -45,6 +45,19 @@ public class OctreeDistanceHelperTest {
         );
     }
 
+
+    @Test
+    public void getAllCubesInPerimeter() throws Exception, OctreeSubdivisionException {
+        octree.subdivide();
+        for(Octree child : octree.children)
+            child.subdivide();
+
+        Octree centerChildCube = octree.children[0].children[7];
+        ArrayList surroundingCubes = octreeDistanceHelper.getSurroundingCubesIn(centerChildCube, octree, 8);
+
+        assertEquals(1, surroundingCubes.size());
+    }
+
     @Test
     public void areOctreesNeighbours() throws Exception, OctreeSubdivisionException {
         octree.subdivide();
