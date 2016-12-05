@@ -22,12 +22,6 @@ public class Molecule extends Agent {
         return radius;
     }
 
-    public void update() {
-        lifetime--;
-    }
-
-    public boolean isDead() {
-        return lifetime <= 0;
-    }
+    public void update() { }
 }
     
