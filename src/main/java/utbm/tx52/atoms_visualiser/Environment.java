@@ -1,5 +1,6 @@
 package utbm.tx52.atoms_visualiser;
 
+import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,16 +42,22 @@ public class Environment extends Observable {
             else
                 number = t_periodic.getNumber().get(number);
 
-            double a_x = random_generator.nextDouble() * this.width;
-            double a_y = random_generator.nextDouble() * this.height;
-            double a_z = random_generator.nextDouble() * this.depth;
+            Point3D a_coord = new Point3D(
+                random_generator.nextDouble() * this.width,
+                random_generator.nextDouble() * this.height,
+                random_generator.nextDouble() * this.depth
+            );
             double a_dir = random_generator.nextDouble() * 2 * Math.PI;
-            atoms.add(new Atom(number, a_x, a_y, a_z, a_dir, isCHNO));
+            atoms.add(new Atom(number, a_coord, a_dir, isCHNO));
         }
     }
 
-    public void addMolecule(double _posX, double _posY, double rayon) {
-        molecules.add(new Molecule(_posX, _posY, rayon));
+    public void addMolecule(double coordX, double coordY, double rayon) {
+        addMolecule(new Point3D(coordX, coordY, 0), rayon);
+    }
+
+    public void addMolecule(Point3D coord, double rayon) {
+        molecules.add(new Molecule(coord, rayon));
         if (!molecules.isEmpty()) {
             logger.debug("Molecule Yes");
         } else logger.debug("Molecule NO");
@@ -66,8 +73,6 @@ public class Environment extends Observable {
 
     protected void updateMolecules() {
         molecules.forEach(Molecule::update);
-        //TODO:
-        //atoms.removeIf(a2 -> a2.estMort());
     }
 
     protected void updateAtoms(AGroup world) {

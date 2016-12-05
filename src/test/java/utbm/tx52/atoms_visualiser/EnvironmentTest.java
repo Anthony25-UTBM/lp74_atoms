@@ -1,5 +1,6 @@
 package utbm.tx52.atoms_visualiser;
 
+import javafx.geometry.Point3D;
 import org.junit.*;
 import org.powermock.api.mockito.PowerMockito;
 
@@ -51,16 +52,14 @@ public class EnvironmentTest {
 
     @Test
     public void addMolecule() {
-        double posX = 1;
-        double posY = 2;
-        double rayon = 3;
+        Point3D coord = new Point3D(1, 2, 0);
+        double radius = 3;
 
-        environment.addMolecule(posX, posY, rayon);
+        environment.addMolecule(coord.getX(), coord.getY(), radius);
 
         Molecule lastMolecule = environment.molecules.get(environment.molecules.size() - 1);
-        assertEquals(posX, lastMolecule.posX, 0.001);
-        assertEquals(posY, lastMolecule.posY, 0.001);
-        assertEquals(rayon, lastMolecule.getRadius(), 0.001);
+        assertTrue(coord.equals(lastMolecule.getCoordinates()));
+        assertEquals(radius, lastMolecule.getRadius(), 0.001);
     }
 
     @Test
@@ -196,9 +195,7 @@ public class EnvironmentTest {
 
     public void setAllAtomsSpeedDirOfEnvTo(Environment env, double speed) {
         environment.atoms.forEach(a->{
-            a.speedX = speed;
-            a.speedY = speed;
-            a.speedZ = speed;
+            a.setSpeedVector(new Point3D(speed, speed, speed));
         });
     }
 

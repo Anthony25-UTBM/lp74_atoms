@@ -294,7 +294,10 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     logger.debug("Dragged exit");
 
-                    Atom atom = new Atom(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atom atom = new Atom(
+                        periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
+                        event.getSceneX(), event.getSceneY(), 0, 0, isCHNO()
+                    );
                     atom.draw(subSceneMolecule.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;

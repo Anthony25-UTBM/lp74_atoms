@@ -1,21 +1,21 @@
 package utbm.tx52.atoms_visualiser;
-//package Molecules;
 
 import javafx.geometry.Point3D;
 import utbm.tx52.atoms_visualiser.octree.OctreePoint;
 
 public abstract class Agent implements OctreePoint {
-    public double posX;
-    public double posY;
-    public double posZ;
+    public Point3D coord;
 
     public Agent() {
+        coord = Point3D.ZERO;
     }
 
-    public Agent(double _x, double _y, double _z) {
-        posX = _x;
-        posY = _y;
-        posZ = _z;
+    public Agent(Point3D coord) {
+        this(coord.getX(), coord.getY(), coord.getZ());
+    }
+
+    public Agent(double coordX, double coordY, double coordZ) {
+        coord = new Point3D(coordX, coordY, coordZ);
     }
 
     /**
@@ -24,18 +24,26 @@ public abstract class Agent implements OctreePoint {
     public abstract void start();
 
     public Point3D getCoordinates() {
-        return new Point3D(posX, posY, posZ);
+        return coord;
+    }
+
+    public void setCoordinates(Point3D newCoord) {
+        coord = newCoord;
+    }
+
+    public void setCoordinates(double coordX, double coordY, double coordZ) {
+        coord = new Point3D(coordX, coordY, coordZ);
     }
 
     public double distance(Agent a) {
-        return Math.sqrt(distanceSquared(a));
+        return coord.distance(a.getCoordinates());
     }
 
     public double distanceSquared(Agent a) {
         return (
-            Math.pow(a.posX - posX, 2) +
-            Math.pow(a.posY - posY, 2) +
-            Math.pow(a.posZ - posZ, 2)
+            Math.pow(a.getCoordinates().getX() - coord.getX(), 2) +
+            Math.pow(a.getCoordinates().getY() - coord.getY(), 2) +
+            Math.pow(a.getCoordinates().getZ() - coord.getZ(), 2)
         );
     }
 
