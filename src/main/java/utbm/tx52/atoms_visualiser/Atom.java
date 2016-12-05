@@ -345,7 +345,6 @@ public class Atom extends Agent {
     }
 
     public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules, double largeur, double hauteur, double profondeur) {
-        lifetime--;
         if (state == ElementState.free) {
             if (!EviterLimiteEnv(0, 0, 0, largeur, hauteur, profondeur)) {
                 if (!LierAtomes(atoms)) {

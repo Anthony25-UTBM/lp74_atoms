@@ -5,7 +5,6 @@ public class Agent {
     public double posX;
     public double posY;
     public double posZ;
-    protected int lifetime = 500;
 
     public Agent() {
     }

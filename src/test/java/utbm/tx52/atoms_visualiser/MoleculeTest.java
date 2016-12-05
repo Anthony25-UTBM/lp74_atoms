@@ -26,17 +26,6 @@ public class MoleculeTest {
 
     @Test
     public void update() {
-        int lifetime = molecule.lifetime;
         molecule.update();
-        assertEquals(lifetime - 1, molecule.lifetime);
-    }
-
-    @Test
-    public void isDead() {
-        molecule.lifetime = 1;
-        assertFalse(molecule.isDead());
-
-        molecule.update();
-        assertTrue(molecule.isDead());
     }
 }
