@@ -10,26 +10,27 @@ import java.util.Iterator;
  * Created by anthony on 03/12/16.
  */
 public class OctreeDistanceHelper {
-    public ArrayList getAllNeighInSphere(Octree<OctreePoint> node, Point3D sphereCenter, double perimeter) throws Exception {
+    public ArrayList getAllNeighInSphere(Octree<OctreePoint> node, Point3D sphereCenter, double radius) throws Exception {
         ArrayList neighbours = new ArrayList<>();
         double distanceCubeCenterSphereCenter = node.getCenter().distance(sphereCenter);
 
-        if(isCubeMaybeInSphere(node, distanceCubeCenterSphereCenter, perimeter)) {
-            if(node.isLeaf() || distanceCubeCenterSphereCenter <= perimeter) {
+        if(isCubeMaybeInSphere(node, distanceCubeCenterSphereCenter, radius)) {
+            if(node.isLeaf() || distanceCubeCenterSphereCenter <= radius) {
                 // The entire cube is (or at least all children are) in the sphere
                 Iterator itrObjects = node.getObjectsIterator();
                 while(itrObjects.hasNext()) {
                     OctreePoint p = (OctreePoint) itrObjects.next();
                     double pSphereDistance = p.getCoordinates().distance(sphereCenter);
-                    if (pSphereDistance <= perimeter && !p.getCoordinates().equals(sphereCenter))
+                    if (pSphereDistance <= radius && !p.getCoordinates().equals(sphereCenter))
                         neighbours.add(p);
                 }
             }
             else {
-                for(Octree child : node.children)
-                    if(child.hasObjects()) {
-                        neighbours.addAll(getAllNeighInSphere(child, sphereCenter, perimeter));
+                for(Octree child : node.children) {
+                    if (child.hasObjects()) {
+                        neighbours.addAll(getAllNeighInSphere(child, sphereCenter, radius));
                     }
+                }
             }
         }
 
@@ -41,22 +42,22 @@ public class OctreeDistanceHelper {
      *
      * In a cube, the farthest points are its corners. To check if a cube is in a sphere, we check if at least one
      * of the corners are in the sphere (if the distance between it and the sphere center is at least equal to the
-     * sphere perimeter). You can see the approximation here, as a cube could not be in a circle even if the sphere
+     * sphere radius). You can see the approximation here, as a cube could not be in a circle even if the sphere
      * ends next to one of its edge.
      * However, it is super fast, so very useful for functions that do not mind if there is an error here (typically for
      * the getAllNeighInSphere).
      *
      * @param cube
-     * @param perimeter
+     * @param radius
      * @return true if the cube can be in the corner. if false, it is certainly not.
      */
-    protected boolean isCubeMaybeInSphere(Octree cube, double distanceCubeCenterSphereCenter, double perimeter) {
-        if(distanceCubeCenterSphereCenter <= perimeter)
+    protected boolean isCubeMaybeInSphere(Octree cube, double distanceCubeCenterSphereCenter, double radius) {
+        if(distanceCubeCenterSphereCenter <= radius)
             return true;
 
         Point3D farthestCorner = cube.getCenter().add(cube.size/2, cube.size/2, cube.size/2);
         double distanceFromCubeCenterToCorner = cube.getCenter().distance(farthestCorner);
-        return distanceCubeCenterSphereCenter - perimeter <= distanceFromCubeCenterToCorner;
+        return distanceCubeCenterSphereCenter - radius <= distanceFromCubeCenterToCorner;
     }
 
     protected ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target) throws Exception {
