@@ -1,6 +1,7 @@
 package utbm.tx52.atoms_visualiser.entities;
 
 
+import com.google.common.collect.Iterators;
 import com.jfoenix.controls.JFXDialog;
 import javafx.application.ConditionalFeature;
 import javafx.event.EventHandler;
@@ -14,6 +15,9 @@ import utbm.tx52.atoms_visualiser.utils.ElementState;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
 import utbm.tx52.atoms_visualiser.view.ASphere;
+import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
+import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -25,11 +29,11 @@ Class atom
  */
 
 public class Atom extends Agent {
+    private static final Logger logger = LogManager.getLogger("Atom");
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
     public static final double DISTANCE_MAX = 40;
     public static final double DISTANCE_MAX_CARRE = 1600;
-    private static final Logger logger = LogManager.getLogger("Atom");
     // Constantes
     public static double PAS = 0;
     public static double PLANCK_CONSTANT = 6.62607 * pow(10, -34);// en J/s
@@ -156,13 +160,12 @@ public class Atom extends Agent {
         }
     }
 
-    protected double DistanceLimiteEnv(double envXMin, double envYMin, double envZMin, double envXMax, double envYMax, double envZMax) {
+    protected double DistanceLimiteEnv() {
         double posX = coord.getX(), posY = coord.getY(), posZ = coord.getZ();
-        double min = Math.min(posX - envXMin, Math.min(posY - envYMin, posZ - envZMin));
-        min = Math.min(min, envXMax - posX);
-        min = Math.min(min, envYMax - posY);
-        min = Math.min(min, envZMax - posZ);
-        return min;
+        double minDistanceFromMinCoord = Math.abs(Math.min(posX, Math.min(posY, posZ)) - environment.size/2);
+        double minDistanceFromMaxCoord = Math.abs(environment.size/2 - Math.max(posX, Math.max(posY, posZ)));
+
+        return Math.min(minDistanceFromMinCoord, minDistanceFromMaxCoord);
     }
 
     //TODO: Interet de cette methode !!
@@ -216,17 +219,24 @@ public class Atom extends Agent {
         return false;
     }
 
-    protected boolean EviterAtomes(ArrayList<Atom> atoms) {
+    protected boolean EviterAtomes() throws Exception {
+        OctreeDistanceHelper odh = environment.octreeDistanceHelper;
+        Octree<Atom> selfOctree = environment.atoms.getOctreeForPoint(coord);
+        ArrayList<Octree> farthestCubes = odh.getSurroundingCubesIn(selfOctree, environment.atoms);
+
+        ArrayList<Atom> farthestNeighbours = new ArrayList<>(selfOctree.getObjects());
+        for(Octree o : farthestCubes)
+            Iterators.addAll(farthestNeighbours, o.getObjectsIterator());
+
         // Recherche de l'atome le plus proche
         Atom a;
-        generateur = new Random();
-        if (!atoms.get(0).equals(this)) {
-            a = atoms.get(0);
+        if (!farthestNeighbours.get(0).equals(this)) {
+            a = farthestNeighbours.get(0);
         } else {
-            a = atoms.get(1);
+            a = farthestNeighbours.get(1);
         }
         double distanceCarre = distanceSquared(a);
-        for (Atom atom : atoms) {
+        for (Atom atom : farthestNeighbours) {
             if (distanceSquared(atom) < distanceCarre && !atom.equals(this)) {
                 a = atom;
                 distanceCarre = distanceSquared(a);
@@ -240,6 +250,7 @@ public class Atom extends Agent {
             double diffX = (a.getCoordinates().getX() - coord.getX()) / distance;
             double diffY = (a.getCoordinates().getY() - coord.getY()) / distance;
             double diffZ = (a.getCoordinates().getZ() - coord.getZ()) / distance;
+            generateur = new Random();
             double alea = generateur.nextDouble() * 4;
             speedVector = speedVector.subtract(diffX/alea, diffY/alea, diffZ/alea);
             normalize();
@@ -248,43 +259,34 @@ public class Atom extends Agent {
         return false;
     }
 
-    protected boolean EviterLimiteEnv(double envXMin, double envYMin, double envZMin, double envXMax, double envYMax, double envZMax) {
+    protected boolean EviterLimiteEnv() {
         // On s'arrete aux limites de l'environnement
-        double posX = coord.getX(), posY = coord.getY(), posZ = coord.getZ();
-        if (coord.getX() < envXMin) {
-            posX = envXMin;
-        } else if (posY < envYMin) {
-            posY = envYMin;
-        } else if (posX > envXMax) {
-            posX = envXMax;
-        } else if (posY > envYMax) {
-            posY = envYMax;
-        } else if (posZ < envZMin) {
-            posZ = envZMin;
-        } else if (posZ > envZMax) {
-            posZ = envZMax;
-        }
+        coord = new Point3D(
+            Math.max(-environment.size/2, Math.min(coord.getX(), environment.size/2)),
+            Math.max(-environment.size/2, Math.min(coord.getY(), environment.size/2)),
+            Math.max(-environment.size/2, Math.min(coord.getZ(), environment.size/2))
+        );
 
+        double distance = DistanceLimiteEnv();
+        boolean isNearEnvEdge = (distance <= DISTANCE_MIN);
+        if(isNearEnvEdge)
+            changeDirection(0.3);
+
+        return isNearEnvEdge;
+    }
+
+    protected void changeDirection(double ratio) {
         // Changer de direction
-        double distance = DistanceLimiteEnv(envXMin, envYMin, envZMin, envXMax, envYMax, envZMax);
-        if (distance < DISTANCE_MIN) {
-            if (distance == (posX - envXMin)) {
-                speedVector = speedVector.add(0.3, 0, 0);
-            } else if (distance == (posY - envYMin)) {
-                speedVector = speedVector.add(0, 0.3, 0);
-            } else if (distance == (envXMax - posX)) {
-                speedVector = speedVector.add(-0.3, 0, 0);
-            } else if (distance == (envYMax - posY)) {
-                speedVector = speedVector.add(0, -0.3, 0);
-            } else if (distance == (envZMax - posZ)) {
-                speedVector = speedVector.add(0, 0, -0.3);
-            } else if (distance == (posZ - envZMin)) {
-                speedVector = speedVector.add(0, 0, 0.3);
-            }
-            normalize();
-            return true;
-        }
-        return false;
+        double addSpeedX = 0, addSpeedY = 0, addSpeedZ = 0;
+        if(Math.abs(environment.size/2 - coord.getX()) < DISTANCE_MIN)
+            addSpeedX = ratio * ((environment.size/2 - coord.getX() < DISTANCE_MIN) ? -1 : 1);
+        if(Math.abs(environment.size/2 - coord.getY()) < DISTANCE_MIN)
+            addSpeedY = ratio * ((environment.size/2 - coord.getY() < DISTANCE_MIN) ? -1 : 1);
+        if(Math.abs(environment.size/2 - coord.getZ()) < DISTANCE_MIN)
+            addSpeedZ = ratio * ((environment.size/2 - coord.getZ() < DISTANCE_MIN) ? -1 : 1);
+
+        speedVector = speedVector.add(addSpeedX, addSpeedY, addSpeedZ);
+        normalize();
     }
 
     protected boolean EviterMolecule(ArrayList<Molecule> molecules) {
@@ -331,12 +333,12 @@ public class Atom extends Agent {
         }
     }
 
-    public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules) {
+    public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules) throws Exception {
         if (state == ElementState.free) {
-            if (!EviterLimiteEnv(0, 0, 0, environment.size, environment.size, environment.size)) {
+            if (!EviterLimiteEnv()) {
                 if (!LierAtomes(atoms)) {
                     if (!EviterMolecule(molecules)) {
-                        if (!EviterAtomes(atoms)) {
+                        if (!EviterAtomes()) {
                             CalculerDirectionMoyenne(atoms);
                         }
                     }

@@ -60,7 +60,7 @@ public class OctreeDistanceHelper {
         return distanceCubeCenterSphereCenter - radius <= distanceFromCubeCenterToCorner;
     }
 
-    protected ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target) throws Exception {
+    public ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target) throws Exception {
         ArrayList<Octree> neighbours = new ArrayList<Octree>();
 
         if(target == octree) { }

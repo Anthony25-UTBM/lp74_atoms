@@ -19,7 +19,7 @@ public class Octree<T extends OctreePoint> {
     public Octree(double size, int maxObjects) {
         this.maxObjects = maxObjects;
         this.objects = new ArrayList<T>();
-        this.center = new Point3D(size/2, size/2, size/2);
+        this.center = Point3D.ZERO;
         this.size = size;
         rwlock =  new StampedLock();
     }
@@ -84,10 +84,14 @@ public class Octree<T extends OctreePoint> {
             return objects.iterator();
 
         ArrayList childrenObjects = new ArrayList();
-        long stamp = rwlock.tryOptimisticRead();
-        for (Octree child : children) {
-            if(child.hasObjects())
-                childrenObjects.add(child.getObjectsIterator());
+        long stamp = rwlock.readLockInterruptibly();
+        try {
+            for (Octree child : children) {
+                if(child.hasObjects())
+                    childrenObjects.add(child.getObjectsIterator());
+            }
+        } finally {
+            rwlock.unlockRead(stamp);
         }
 
         return Iterators.concat(childrenObjects.iterator());

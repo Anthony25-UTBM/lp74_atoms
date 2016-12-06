@@ -38,6 +38,7 @@ import utbm.tx52.atoms_visualiser.utils.Pair;
 import utbm.tx52.atoms_visualiser.utils.StatsElement;
 import utbm.tx52.atoms_visualiser.view.AScene;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -103,7 +104,7 @@ public class AController {
     UIReactionController uiReactionController;
     private Parent parent;
     private boolean isCHNO;
-    private double m_numberOfAtoms;
+    private int m_numberOfAtoms;
     private boolean updateStat;
     private int screen_width = 1024;
     private int screen_height = 768;

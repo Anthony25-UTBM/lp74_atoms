@@ -7,6 +7,9 @@ import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
+import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
+import utbm.tx52.atoms_visualiser.octree.OctreeSubdivisionException;
+import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.*;
 
@@ -14,21 +17,21 @@ import java.util.*;
 // Grille repr�sentant l'environnement + les atoms
 public class Environment extends Observable {
     private static final Logger logger = LogManager.getLogger("Environment");
+    public OctreeDistanceHelper octreeDistanceHelper = new OctreeDistanceHelper();
     public Octree<Atom> atoms;
     public ArrayList<Molecule> molecules;
-    public Random random_generator;
+    protected Random random_generator;
     /**
      * Environment is a cube, `size` is the size of an edge
      */
-    public double size;
-    public int maxObjects = 200;
-
+    protected double size;
+    protected int maxObjects = 200;
 
     public Environment(int nbAtoms, double size, boolean isCHNO) {
         this.size = size;
         random_generator = new Random();
         molecules = new ArrayList();
-        atoms = new Octree<Atom>(size, 200);
+        atoms = new Octree<Atom>(size*2, maxObjects);
         int nbSamples;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
@@ -48,9 +51,9 @@ public class Environment extends Observable {
                 number = t_periodic.getNumber().get(number);
 
             Point3D a_coord = new Point3D(
-                random_generator.nextDouble() * this.size,
-                random_generator.nextDouble() * this.size,
-                random_generator.nextDouble() * this.size
+                random_generator.nextDouble() * (this.size/2 - 1),
+                random_generator.nextDouble() * (this.size/2 - 1),
+                random_generator.nextDouble() * (this.size/2 - 1)
             );
             double a_dir = random_generator.nextDouble() * 2 * Math.PI;
             try {
@@ -82,15 +85,14 @@ public class Environment extends Observable {
 
     public void move(Atom a, Point3D dest) throws Exception {
         Octree a_octree = atoms.getOctreeForPoint(a.getCoordinates());
-        Octree dest_octree = atoms.getOctreeForPoint(dest);
 
-        if(a_octree != dest_octree) {
+        if(a_octree.isPointInOctree(dest))
+            a.setCoordinates(dest);
+        else {
             a_octree.remove(a);
             a.setCoordinates(dest);
             atoms.add(a);
         }
-        else
-            a.setCoordinates(dest);
     }
 
     public void updateMolecules() {
@@ -106,7 +108,11 @@ public class Environment extends Observable {
         }
 
         for (Atom a : atoms_objects) {
-            a.MiseAJour(atoms_objects, molecules);
+            try {
+                a.MiseAJour(atoms_objects, molecules);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             a.draw(world);
         }
     }

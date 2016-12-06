@@ -126,7 +126,7 @@ public class EnvironmentTest {
     private <T> void spyAllElemsOf(Environment env, Class<T> elementType) throws Exception {
         int index = 0;
 
-        // It should be way more dirty when molecules will use an octree (or be removed)
+        // It should be way cleaner when molecules will use an octree (or be removed)
         if(elementType == Molecule.class) {
             ArrayList<T> elemList = (ArrayList<T>) environment.molecules;
             for (T e : elemList) {

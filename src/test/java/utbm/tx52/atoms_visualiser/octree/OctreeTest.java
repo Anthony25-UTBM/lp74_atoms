@@ -121,22 +121,22 @@ public class OctreeTest {
 
         Atom a = new Atom(environment, 1, 0, 0, 0, 0, false);
 
-        a.setCoordinates(0, 0, 0);
+        a.setCoordinates(-size/2, -size/2, -size/2);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[0]));
-        a.setCoordinates(0, size, 0);
+        a.setCoordinates(-size/2, size, -size/2);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[2]));
-        a.setCoordinates(0, size, size);
+        a.setCoordinates(-size/2, size, size);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[6]));
-        a.setCoordinates(0, 0, size);
+        a.setCoordinates(-size/2, -size/2, size);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[4]));
 
-        a.setCoordinates(size, 0, 0);
+        a.setCoordinates(size, -size/2, -size/2);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[1]));
-        a.setCoordinates(size, size, 0);
+        a.setCoordinates(size, size, -size/2);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[3]));
         a.setCoordinates(size, size, size);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[7]));
-        a.setCoordinates(size, 0, size);
+        a.setCoordinates(size, -size/2, size);
         assertTrue(addThenCheckAtomIsInChild(a, octree.children[5]));
     }
 
