@@ -1,4 +1,6 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.utils;
+
+import utbm.tx52.atoms_visualiser.entities.CHNO;
 
 public class IPeriodicTableFactory {
     private boolean isCHNO;

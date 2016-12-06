@@ -1,9 +1,10 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.utils;
 
 
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.entities.Atom;
 
 import javax.json.*;
 import java.io.FileInputStream;

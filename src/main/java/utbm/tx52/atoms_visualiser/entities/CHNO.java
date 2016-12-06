@@ -1,6 +1,7 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.entities;
 
 import javafx.scene.paint.Color;
+import utbm.tx52.atoms_visualiser.utils.IPeriodicTable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

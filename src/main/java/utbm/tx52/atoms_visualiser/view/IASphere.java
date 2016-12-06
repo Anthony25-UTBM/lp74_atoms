@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.view;
 
 public interface IASphere {
     void setRayon(double r);

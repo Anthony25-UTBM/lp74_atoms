@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.utils;
 
 import javafx.animation.ParallelTransition;
 import javafx.application.Platform;

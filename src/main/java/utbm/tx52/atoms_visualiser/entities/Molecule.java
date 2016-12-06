@@ -1,6 +1,7 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.entities;
 
 import javafx.geometry.Point3D;
+import utbm.tx52.atoms_visualiser.utils.ElementState;
 
 // Agent Molecule
 public class Molecule extends Agent {
@@ -19,7 +20,8 @@ public class Molecule extends Agent {
         this.radius = radius;
     }
 
-    public void start() {};
+    public void start() {
+    }
 
     public double getRadius() {
         return radius;

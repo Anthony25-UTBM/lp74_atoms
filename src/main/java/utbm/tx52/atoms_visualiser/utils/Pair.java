@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.utils;
 
 /**
  * Created by anthony on 16/06/16.

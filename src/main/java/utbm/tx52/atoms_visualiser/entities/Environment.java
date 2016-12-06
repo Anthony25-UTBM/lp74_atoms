@@ -1,9 +1,12 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.entities;
 
 import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
+import utbm.tx52.atoms_visualiser.view.AGroup;
 
 import java.util.*;
 
@@ -17,8 +20,9 @@ public class Environment extends Observable {
     /**
      * Environment is a cube, `size` is the size of an edge
      */
-    protected double size;
-    protected int maxObjects = 200;
+    public double size;
+    public int maxObjects = 200;
+
 
     public Environment(int nbAtoms, double size, boolean isCHNO) {
         this.size = size;
@@ -89,7 +93,7 @@ public class Environment extends Observable {
             a.setCoordinates(dest);
     }
 
-    protected void updateMolecules() {
+    public void updateMolecules() {
         molecules.forEach(Molecule::update);
     }
 

@@ -1,6 +1,5 @@
 package utbm.tx52.atoms_visualiser.octree;
 
-import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AssumptionViolatedException;
@@ -9,8 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
-import utbm.tx52.atoms_visualiser.Atom;
-import utbm.tx52.atoms_visualiser.Environment;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Environment;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -24,9 +23,6 @@ public class OctreeDistanceHelperTest {
     private static final Logger logger = LogManager.getLogger("OctreeDistanceHelperTest");
     public OctreeDistanceHelper octreeDistanceHelper;
     public Octree octree;
-    int maxObjects = 1000;
-    double size = Math.pow(2, 10);
-
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
@@ -49,6 +45,8 @@ public class OctreeDistanceHelperTest {
             logger.info("finished", nanos, description);
         }
     };
+    int maxObjects = 1000;
+    double size = Math.pow(2, 10);
 
     @Before
     public void setUp() throws Exception {
@@ -57,7 +55,7 @@ public class OctreeDistanceHelperTest {
     }
 
     @Test
-    public void getSurroundingCubesIn() throws Exception, OctreeSubdivisionException {
+    public void getSurroundingCubesIn() throws Exception {
         octree.subdivide();
         for(Octree child : octree.children)
             child.subdivide();
@@ -81,7 +79,7 @@ public class OctreeDistanceHelperTest {
 
 
     @Test
-    public void getAllNeighInSphere() throws Exception, OctreeSubdivisionException {
+    public void getAllNeighInSphere() throws Exception {
         Environment environment = genEnvironment(100000, false);
         ArrayList<Atom> atoms = environment.getAtoms().getObjects();
         for(Atom a : atoms)
@@ -99,7 +97,7 @@ public class OctreeDistanceHelperTest {
         double naive_algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS) - start_naive_algorithm_time;
 
         double start_algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS);
-        ArrayList neighboursInSphere = octreeDistanceHelper.getAllNeighInSphere(octree, atom.getCoordinates(), perimeter);;
+        ArrayList neighboursInSphere = octreeDistanceHelper.getAllNeighInSphere(octree, atom.getCoordinates(), perimeter);
         double algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS) - start_algorithm_time;
 
         assertEquals(neighboursInSphereWithNaiveAlgorithm.size(), neighboursInSphere.size());
@@ -114,13 +112,13 @@ public class OctreeDistanceHelperTest {
     }
 
     @Test
-    public void areOctreesNeighbours() throws Exception, OctreeSubdivisionException {
+    public void areOctreesNeighbours() throws Exception {
         octree.subdivide();
         assertTrue(octreeDistanceHelper.areOctreesNeighbours(octree.children[0], octree.children[7]));
     }
 
     @Test
-    public void areOctreesNeighboursDistantOctrees() throws Exception, OctreeSubdivisionException {
+    public void areOctreesNeighboursDistantOctrees() throws Exception {
         octree.subdivide();
         octree.children[0].subdivide();
         assertFalse(octreeDistanceHelper.areOctreesNeighbours(

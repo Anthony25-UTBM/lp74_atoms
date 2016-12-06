@@ -2,19 +2,18 @@ package utbm.tx52.atoms_visualiser.octree;
 
 import com.google.common.collect.Iterators;
 import javafx.geometry.Point3D;
-import utbm.tx52.atoms_visualiser.Atom;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.locks.StampedLock;
 
 public class Octree<T extends OctreePoint> {
-    private ArrayList<T> objects;
-    private int maxObjects;
     public Octree children[] = new Octree[0];
     public Octree parent = null;
-    private Point3D center;
     public double size;
+    private ArrayList<T> objects;
+    private int maxObjects;
+    private Point3D center;
     private StampedLock rwlock;
 
     public Octree(double size, int maxObjects) {
@@ -184,7 +183,7 @@ public class Octree<T extends OctreePoint> {
      *
      * @throws OctreeSubdivisionException if the octree is already parent
      */
-    protected void subdivide() throws OctreeSubdivisionException, InterruptedException, OctreeAlreadyParentException {
+    protected void subdivide() throws OctreeSubdivisionException, InterruptedException {
         if (isParent())
             throw new OctreeAlreadyParentException("Octree already has children");
 
@@ -217,23 +216,26 @@ public class Octree<T extends OctreePoint> {
         final double CHILD_SIZE = size/2;
 
         double z = (index < 4) ? center.getZ() - CHILD_SIZE/2 : center.getZ() + CHILD_SIZE/2;
-        index -= (int)(index/4) * 4;
+        index -= index / 4 * 4;
 
         double y = (index < 2) ? center.getY() - CHILD_SIZE/2 : center.getY() + CHILD_SIZE/2;
-        index -= (int)(index/2) * 2;
+        index -= index / 2 * 2;
 
         double x = (index == 0) ? center.getX() - CHILD_SIZE/2 : center.getX() + CHILD_SIZE/2;
 
         return new Point3D(x, y, z);
     }
 
-    public void remove(T object) throws PointOutsideOctreeException, OctreeSubdivisionException, Exception {
+    public void remove(T object) throws Exception {
         if (isParent())
             getOctreeForPoint(object.getCoordinates()).remove(object);
         else {
             objects.remove(object);
             if (!isRoot())
-                try { parent.mergeAllChildren(); } catch (OctreeCannotMergeException ignore) { };
+                try {
+                    parent.mergeAllChildren();
+                } catch (OctreeCannotMergeException ignore) {
+                }
         }
     }
 
@@ -242,7 +244,7 @@ public class Octree<T extends OctreePoint> {
      * @throws Exception
      * @throws OctreeSubdivisionException
      */
-    protected void mergeAllChildren() throws Exception, OctreeSubdivisionException, OctreeCannotMergeException {
+    protected void mergeAllChildren() throws Exception {
         ArrayList<T> oldObjects;
         long stamp = rwlock.readLock();
         try {
@@ -260,7 +262,10 @@ public class Octree<T extends OctreePoint> {
             add(o);
 
         if (!isRoot())
-            try { parent.mergeAllChildren(); } catch (OctreeCannotMergeException ignore) { };
+            try {
+                parent.mergeAllChildren();
+            } catch (OctreeCannotMergeException ignore) {
+            }
     }
 
     protected boolean isPossibleToMergeChildren() throws InterruptedException {

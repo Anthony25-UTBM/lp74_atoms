@@ -1,7 +1,11 @@
 package utbm.tx52.atoms_visualiser;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Environment;
+
+import static org.junit.Assert.assertEquals;
 
 public class AtomTest {
     private Atom atom;

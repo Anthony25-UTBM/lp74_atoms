@@ -5,9 +5,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import utbm.tx52.atoms_visualiser.AScene;
-import utbm.tx52.atoms_visualiser.Atom;
-import utbm.tx52.atoms_visualiser.Formula;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Formula;
+import utbm.tx52.atoms_visualiser.view.AScene;
 
 import java.util.ArrayList;
 

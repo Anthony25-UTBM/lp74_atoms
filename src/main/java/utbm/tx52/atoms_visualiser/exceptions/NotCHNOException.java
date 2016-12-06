@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.exceptions;
 
 /**
  * Created by adah on 16/11/16.

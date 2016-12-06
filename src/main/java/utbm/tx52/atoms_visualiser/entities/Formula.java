@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.entities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

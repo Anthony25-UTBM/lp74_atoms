@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.view;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -28,7 +28,7 @@ public class ASphere extends Sphere implements IASphere {
         }
     };
 
-    ASphere(double _rayon, double[] _position, double[] _couleurs) {
+    public ASphere(double _rayon, double[] _position, double[] _couleurs) {
         super();
         rayon = _rayon;
         couleurs = _couleurs;

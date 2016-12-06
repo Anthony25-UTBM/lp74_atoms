@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.entities;
 
 import javafx.geometry.Point3D;
 import utbm.tx52.atoms_visualiser.octree.OctreePoint;

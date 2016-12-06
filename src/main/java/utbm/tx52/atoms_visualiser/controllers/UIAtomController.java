@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import utbm.tx52.atoms_visualiser.AScene;
+import utbm.tx52.atoms_visualiser.view.AScene;
 
 /**
  * Created by adah on 06/12/16.

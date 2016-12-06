@@ -1,14 +1,24 @@
 package utbm.tx52.atoms_visualiser;
 
 import javafx.geometry.Point3D;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Environment;
+import utbm.tx52.atoms_visualiser.entities.Molecule;
+import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.view.AGroup;
 
 import javax.lang.model.type.UnknownTypeException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -125,7 +135,7 @@ public class EnvironmentTest {
             }
         }
         else if(elementType == Atom.class) {
-            ArrayList<Atom> elemList = (ArrayList<Atom>) environment.atoms.getObjects();
+            ArrayList<Atom> elemList = environment.atoms.getObjects();
             for (Atom e : elemList) {
                 Octree<Atom> octree = environment.atoms.getOctreeForPoint(e.getCoordinates());
                 octree.remove(e);

@@ -2,16 +2,14 @@ package utbm.tx52.atoms_visualiser.controllers;
 
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
-import utbm.tx52.atoms_visualiser.AScene;
-import utbm.tx52.atoms_visualiser.Atom;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.view.AScene;
 
 /**
  * Created by adah on 06/12/16.
  */
 public class SetupSceneHelper {
     public static void setupScene(AnchorPane uiAnchor, AScene subSceneAtome, AController aController, IController controller) {
-        double screen_height = (int) uiAnchor.getPrefHeight();
-        double screen_width = (int) uiAnchor.getPrefWidth();
         uiAnchor.getChildren().add(subSceneAtome);
         uiAnchor.setOnDragOver(event -> {
             if (event.getGestureSource() != uiAnchor &&

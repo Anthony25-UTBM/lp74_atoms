@@ -29,8 +29,14 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utbm.tx52.atoms_visualiser.*;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Environment;
+import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.utils.IPeriodicTableFactory;
+import utbm.tx52.atoms_visualiser.utils.Pair;
+import utbm.tx52.atoms_visualiser.utils.StatsElement;
+import utbm.tx52.atoms_visualiser.view.AScene;
 
 import java.util.*;
 

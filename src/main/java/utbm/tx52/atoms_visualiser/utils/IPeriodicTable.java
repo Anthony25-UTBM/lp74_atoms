@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.utils;
 
 import javafx.scene.paint.Color;
 

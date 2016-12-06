@@ -1,4 +1,4 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.entities;
 
 
 import com.jfoenix.controls.JFXDialog;
@@ -10,6 +10,10 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.controllers.AController;
+import utbm.tx52.atoms_visualiser.utils.ElementState;
+import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
+import utbm.tx52.atoms_visualiser.view.AGroup;
+import utbm.tx52.atoms_visualiser.view.ASphere;
 
 import java.util.ArrayList;
 import java.util.Random;

@@ -3,7 +3,7 @@ package utbm.tx52.atoms_visualiser.controllers;
 import com.jfoenix.controls.*;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
-import utbm.tx52.atoms_visualiser.AScene;
+import utbm.tx52.atoms_visualiser.view.AScene;
 
 /**
  * Created by adah on 06/12/16.
