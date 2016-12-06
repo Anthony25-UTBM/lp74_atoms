@@ -1,6 +1,5 @@
-package utbm.tx52.atoms_visualiser;
+package utbm.tx52.atoms_visualiser.controllers;
 
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.animation.AnimationTimer;
@@ -17,8 +16,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -28,6 +29,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.*;
 import utbm.tx52.atoms_visualiser.octree.Octree;
 
 import java.util.*;
@@ -47,33 +49,27 @@ import java.util.*;
  *          la tree de la scene peut etre nettoyé suite aux tests quelque dirty node peut etre supprimer (redondance)
  *          features : les molécules peuvent etre géré il faut adopté la classe molécule
  */
-//TODO fix subscene width and height
 
 public class AController {
     private static final Logger logger = LogManager.getLogger("AController");
+    public static ObservableList<String> items = FXCollections.observableArrayList();
     static protected Color couleurs[] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
-    protected static ObservableList<String> items = FXCollections.observableArrayList();
-
     //axis
     final Group axisGroup = new Group();
     protected Stage mainStage;
     protected Environment env;
     protected Timer timer;
+    protected Timer timerMolecule;
     protected AnimationTimer animTimer;
+    protected AnimationTimer animTimerMolecule;
     protected boolean is_playing = false;
-    Scene rootScene;
+    protected IPeriodicTableFactory periodicTableFactory;
+
 
     // right menu
-    @FXML
-    JFXTextField uiSearch;
-    @FXML
-    VBox uiAtomsVbox;
+    Scene rootScene;
     @FXML
     VBox uiTableMolecules;
-    @FXML
-    JFXComboBox uiAtomType;
-    @FXML
-    AnchorPane uiAnchor;
     // left menu
     @FXML
     TreeTableView uiStatistics;
@@ -83,33 +79,23 @@ public class AController {
     @FXML
     Slider uiSpeedSlider;
     @FXML
-    ListView<String> uiList;
-    @FXML
     MenuItem uiEgg;
     @FXML
     JFXToggleButton fullmode;
-    @FXML
-    JFXTextField uiGenAtomNumber;
-    AScene subScene;
 
     //Atom tab //
 
-    @FXML
-    AnchorPane uiAnchorAtome;
-    AScene subSceneAtome;
     //Molecular tab//
     @FXML
-    AnchorPane uiAnchorMolecule;
-    AScene subSceneMolecule;
+    JFXTextField uiGenAtomNumber;
+    //controllers !
     @FXML
-    JFXTextField uiFormula;
-
-
-
-
-    private
-    //scene
-            Parent parent;
+    UIAtomController uiAtomController;
+    @FXML
+    UIMoleculeController uiMoleculeController;
+    @FXML
+    UIReactionController uiReactionController;
+    private Parent parent;
     private boolean isCHNO;
     private double m_numberOfAtoms;
     private boolean updateStat;
@@ -122,83 +108,113 @@ public class AController {
     private double mouseDeltaX;
     private double mouseDeltaY;
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
-        handleMouse(subScene, parent);
-        handleMouse(subSceneAtome, parent);
-        handleMouse(subSceneMolecule, parent);
+        handleMouse(uiReactionController.subScene, parent);
+        handleMouse(uiAtomController.subSceneAtome, parent);
+        handleMouse(uiMoleculeController.subSceneMolecule, parent);
     };
-
-    private IPeriodicTableFactory periodicTableFactory;
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
-    private String m_draggedAtom;
-    private String m_Formula;
 
     static protected void setElement(String string) {
         items.add(string);
     }
 
-    private void refresh() {
-        uiList.refresh();
+
+    public double getScreenWidth() {
+        return screen_width;
     }
 
-    private void initListView() {
-
-        uiList.setItems(items);
+    public double getScreenHeight() {
+        return screen_height;
     }
 
-    @FXML
-    public void generateAtomsByFormula() {
-        Formula f = new Formula();
-        ArrayList<Atom> atoms = null;
-        atoms = f.parse(env, m_Formula, isCHNO);
-        for (Atom a : atoms) {
-            try {
-                env.addAtom(a);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        uiFormula.setText("");
-        refresh();
-    }
+
 
     public void setStatsUpdate(boolean update) {
         updateStat = update;
     }
 
-    private void searchListener() {
-        uiSearch.textProperty().addListener(new ChangeListener<String>() {
+
+    private void initAtomsNumber(IController controller) {
+        controller.setNumberOfAtoms(0);
+        if (controller.getUINumberOfAtoms() != null) {
+            controller.getUINumberOfAtoms().textProperty().addListener((observable, oldValue, newValue) -> {
+                controller.setNumberOfAtoms(Integer.parseInt(newValue));
+            });
+        }
+
+    }
+
+
+    private void setListeners(boolean addListeners, IController controller) {
+        if (addListeners) {
+            controller.getSubScene().addEventHandler(MouseEvent.ANY, mouseEventHandler);
+        } else {
+            controller.getSubScene().removeEventHandler(MouseEvent.ANY, mouseEventHandler);
+        }
+    }
+
+
+    public void random_elem_gen(IController controller, int nb_atoms) {
+
+        controller.getSubScene().getWorld().getChildren().clear();
+        if (nb_atoms > 0) {
+            double size = screen_width * ratio;
+            env = new Environment(
+                    nb_atoms, size, isCHNO()
+            );
+        } else
+            env.atoms = new Octree<Atom>(env.atoms.getSize(), env.atoms.getMaxObjects());
+        updateStat = true;
+    }
+
+    public void random_elem_gen(IController controller) {
+        random_elem_gen(controller, controller.getNumberOfAtoms());
+        updateStat = true;
+    }
+
+    public void clear_pool(IController controller) {
+        random_elem_gen(controller, 0);
+    }
+
+    public void setParent(Parent p) {
+        parent = p;
+    }
+
+    private void searchListener(IController controller) {
+        controller.getUISearch().textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                uiAtomsVbox.getChildren().clear();
+                controller.getUIAtomsVBOX().getChildren().clear();
                 for (int i = 0; i < periodicTableFactory.getInstance().getSymbole().size(); ++i) {
                     if (periodicTableFactory.getInstance().getSymbole().get(i).toLowerCase().startsWith(newValue.toLowerCase())) {
-                        addLabel(periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                        addLabel(controller, periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
                     }
                 }
             }
         });
     }
 
-    private void addAtomsTableListners() {
 
-        uiAtomType.valueProperty().addListener(new ChangeListener() {
+    private void addAtomsTableListners(IController controller) {
+
+        controller.getUIAtomType().valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (newValue != null) {
                     String tmpLabel = ((Label) newValue).getText();
                     String ancienLabel = ((Label) newValue).getText();
                     if (!tmpLabel.equals("Show all")) {
-                        uiAtomsVbox.getChildren().clear();
+                        controller.getUIAtomsVBOX().getChildren().clear();
                         for (int i = 0; i < periodicTableFactory.getInstance().getSymbole().size(); ++i) {
                             if (periodicTableFactory.getInstance().getGroup().get(i).equals(tmpLabel)) {
-                                addLabel(periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                                addLabel(controller, periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
                             }
                         }
                     } else {
-                        uiAtomsVbox.getChildren().clear();
+                        controller.getUIAtomsVBOX().getChildren().clear();
                         for (int i = 0; i < periodicTableFactory.getInstance().getSymbole().size(); ++i) {
-                            addLabel(periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
+                            addLabel(controller, periodicTableFactory.getInstance().getSymbole().get(i), AController.couleurs[i % 9]);
                         }
                     }
                 }
@@ -206,29 +222,18 @@ public class AController {
         });
     }
 
-    @FXML
-    public void eggLaunch() {
-        EasterEgg egg = new EasterEgg(screen_width, screen_height - 120);
-        uiAnchor.getChildren().removeAll();
-        uiAnchor.getChildren().clear();
-        //m_subScene = new SubScene(egg, screen_width, screen_height, false, SceneAntialiasing.BALANCED);
-        uiAnchor.getChildren().add(egg);
-        egg.play();
-    }
-
-    private void addLabel(String label, Color couleur) {
+    private void addLabel(IController controller, String label, Color couleur) {
         Label l = new Label(label, new Circle(8, couleur));
 
-        uiAtomsVbox.getChildren().add(l);
+        controller.getUIAtomsVBOX().getChildren().add(l);
         l.setOnDragDetected(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                logger.debug("OnDrag Detected");
                 Dragboard db = l.startDragAndDrop(TransferMode.ANY);
 
                 ClipboardContent content = new ClipboardContent();
                 content.putString(label);
                 db.setContent(content);
-                m_draggedAtom = label;
+                controller.setDraggedAtom(label);
 
                 event.consume();
             }
@@ -237,219 +242,38 @@ public class AController {
         l.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                m_draggedAtom = label;
+                controller.setDraggedAtom(label);
             }
         });
 
 
     }
 
-    private void initFormula() {
-        uiFormula.textProperty().addListener((observable, oldValue, newValue) -> {
-            m_Formula = newValue;
-        });
+    protected void addSearchLabel(IController controller) {
+        controller.getUIAtomType().getItems().clear();
+        if (!periodicTableFactory.getInstance().getUniqGroup().isEmpty()) {
+            controller.getUIAtomType().getItems().add(new Label("Show all"));
+            for (String grp : periodicTableFactory.getInstance().getUniqGroup())
+                controller.getUIAtomType().getItems().add(new Label(grp));
+            controller.getUIAtomType().setEditable(false);
+            controller.getUIAtomType().setPromptText("Atom Type");
+        }
     }
 
-    private void initAtomsNumber() {
-        m_numberOfAtoms = 0;
 
-        uiGenAtomNumber.textProperty().addListener((observable, oldValue, newValue) -> {
-            m_numberOfAtoms = Double.parseDouble(newValue);
-        });
-
-    }
-
-    private void initTables() {
-        initListView();
+    private void initTables(IController controller) {
+        initListView(controller);
         for (String s : periodicTableFactory.getInstance().getSymbole()) {
             Color couleur = AController.couleurs[(periodicTableFactory.getInstance()).getSymbole().indexOf(s) % 9];
-            addLabel(s, couleur);
+            addLabel(controller, s, couleur);
         }
-        addAtomsTableListners();
-        searchListener();
+        addAtomsTableListners(controller);
+        searchListener(controller);
     }
 
-    private void setListeners(boolean addListeners) {
-        if (addListeners) {
-            subScene.addEventHandler(MouseEvent.ANY, mouseEventHandler);
-        } else {
-            subScene.removeEventHandler(MouseEvent.ANY, mouseEventHandler);
-        }
-    }
+    private void initListView(IController controller) {
 
-    public void setupMoleculeScene() {
-        screen_height = (int) uiAnchorMolecule.getPrefHeight();
-        screen_width = (int) uiAnchorMolecule.getPrefWidth();
-        subSceneMolecule = new AScene(screen_width, screen_height);
-        uiAnchorMolecule.getChildren().add(subSceneMolecule);
-        uiAnchorMolecule.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                logger.debug("drag drop");
-                if (event.getGestureSource() != uiAnchorMolecule &&
-                        event.getDragboard().hasString()) {
-                    event.acceptTransferModes(TransferMode.MOVE);
-                }
-                event.consume();
-            }
-        });
-        uiAnchorMolecule.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                if (!m_draggedAtom.equals("")) {
-                    logger.debug("Dragged exit");
-
-                    Atom atom = new Atom(
-                        env,
-                        periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
-                        event.getSceneX(), event.getSceneY(), 0, 0, isCHNO()
-                    );
-                    atom.draw(subSceneMolecule.getWorld());
-                    m_draggedAtom = "";
-                    updateStat = true;
-                    try {
-                        env.addAtom(atom);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    event.consume();
-                }
-            }
-        });
-
-
-    }
-
-    public void setupAtomeScene() {
-        screen_height = (int) uiAnchorAtome.getPrefHeight();
-        screen_width = (int) uiAnchorAtome.getPrefWidth();
-        subSceneAtome = new AScene(screen_width, screen_height);
-        uiAnchorAtome.getChildren().add(subSceneAtome);
-        uiAnchorAtome.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                logger.debug("drag drop");
-                if (event.getGestureSource() != uiAnchorAtome &&
-                        event.getDragboard().hasString()) {
-                    event.acceptTransferModes(TransferMode.MOVE);
-                }
-                event.consume();
-            }
-        });
-        uiAnchorAtome.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                if (!m_draggedAtom.equals("")) {
-                    logger.debug("Dragged exit");
-
-                    Atom atom = new Atom(
-                        env,
-                        periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
-                        event.getSceneX(),
-                        event.getSceneY(), 0, 0, isCHNO()
-                    );
-                    atom.draw(subSceneAtome.getWorld());
-                    m_draggedAtom = "";
-                    updateStat = true;
-                    try {
-                        env.addAtom(atom);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    event.consume();
-                }
-            }
-        });
-
-
-    }
-
-
-    public void setupScene() {
-        screen_height = (int) uiAnchor.getPrefHeight();
-        screen_width = (int) uiAnchor.getPrefWidth();
-
-        subScene = new AScene(screen_width, screen_height);
-        uiAnchor.getChildren().add(subScene);
-        // set slide colors
-        uiSpeedSlider.getStylesheets().add(AController.class.getClassLoader().getResource("customSlider.css").toExternalForm());
-        uiSpeedSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-                speedSliderHandler();
-            }
-        });
-
-        uiAnchor.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                logger.debug("drag drop");
-                if (event.getGestureSource() != uiAnchor &&
-                        event.getDragboard().hasString()) {
-                    event.acceptTransferModes(TransferMode.MOVE);
-                }
-                event.consume();
-            }
-        });
-        uiAnchor.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                if (!m_draggedAtom.equals("")) {
-                    logger.debug("Dragged exit");
-
-                    Atom atom = new Atom(
-                        env,
-                        periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
-                        event.getSceneX(), event.getSceneY(), 0, 0, isCHNO()
-                    );
-                    atom.draw(subScene.getWorld());
-                    m_draggedAtom = "";
-                    updateStat = true;
-                    try {
-                        env.addAtom(atom);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    event.consume();
-                }
-            }
-        });
-
-        addSearchLabel();
-
-    }
-
-    private void addSearchLabel() {
-        uiAtomType.getItems().clear();
-        if (!periodicTableFactory.getInstance().getUniqGroup().isEmpty()) {
-            uiAtomType.getItems().add(new Label("Show all"));
-            for (String grp : periodicTableFactory.getInstance().getUniqGroup())
-                uiAtomType.getItems().add(new Label(grp));
-            uiAtomType.setEditable(false);
-            uiAtomType.setPromptText("Atom Type");
-        }
-    }
-
-    public void random_elem_gen(int nb_atoms) {
-
-        subScene.getWorld().getChildren().clear();
-        if (nb_atoms > 0) {
-            double size = screen_width * ratio;
-            env = new Environment(
-                nb_atoms, size , isCHNO()
-            );
-        } else
-            env.atoms = new Octree<Atom>(env.atoms.getSize(), env.atoms.getMaxObjects());
-        updateStat = true;
-    }
-
-    public void random_elem_gen() {
-        random_elem_gen((int) m_numberOfAtoms);
-        updateStat = true;
-    }
-
-    public void clear_pool() {
-        random_elem_gen(0);
-    }
-
-    void setParent(Parent p) {
-        parent = p;
+        controller.getUIListAtoms().setItems(items);
     }
 
     public void setupAxes() {
@@ -476,40 +300,41 @@ public class AController {
         zAxis.setMaterial(blueMaterial);
 
         axisGroup.getChildren().addAll(xAxis, yAxis, zAxis);
-        this.subScene.getWorld().getChildren().addAll(axisGroup);
+        uiReactionController.subScene.getWorld().getChildren().addAll(axisGroup);
     }
 
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
         this.periodicTableFactory = new IPeriodicTableFactory(isCHNO);
         stage.show();
-        setupScene();
-        setupAtomeScene();
-        setupMoleculeScene();
-        // setupAxes();
-        initTables();
-        initAtomsNumber();
-        initFormula();
         updateStat = true;
         setCHNO(isCHNO);
-
-
+        uiAtomController.init(this);
+        uiMoleculeController.init(this);
+        uiReactionController.init(this);
+        initAtomsNumber(uiMoleculeController);
+        initAtomsNumber(uiReactionController);
         rootScene = new Scene(parent);
-
         rootScene.setFill(Color.GRAY);
         double size = screen_width * ratio;
         env = new Environment((int) m_numberOfAtoms, size , this.isCHNO());
-        stop();
-        initStatsTable();
+        stop(uiMoleculeController);
+        stop(uiReactionController);
+        initStatsTable(uiMoleculeController);
+        initStatsTable(uiReactionController);
 
         animTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                env.updateAtoms(subScene.getWorld());
+                env.updateAtoms(uiReactionController.subScene.getWorld());
 
-                subScene.heightProperty().bind(uiAnchor.heightProperty());
-                subScene.widthProperty().bind(uiAnchor.widthProperty());
-                refresh();
-                updateStats();
+                uiReactionController.subScene.heightProperty().bind(uiReactionController.uiAnchor.heightProperty());
+
+                uiReactionController.subScene.widthProperty().bind(uiReactionController.uiAnchor.widthProperty());
+                uiMoleculeController.getSubScene().heightProperty().bind(uiReactionController.uiAnchor.heightProperty());
+
+                uiMoleculeController.getSubScene().widthProperty().bind(uiReactionController.uiAnchor.widthProperty());
+                updateStats(uiMoleculeController);
+                updateStats(uiReactionController);
 
 
                 // updateStats();
@@ -518,8 +343,8 @@ public class AController {
 
         animTimer.start();
 
-        handleMouse(subScene, subScene.getWorld());
-        handleMouse(subSceneAtome, subSceneAtome.getWorld());
+        handleMouse(uiReactionController.subScene, uiReactionController.subScene.getWorld());
+        handleMouse(uiAtomController.subSceneAtome, uiAtomController.subSceneAtome.getWorld());
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         //stage.setFullScreen(true);
@@ -531,8 +356,8 @@ public class AController {
         //rootScene.setCamera(camera);
     }
 
-    public void initStatsTable() {
-        ObservableList stats_columns = uiStatistics.getColumns();
+    public void initStatsTable(IController controller) {
+        ObservableList stats_columns = controller.getUIStatistics().getColumns();
 
         TreeTableColumn description_column = (
                 new TreeTableColumn<StatsElement, String>("Description")
@@ -567,10 +392,10 @@ public class AController {
         atoms_groups = (
                 new TreeItem<StatsElement>(new StatsElement("Nombre d'atoms par groupe", ""))
         );
-        uiStatistics.setRoot(stats_root);
+        controller.getUIStatistics().setRoot(stats_root);
     }
 
-    public void updateStats() {
+    public void updateStats(IController controller) {
         int nbAtoms;
         try {
             nbAtoms = env.atoms.getObjects().size();
@@ -583,7 +408,7 @@ public class AController {
                 new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
                 new StatsElement("Nombre d'atoms", String.valueOf(nbAtoms))
         );
-        TreeItem root = uiStatistics.getRoot();
+        TreeItem root = controller.getUIStatistics().getRoot();
         root.getChildren().clear();
         elem.stream().forEach((e) -> {
             root.getChildren().add(new TreeItem<StatsElement>(e));
@@ -610,13 +435,13 @@ public class AController {
         root.getChildren().add(atoms_groups);
     }
 
-    public void stop() {
-        uiPlayBtn.setText("Play");
-        uiPlayBtn.setStyle("-fx-Background-color: #1E88E5;");
-        uiPlayBtn.setOnAction(new EventHandler<ActionEvent>() {
+    public void stop(IController controller) {
+        controller.getUIPlayBtn().setText("Play");
+        controller.getUIPlayBtn().setStyle("-fx-Background-color: #1E88E5;");
+        controller.getUIPlayBtn().setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                play();
+                play(controller);
             }
         });
         try {
@@ -627,18 +452,18 @@ public class AController {
         is_playing = false;
     }
 
-    public void play() {
-        uiPlayBtn.setText("Stop");
-        uiPlayBtn.setStyle("-fx-Background-color: #F44336;");
+    public void play(IController controller) {
+        controller.getUIPlayBtn().setText("Stop");
+        controller.getUIPlayBtn().setStyle("-fx-Background-color: #F44336;");
 
-        uiPlayBtn.setOnAction(new EventHandler<ActionEvent>() {
+        controller.getUIPlayBtn().setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                stop();
+                stop(controller);
             }
         });
         is_playing = true;
-        speedSliderHandler();
+        speedSliderHandler(controller);
     }
 
     public void setSpeed(int speed) throws NegativeSpeedException {
@@ -646,9 +471,9 @@ public class AController {
             env.setAtomsSpeed(speed);
     }
 
-    public void speedSliderHandler() {
+    public void speedSliderHandler(IController controller) {
         try {
-            setSpeed((int) uiSpeedSlider.getValue());
+            setSpeed((int) controller.getUISpeedSlider().getValue());
         } catch (NegativeSpeedException e) {
             try {
                 setSpeed(0);
@@ -723,19 +548,23 @@ public class AController {
     }
 
 
+    private void switchMode(IController controller) {
+        clear_pool(controller);
+        addSearchLabel(controller);
+        initTables(controller);
+        initAtomsNumber(controller);
+        initListView(controller);
+        refresh(controller);
+
+    }
     @FXML
-    public void switchMode(ActionEvent event) {
-        clear_pool();
+    public void switchMode() {
         this.isCHNO = !this.isCHNO;
         this.periodicTableFactory.setIsCHNO(isCHNO);
-        uiAtomsVbox.getChildren().clear();
-        addSearchLabel();
-        initTables();
-        initAtomsNumber();
-        initFormula();
+        //uiAtomsVbox.getChildren().clear();
+        switchMode(uiMoleculeController);
+        switchMode(uiReactionController);
         updateStat = true;
-        initListView();
-        refresh();
     }
 
     public void setAtomMode() {
@@ -746,6 +575,11 @@ public class AController {
 
     public void setReactionMode() {
     }
+
+    private void refresh(IController controller) {
+        controller.getUIListAtoms().refresh();
+    }
+
 
 }
 

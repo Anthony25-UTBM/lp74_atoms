@@ -9,6 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.controllers.AController;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -20,11 +21,11 @@ Class atom
  */
 
 public class Atom extends Agent {
-    private static final Logger logger = LogManager.getLogger("Atom");
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
     public static final double DISTANCE_MAX = 40;
     public static final double DISTANCE_MAX_CARRE = 1600;
+    private static final Logger logger = LogManager.getLogger("Atom");
     // Constantes
     public static double PAS = 0;
     public static double PLANCK_CONSTANT = 6.62607 * pow(10, -34);// en J/s
@@ -201,7 +202,7 @@ public class Atom extends Agent {
             }
             if (this.isCHNO && liaison == 0) {
                 //TODO FIX UNIT !
-                double deltaEnergy = this.PLANCK_CONSTANT * Math.abs(a.getSpeed() - getSpeed());
+                double deltaEnergy = PLANCK_CONSTANT * Math.abs(a.getSpeed() - getSpeed());
                 double A = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 12);
                 double B = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 6);
                 double V = (A / Math.pow(getRayon(), 12)) * (B / Math.pow(getRayon(), 6));
@@ -344,11 +345,11 @@ public class Atom extends Agent {
         if (liaison == 0) state = ElementState.attached;
     }
 
-    protected void updatePosition() {
+    public void updatePosition() {
         sphere.setT(new double[]{coord.getX(), coord.getY(), coord.getZ()});
     }
 
-    protected void draw(AGroup root) {
+    public void draw(AGroup root) {
         updatePosition();
         if (!root.getChildren().contains(sphere)) {
             root.getChildren().add(sphere);

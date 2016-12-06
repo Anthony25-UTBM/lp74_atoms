@@ -5,11 +5,11 @@ import javafx.beans.property.SimpleStringProperty;
 /**
  * Created by anthony on 16/06/16.
  */
-class StatsElement {
+public class StatsElement {
     private SimpleStringProperty description;
     private SimpleStringProperty value;
 
-    StatsElement(String description, String value) {
+    public StatsElement(String description, String value) {
         this.description = new SimpleStringProperty(description);
         this.value = new SimpleStringProperty(value);
     }

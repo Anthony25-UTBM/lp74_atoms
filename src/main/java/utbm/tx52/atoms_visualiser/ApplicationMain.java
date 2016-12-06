@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import utbm.tx52.atoms_visualiser.controllers.AController;
 
 public class ApplicationMain extends Application {
 

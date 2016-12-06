@@ -4,8 +4,6 @@ import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.octree.Octree;
-import utbm.tx52.atoms_visualiser.octree.OctreeSubdivisionException;
-import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.*;
 
@@ -13,9 +11,9 @@ import java.util.*;
 // Grille repr�sentant l'environnement + les atoms
 public class Environment extends Observable {
     private static final Logger logger = LogManager.getLogger("Environment");
-    protected Octree<Atom> atoms;
-    protected ArrayList<Molecule> molecules;
-    protected Random random_generator;
+    public Octree<Atom> atoms;
+    public ArrayList<Molecule> molecules;
+    public Random random_generator;
     /**
      * Environment is a cube, `size` is the size of an edge
      */
@@ -95,7 +93,7 @@ public class Environment extends Observable {
         molecules.forEach(Molecule::update);
     }
 
-    protected void updateAtoms(AGroup world) {
+    public void updateAtoms(AGroup world) {
         ArrayList<Atom> atoms_objects = null;
         try {
             atoms_objects = atoms.getObjects();
