@@ -3,6 +3,9 @@ package utbm.tx52.atoms_visualiser;
 import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.octree.OctreeSubdivisionException;
+import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.*;
 
@@ -10,20 +13,20 @@ import java.util.*;
 // Grille repr�sentant l'environnement + les atoms
 public class Environment extends Observable {
     private static final Logger logger = LogManager.getLogger("Environment");
-    protected ArrayList<Atom> atoms;
+    protected Octree<Atom> atoms;
     protected ArrayList<Molecule> molecules;
     protected Random random_generator;
-    protected double width;
-    protected double height;
-    protected double depth;
+    /**
+     * Environment is a cube, `size` is the size of an edge
+     */
+    protected double size;
+    protected int maxObjects = 200;
 
-    public Environment(int nbAtoms, double width, double depth, double height, boolean isCHNO) {
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
+    public Environment(int nbAtoms, double size, boolean isCHNO) {
+        this.size = size;
         random_generator = new Random();
         molecules = new ArrayList();
-        atoms = new ArrayList();
+        atoms = new Octree<Atom>(size, 200);
         int nbSamples;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
@@ -43,12 +46,16 @@ public class Environment extends Observable {
                 number = t_periodic.getNumber().get(number);
 
             Point3D a_coord = new Point3D(
-                random_generator.nextDouble() * this.width,
-                random_generator.nextDouble() * this.height,
-                random_generator.nextDouble() * this.depth
+                random_generator.nextDouble() * this.size,
+                random_generator.nextDouble() * this.size,
+                random_generator.nextDouble() * this.size
             );
             double a_dir = random_generator.nextDouble() * 2 * Math.PI;
-            atoms.add(new Atom(number, a_coord, a_dir, isCHNO));
+            try {
+                atoms.add(new Atom(this, number, a_coord, a_dir, isCHNO));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -63,12 +70,25 @@ public class Environment extends Observable {
         } else logger.debug("Molecule NO");
     }
 
-    public ArrayList<Atom> getAtoms() {
-        return new ArrayList<Atom>(atoms);
+    public Octree<Atom> getAtoms() throws InterruptedException {
+        return new Octree<Atom>(atoms);
     }
 
-    public void addAtom(Atom a) {
+    public void addAtom(Atom a) throws Exception {
         atoms.add(a);
+    }
+
+    public void move(Atom a, Point3D dest) throws Exception {
+        Octree a_octree = atoms.getOctreeForPoint(a.getCoordinates());
+        Octree dest_octree = atoms.getOctreeForPoint(dest);
+
+        if(a_octree != dest_octree) {
+            a_octree.remove(a);
+            a.setCoordinates(dest);
+            atoms.add(a);
+        }
+        else
+            a.setCoordinates(dest);
     }
 
     protected void updateMolecules() {
@@ -76,8 +96,15 @@ public class Environment extends Observable {
     }
 
     protected void updateAtoms(AGroup world) {
-        for (Atom a : atoms) {
-            a.MiseAJour(atoms, molecules, width, height, depth);
+        ArrayList<Atom> atoms_objects = null;
+        try {
+            atoms_objects = atoms.getObjects();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        for (Atom a : atoms_objects) {
+            a.MiseAJour(atoms_objects, molecules);
             a.draw(world);
         }
     }
@@ -90,8 +117,15 @@ public class Environment extends Observable {
     }
 
     public Map<String, Integer> nbOfEachAtoms() {
+        ArrayList<Atom> atoms_objects = null;
+        try {
+            atoms_objects = atoms.getObjects();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Map<String, Integer> atom_groups = new Hashtable<String, Integer>();
-        for (Atom a : atoms) {
+        for (Atom a : atoms_objects) {
             int current_nb = atom_groups.containsKey(a.getSymb()) ? atom_groups.get(a.getSymb()) : 0;
             atom_groups.put(a.getSymb(), current_nb + 1);
         }
@@ -100,8 +134,15 @@ public class Environment extends Observable {
     }
 
     public int nbOfNotActiveAtoms() {
+        ArrayList<Atom> atoms_objects = null;
+        try {
+            atoms_objects = atoms.getObjects();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         int not_active_atoms = 0;
-        for (Atom a : atoms) {
+        for (Atom a : atoms_objects) {
             if (a.isNotActive())
                 not_active_atoms++;
         }
@@ -110,15 +151,24 @@ public class Environment extends Observable {
     }
 
     public double getSpeed() {
-        return atoms.get(0).getSpeed();
+        try {
+            return atoms.getObjects().get(0).getSpeed();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public void setAtomsSpeed(int speed) throws NegativeSpeedException {
         if (speed < 0) {
             throw new NegativeSpeedException("Speed should be positive or null");
         }
-        atoms.forEach(a->{
-            a.setSpeed(speed);
-        });
+        try {
+            atoms.getObjects().forEach(a->{
+                a.setSpeed(speed);
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

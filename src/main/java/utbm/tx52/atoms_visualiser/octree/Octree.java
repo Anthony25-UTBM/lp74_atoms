@@ -2,6 +2,7 @@ package utbm.tx52.atoms_visualiser.octree;
 
 import com.google.common.collect.Iterators;
 import javafx.geometry.Point3D;
+import utbm.tx52.atoms_visualiser.Atom;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,11 +26,22 @@ public class Octree<T extends OctreePoint> {
     }
 
     public Octree(double size, int maxObjects, ArrayList<T> objects) {
-        this.maxObjects = maxObjects;
-        this.objects = new ArrayList<T>(objects);
-        this.center = new Point3D(size/2, size/2, size/2);
-        this.size = size;
-        rwlock =  new StampedLock();
+        this(size, maxObjects);
+        for(T o : objects) {
+            try {
+                add(o);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Octree(Octree<T> octree) throws InterruptedException {
+        this(octree.getSize(), octree.getMaxObjects(), octree.getObjects());
+    }
+
+    public double getSize() {
+        return size;
     }
 
     public int getMaxObjects() {

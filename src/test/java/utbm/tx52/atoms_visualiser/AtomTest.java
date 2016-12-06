@@ -11,6 +11,7 @@ public class AtomTest {
     private int n;
     private double dir;
     private boolean isCHNO;
+    private Environment environment;
 
 
     @Before
@@ -21,22 +22,23 @@ public class AtomTest {
         n = 1;
         dir = 0;
         isCHNO = false;
+        environment = new Environment(0, 1, isCHNO);
         initAgent();
     }
 
     private void initAgent() {
-        atom = new Atom(n, posX, posY, posZ, dir, isCHNO);
+        atom = new Atom(environment, n, posX, posY, posZ, dir, isCHNO);
     }
 
     @Test
     public void distance() {
-        Atom a = new Atom(n, 5, 10, 20, dir, isCHNO);
+        Atom a = new Atom(environment, n, 5, 10, 20, dir, isCHNO);
         assertEquals(Math.sqrt(525), atom.distance(a), 0.001);
     }
 
     @Test
     public void distanceSquared() {
-        Atom a = new Atom(n, 0, 10, 10, dir, isCHNO);
+        Atom a = new Atom(environment, n, 0, 10, 10, dir, isCHNO);
         assertEquals(200, atom.distanceSquared(a), 0.001);
     }
 }

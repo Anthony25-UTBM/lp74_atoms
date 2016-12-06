@@ -28,6 +28,7 @@ public class Atom extends Agent {
     // Constantes
     public static double PAS = 0;
     public static double PLANCK_CONSTANT = 6.62607 * pow(10, -34);// en J/s
+    public Environment environment;
     // nouvelle architecture proposé pr aymen
     // Attributs de l'atome
     protected int a_number;
@@ -46,8 +47,8 @@ public class Atom extends Agent {
     private long vanderWaalsRadius;
     private boolean isCHNO;
 
-    public Atom(String symbole, boolean isCHNO) {
-        this(Point3D.ZERO, 45, isCHNO);
+    public Atom(Environment environment, String symbole, boolean isCHNO) {
+        this(environment, Point3D.ZERO, 45, isCHNO);
         int n = 0;
         if (isCHNO) {
             CHNO t_chno = CHNO.getInstance();
@@ -60,17 +61,18 @@ public class Atom extends Agent {
         setPropertiesFromPeriodicTable();
     }
 
-    public Atom(int n, double coordX, double coordY, double coordZ, double dir, boolean isCHNO) {
-        this(n, new Point3D(coordX, coordY, coordZ), dir, isCHNO);
+    public Atom(Environment environment, int n, double coordX, double coordY, double coordZ, double dir, boolean isCHNO) {
+        this(environment, n, new Point3D(coordX, coordY, coordZ), dir, isCHNO);
     }
 
-    public Atom(int n, Point3D coord, double dir, boolean isCHNO) {
-        this(coord, dir, isCHNO);
+    public Atom(Environment environment, int n, Point3D coord, double dir, boolean isCHNO) {
+        this(environment, coord, dir, isCHNO);
         a_number = n;
         setPropertiesFromPeriodicTable();
     }
 
-    protected Atom(Point3D coord, double dir, boolean isCHNO) {
+    protected Atom(Environment environment, Point3D coord, double dir, boolean isCHNO) {
+        this.environment = environment;
         ratioSpeed = 1;
         this.isCHNO = isCHNO;
 
@@ -110,7 +112,6 @@ public class Atom extends Agent {
         }
     }
 
-
     public double getRayon() {
         return rayon;
     }
@@ -134,12 +135,20 @@ public class Atom extends Agent {
         return liaison;
     }
 
-    protected void Normaliser() {
+    protected void normalize() {
         speedVector.normalize();
     }
 
-    protected void MiseAJourPosition() {
-        coord = coord.add(speedVector.multiply(PAS));
+    public void move(Point3D dest) throws Exception {
+        environment.move(this, dest);
+    }
+
+    protected void updateCoordinates() {
+        try {
+            move(coord.add(speedVector.multiply(PAS)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected double DistanceLimiteEnv(double envXMin, double envYMin, double envZMin, double envXMax, double envYMax, double envZMax) {
@@ -182,7 +191,7 @@ public class Atom extends Agent {
             double diffY = (a.posY - posY) / distance;
             speedX = speedX - diffX / 2;
             speedY = speedY - diffY / 2;
-            Normaliser();*/
+            normalize();*/
             if (a.liaison != 0) {
                 liaison--;
                 a.liaison--;
@@ -228,7 +237,7 @@ public class Atom extends Agent {
             double diffZ = (a.getCoordinates().getZ() - coord.getZ()) / distance;
             double alea = generateur.nextDouble() * 4;
             speedVector = speedVector.subtract(diffX/alea, diffY/alea, diffZ/alea);
-            Normaliser();
+            normalize();
             return true;
         }
         return false;
@@ -267,7 +276,7 @@ public class Atom extends Agent {
             } else if (distance == (posZ - envZMin)) {
                 speedVector = speedVector.add(0, 0, 0.3);
             }
-            Normaliser();
+            normalize();
             return true;
         }
         return false;
@@ -293,7 +302,7 @@ public class Atom extends Agent {
                 double diffZ = (m.getCoordinates().getZ() - coord.getZ()) / distance;
 
                 speedVector = speedVector.subtract(diffX/2, diffY/2, diffZ/2);
-                Normaliser();
+                normalize();
                 return true;
             }
         }
@@ -313,13 +322,13 @@ public class Atom extends Agent {
             speedVector = totalSpeedVector.
                 multiply(1/(2 * nbTotal)).
                 add(speedVector.multiply(1/2));
-            Normaliser();
+            normalize();
         }
     }
 
-    public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules, double largeur, double hauteur, double profondeur) {
+    public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules) {
         if (state == ElementState.free) {
-            if (!EviterLimiteEnv(0, 0, 0, largeur, hauteur, profondeur)) {
+            if (!EviterLimiteEnv(0, 0, 0, environment.size, environment.size, environment.size)) {
                 if (!LierAtomes(atoms)) {
                     if (!EviterMolecule(molecules)) {
                         if (!EviterAtomes(atoms)) {
@@ -329,7 +338,7 @@ public class Atom extends Agent {
                 }
             }
             if (liaison == 0) state = ElementState.attached;
-            MiseAJourPosition();
+            updateCoordinates();
         }
 
         if (liaison == 0) state = ElementState.attached;

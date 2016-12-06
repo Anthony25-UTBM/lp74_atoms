@@ -83,7 +83,7 @@ public class OctreeDistanceHelperTest {
     @Test
     public void getAllNeighInSphere() throws Exception, OctreeSubdivisionException {
         Environment environment = genEnvironment(100000, false);
-        ArrayList<Atom> atoms = environment.getAtoms();
+        ArrayList<Atom> atoms = environment.getAtoms().getObjects();
         for(Atom a : atoms)
             octree.add(a);
 
@@ -110,7 +110,7 @@ public class OctreeDistanceHelperTest {
     }
 
     private Environment genEnvironment(int nbAtoms, boolean isCHNO) {
-        return new Environment(nbAtoms, size, size, size, isCHNO);
+        return new Environment(nbAtoms, size, isCHNO);
     }
 
     @Test

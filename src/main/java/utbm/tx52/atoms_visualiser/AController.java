@@ -28,9 +28,9 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.octree.Octree;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -150,9 +150,13 @@ public class AController {
     public void generateAtomsByFormula() {
         Formula f = new Formula();
         ArrayList<Atom> atoms = null;
-        atoms = f.parse(m_Formula, isCHNO);
+        atoms = f.parse(env, m_Formula, isCHNO);
         for (Atom a : atoms) {
-            env.addAtom(a);
+            try {
+                env.addAtom(a);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         uiFormula.setText("");
         refresh();
@@ -295,13 +299,18 @@ public class AController {
                     logger.debug("Dragged exit");
 
                     Atom atom = new Atom(
+                        env,
                         periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
                         event.getSceneX(), event.getSceneY(), 0, 0, isCHNO()
                     );
                     atom.draw(subSceneMolecule.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
-                    env.addAtom(atom);
+                    try {
+                        env.addAtom(atom);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     event.consume();
                 }
             }
@@ -331,11 +340,20 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     logger.debug("Dragged exit");
 
-                    Atom atom = new Atom(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atom atom = new Atom(
+                        env,
+                        periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
+                        event.getSceneX(),
+                        event.getSceneY(), 0, 0, isCHNO()
+                    );
                     atom.draw(subSceneAtome.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
-                    env.addAtom(atom);
+                    try {
+                        env.addAtom(atom);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     event.consume();
                 }
             }
@@ -375,11 +393,19 @@ public class AController {
                 if (!m_draggedAtom.equals("")) {
                     logger.debug("Dragged exit");
 
-                    Atom atom = new Atom(periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom), event.getSceneX(), event.getSceneY(), 0, 0, isCHNO());
+                    Atom atom = new Atom(
+                        env,
+                        periodicTableFactory.getInstance().getSymbole().indexOf(m_draggedAtom),
+                        event.getSceneX(), event.getSceneY(), 0, 0, isCHNO()
+                    );
                     atom.draw(subScene.getWorld());
                     m_draggedAtom = "";
                     updateStat = true;
-                    env.addAtom(atom);
+                    try {
+                        env.addAtom(atom);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     event.consume();
                 }
             }
@@ -404,13 +430,12 @@ public class AController {
 
         subScene.getWorld().getChildren().clear();
         if (nb_atoms > 0) {
+            double size = screen_width * ratio;
             env = new Environment(
-                    nb_atoms, screen_width * ratio, screen_height * ratio,
-                    ratio * (screen_height + screen_width) / 2
-                    , isCHNO()
+                nb_atoms, size , isCHNO()
             );
         } else
-            env.atoms.clear();
+            env.atoms = new Octree<Atom>(env.atoms.getSize(), env.atoms.getMaxObjects());
         updateStat = true;
     }
 
@@ -471,12 +496,8 @@ public class AController {
         rootScene = new Scene(parent);
 
         rootScene.setFill(Color.GRAY);
-        final ReentrantLock lock = new ReentrantLock();
-        env = new Environment(
-                (int) m_numberOfAtoms, screen_width * ratio, screen_height * ratio,
-                ratio * (screen_height + screen_width) / 2
-                , this.isCHNO()
-        );
+        double size = screen_width * ratio;
+        env = new Environment((int) m_numberOfAtoms, size , this.isCHNO());
         stop();
         initStatsTable();
 
@@ -550,10 +571,17 @@ public class AController {
     }
 
     public void updateStats() {
+        int nbAtoms;
+        try {
+            nbAtoms = env.atoms.getObjects().size();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            nbAtoms = 0;
+        }
 
         List<StatsElement> elem = Arrays.asList(
                 new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
-                new StatsElement("Nombre d'atoms", String.valueOf(env.atoms.size()))
+                new StatsElement("Nombre d'atoms", String.valueOf(nbAtoms))
         );
         TreeItem root = uiStatistics.getRoot();
         root.getChildren().clear();
