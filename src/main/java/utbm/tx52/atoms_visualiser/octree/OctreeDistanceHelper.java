@@ -18,7 +18,7 @@ public class OctreeDistanceHelper {
         if(isCubeMaybeInSphere(node, distanceCubeCenterSphereCenter, radius)) {
             if(node.isLeaf() || distanceCubeCenterSphereCenter <= radius) {
                 // The entire cube is (or at least all children are) in the sphere
-                Iterator itrObjects = node.getObjectsIterator();
+                Iterator itrObjects = node.iterator();
                 while(itrObjects.hasNext()) {
                     OctreePoint p = (OctreePoint) itrObjects.next();
                     double pSphereDistance = p.getCoordinates().distance(sphereCenter);
@@ -54,7 +54,7 @@ public class OctreeDistanceHelper {
         Iterator neighboursIterator = neighbours.iterator();
         Pair<ArrayList<OctreePoint>, Double> farthestNeighs = null;
 
-        while(true) {
+        while(neighboursIterator.hasNext()) {
             try {
                 farthestNeighs = refreshFarthestNeighsIfNextIsFarther(object, farthestNeighs, neighboursIterator);
             } catch (OctreeNoNeighbourFoundException ignored) {
@@ -69,7 +69,7 @@ public class OctreeDistanceHelper {
 
     private OctreePoint getRandomObjInSameCube(OctreePoint object, Octree<OctreePoint> root) throws Exception {
         Octree<OctreePoint> pointsOctree = root.getOctreeForPoint(object.getCoordinates());
-        Iterator pointsOctreeIterator = pointsOctree.getObjectsIterator();
+        Iterator pointsOctreeIterator = pointsOctree.iterator();
 
         OctreePoint randomObject = (OctreePoint) pointsOctreeIterator.next();
         if(randomObject == object)
@@ -81,8 +81,6 @@ public class OctreeDistanceHelper {
     private Pair<ArrayList<OctreePoint>, Double> refreshFarthestNeighsIfNextIsFarther(
             OctreePoint point, Pair<ArrayList<OctreePoint>, Double> farthestNeighs, Iterator neighboursIterator)
             throws Exception {
-        if(!neighboursIterator.hasNext())
-            throw new OctreeNoNeighbourFoundException("No neighbour found");
 
         OctreePoint neighbour = (OctreePoint) neighboursIterator.next();
         double distance = neighbour.getCoordinates().distance(point.getCoordinates());

@@ -115,11 +115,12 @@ public class Environment extends Observable {
             atoms_objects = atoms.getObjects();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return;
         }
 
         for (Atom a : atoms_objects) {
             try {
-                a.MiseAJour(atoms_objects, molecules);
+                a.MiseAJour(molecules);
             } catch (Exception e) {
                 e.printStackTrace();
             }

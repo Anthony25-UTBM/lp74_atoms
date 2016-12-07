@@ -176,25 +176,11 @@ public class Atom extends Agent implements OctreePoint {
     }
 
     //TODO: URGENT
-    protected boolean LierAtomes(ArrayList<Atom> atoms) {
-        // Recherche de l'atome le plus proche
-        Atom a;
-        if (!atoms.get(0).equals(this)) {
-            a = atoms.get(0);
-        } else {
-            a = atoms.get(1);
-        }
-        double distanceCarre = distanceSquared(a);
-        for (Atom atom : atoms) {
-            if (distanceSquared(atom) < distanceCarre && !atom.equals(this)) {
-                a = atom;
-                distanceCarre = distanceSquared(a);
-            }
-        }
+    protected boolean attachAtoms() throws Exception {
+        Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
 
-        // Liaison possible ?
-        //if (distanceCarre < DISTANCE_MIN_CARRE) {
-        if (distanceCarre < (a.rayon * a.rayon * 4) && a_number != a.a_number) {
+        double distanceSquaredToA = distanceSquared(a);
+        if (distanceSquaredToA < (a.rayon * a.rayon * 4) && a_number != a.a_number) {
             /*double distance = Math.sqrt(distanceCarre);
             double diffX = (a.posX - posX) / distance;
             double diffY = (a.posY - posY) / distance;
@@ -221,17 +207,6 @@ public class Atom extends Agent implements OctreePoint {
     }
 
     protected boolean EviterAtomes() throws Exception {
-        OctreeDistanceHelper odh = environment.octreeDistanceHelper;
-        Octree<Atom> selfOctree = environment.atoms.getOctreeForPoint(coord);
-
-        
-        ArrayList<Octree> farthestCubes = odh.getSurroundingCubesIn(selfOctree, environment.atoms);
-
-        ArrayList<Atom> farthestNeighbours = new ArrayList<>(selfOctree.getObjects());
-        for(Octree o : farthestCubes)
-            Iterators.addAll(farthestNeighbours, o.getObjectsIterator());
-
-        // Recherche de l'atome le plus proche
         Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
 
         // Evitement
@@ -307,10 +282,10 @@ public class Atom extends Agent implements OctreePoint {
         return false;
     }
 
-    protected void CalculerDirectionMoyenne(ArrayList<Atom> atoms) {
+    protected void CalculerDirectionMoyenne() {
         Point3D totalSpeedVector = Point3D.ZERO;
         int nbTotal = 0;
-        for (Atom a : atoms) {
+        for (Atom a : environment.atoms) {
             if (DansAlignement(a)) {
                 totalSpeedVector = totalSpeedVector.add(a.getSpeedVector());
                 nbTotal++;
@@ -324,13 +299,13 @@ public class Atom extends Agent implements OctreePoint {
         }
     }
 
-    public void MiseAJour(ArrayList<Atom> atoms, ArrayList<Molecule> molecules) throws Exception {
+    public void MiseAJour(ArrayList<Molecule> molecules) throws Exception {
         if (state == ElementState.free) {
             if (!EviterLimiteEnv()) {
-                if (!LierAtomes(atoms)) {
+                if (!attachAtoms()) {
                     if (!EviterMolecule(molecules)) {
                         if (!EviterAtomes()) {
-                            CalculerDirectionMoyenne(atoms);
+                            CalculerDirectionMoyenne();
                         }
                     }
                 }

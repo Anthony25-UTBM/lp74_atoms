@@ -103,13 +103,13 @@ public class EnvironmentTest {
 
         AGroup world = new AGroup();
         for(Atom a : environment.atoms.getObjects()) {
-            doNothing().when(a).MiseAJour(any(), any());
+            doNothing().when(a).MiseAJour(any());
             doNothing().when(a).draw(any());
         }
 
         environment.updateAtoms(world);
         for(Atom a : environment.atoms.getObjects()) {
-            verify(a).MiseAJour(any(), any());
+            verify(a).MiseAJour(any());
             verify(a).draw(any());
         }
     }

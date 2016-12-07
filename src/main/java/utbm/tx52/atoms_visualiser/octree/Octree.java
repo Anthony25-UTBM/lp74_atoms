@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.locks.StampedLock;
 
-public class Octree<T extends OctreePoint> {
+public class Octree<T extends OctreePoint> implements Iterable<T> {
     @SuppressWarnings("unchecked")
     public Octree<T> children[] = new Octree[0];
     public Octree<T> parent = null;
@@ -74,23 +74,34 @@ public class Octree<T extends OctreePoint> {
         long stamp = rwlock.tryOptimisticRead();
         for (Octree<T> child : children) {
             if(child.hasObjects())
-                Iterators.addAll(childrenObjects, child.getObjectsIterator());
+                Iterators.addAll(childrenObjects, child.iterator());
         }
 
         return childrenObjects;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    public Iterator getObjectsIterator() throws InterruptedException {
-        if(isLeaf())
-            return objects.iterator();
+    public Iterator<T> iterator() {
+        try {
+            if(isLeaf())
+                return objects.iterator();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         ArrayList childrenObjects = new ArrayList();
-        long stamp = rwlock.readLockInterruptibly();
+        long stamp = 0;
+        try {
+            stamp = rwlock.readLockInterruptibly();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return childrenObjects.iterator();
+        }
         try {
             for (Octree<T> child : children) {
                 if(child.hasObjects())
-                    childrenObjects.add(child.getObjectsIterator());
+                    childrenObjects.add(child.iterator());
             }
         } finally {
             rwlock.unlockRead(stamp);
