@@ -64,8 +64,6 @@ public class AController {
     //axis
     final Group axisGroup = new Group();
     protected Stage mainStage;
-    protected Timer timer;
-    protected Timer timerMolecule;
     protected AnimationTimer animTimer;
     protected AnimationTimer animTimerMolecule;
     protected boolean is_playing = false;
@@ -301,7 +299,13 @@ public class AController {
         controller.setEnvironnement(new Environment((int) m_numberOfAtoms, size, this.isCHNO()));
         stop(controller);
         initStatsTable(controller);
-        animTimer = new AnimationTimer() {
+        setTimers();
+
+        handleMouse(controller.getSubScene(), controller.getSubScene().getWorld());
+    }
+
+    public AnimationTimer createTimer(IController controller) {
+        return new AnimationTimer() {
             @Override
             public void handle(long l) {
 
@@ -311,7 +315,11 @@ public class AController {
                 updateStats(controller);
             }
         };
-        handleMouse(controller.getSubScene(), controller.getSubScene().getWorld());
+    }
+
+    public void setTimers() {
+        animTimer = createTimer(uiReactionController);
+        animTimerMolecule = createTimer(uiMoleculeController);
     }
 
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
@@ -326,6 +334,7 @@ public class AController {
         startControllers(uiReactionController);
 
         animTimer.start();
+        animTimerMolecule.start();
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         //stage.setFullScreen(true);
