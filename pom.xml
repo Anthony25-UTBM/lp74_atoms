@@ -8,10 +8,12 @@
     <artifactId>atoms_visualiser</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <repository>
-        <id>tilab</id>
-        <url>http://jade.tilab.com/maven/</url>
-    </repository>
+    <repositories>
+        <repository>
+            <id>tilab</id>
+            <url>http://jade.tilab.com/maven/</url>
+        </repository>
+    </repositories>
     <!-- Project properties -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
