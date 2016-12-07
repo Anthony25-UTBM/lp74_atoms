@@ -232,7 +232,7 @@ public class OctreeTest {
             for (Atom a : atoms) {
                 try {
                     octree.add(a);
-                } catch (OctreeSubdivisionException | InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

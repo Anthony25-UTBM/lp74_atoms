@@ -153,7 +153,10 @@ public class Octree<T extends OctreePoint> {
      * @param object: object to add
      * @return storedIn: octree where the object has been stored
      */
-    public Octree add(T object) throws OctreeSubdivisionException, InterruptedException {
+    public Octree add(T object) throws Exception {
+        if(!isPointInOctree(object.getCoordinates()))
+            throw new PointOutsideOctreeException();
+
         long stamp;
         stamp = rwlock.writeLock();
         try {
@@ -187,7 +190,7 @@ public class Octree<T extends OctreePoint> {
      *
      * @throws OctreeSubdivisionException if the octree is already parent
      */
-    protected void subdivide() throws OctreeSubdivisionException, InterruptedException {
+    protected void subdivide() throws Exception {
         if (isParent())
             throw new OctreeAlreadyParentException("Octree already has children");
 

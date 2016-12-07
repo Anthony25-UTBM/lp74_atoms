@@ -91,9 +91,16 @@ public class Environment extends Observable {
         if(a_octree.isPointInOctree(dest))
             a.setCoordinates(dest);
         else {
-            a_octree.remove(a);
-            a.setCoordinates(dest);
-            atoms.add(a);
+            Point3D oldCoord = a.getCoordinates();
+            try {
+                a_octree.remove(a);
+                a.setCoordinates(dest);
+                atoms.add(a);
+            } catch(PointOutsideOctreeException e) {
+                logger.debug(e);
+                a.setCoordinates(oldCoord);
+                atoms.add(a);
+            }
         }
     }
 
