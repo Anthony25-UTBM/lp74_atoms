@@ -8,8 +8,9 @@ import java.util.Iterator;
 import java.util.concurrent.locks.StampedLock;
 
 public class Octree<T extends OctreePoint> {
-    public Octree children[] = new Octree[0];
-    public Octree parent = null;
+    @SuppressWarnings("unchecked")
+    public Octree<T> children[] = new Octree[0];
+    public Octree<T> parent = null;
     public double size;
     private ArrayList<T> objects;
     private int maxObjects;
@@ -49,7 +50,7 @@ public class Octree<T extends OctreePoint> {
 
     public void setMaxObjects(int maxObjects) {
         this.maxObjects = maxObjects;
-        for(Octree child : children)
+        for(Octree<T> child : children)
             child.setMaxObjects(maxObjects);
     }
 
@@ -71,7 +72,7 @@ public class Octree<T extends OctreePoint> {
 
         ArrayList<T> childrenObjects = new ArrayList<T>();
         long stamp = rwlock.tryOptimisticRead();
-        for (Octree child : children) {
+        for (Octree<T> child : children) {
             if(child.hasObjects())
                 Iterators.addAll(childrenObjects, child.getObjectsIterator());
         }
@@ -79,6 +80,7 @@ public class Octree<T extends OctreePoint> {
         return childrenObjects;
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator getObjectsIterator() throws InterruptedException {
         if(isLeaf())
             return objects.iterator();
@@ -86,7 +88,7 @@ public class Octree<T extends OctreePoint> {
         ArrayList childrenObjects = new ArrayList();
         long stamp = rwlock.readLockInterruptibly();
         try {
-            for (Octree child : children) {
+            for (Octree<T> child : children) {
                 if(child.hasObjects())
                     childrenObjects.add(child.getObjectsIterator());
             }
@@ -102,7 +104,7 @@ public class Octree<T extends OctreePoint> {
      * @param coord
      * @return
      */
-    public Octree getOctreeForPoint(Point3D coord) throws PointOutsideOctreeException, InterruptedException {
+    public Octree<T> getOctreeForPoint(Point3D coord) throws PointOutsideOctreeException, InterruptedException {
         if(!isPointInOctree(coord))
             throw new PointOutsideOctreeException("Point is not in octree");
 
@@ -153,7 +155,7 @@ public class Octree<T extends OctreePoint> {
      * @param object: object to add
      * @return storedIn: octree where the object has been stored
      */
-    public Octree add(T object) throws Exception {
+    public Octree<T> add(T object) throws Exception {
         if(!isPointInOctree(object.getCoordinates()))
             throw new PointOutsideOctreeException();
 
@@ -167,7 +169,7 @@ public class Octree<T extends OctreePoint> {
             rwlock.unlockWrite(stamp);
         }
 
-        Octree addedIn;
+        Octree<T> addedIn;
         stamp = rwlock.readLock();
         try {
             if(isParent()) {
@@ -190,13 +192,14 @@ public class Octree<T extends OctreePoint> {
      *
      * @throws OctreeSubdivisionException if the octree is already parent
      */
+    @SuppressWarnings("unchecked")
     protected void subdivide() throws Exception {
         if (isParent())
             throw new OctreeAlreadyParentException("Octree already has children");
 
         children = new Octree[8];
         for (int i = 0; i < 8; i++) {
-            Octree child = new Octree<T>(size, maxObjects);
+            Octree<T> child = new Octree<T>(size, maxObjects);
             child.parent = this;
             child.size = size / 2;
             child.setCenter(getNewChildCenter(i));
@@ -277,7 +280,7 @@ public class Octree<T extends OctreePoint> {
 
     protected boolean isPossibleToMergeChildren() throws InterruptedException {
         boolean allChildrenAreLeaf = true;
-        for (Octree c : children)
+        for (Octree<T> c : children)
             allChildrenAreLeaf = allChildrenAreLeaf && c.isLeaf();
 
         boolean underMaxObjects = getObjects().size() <= maxObjects;

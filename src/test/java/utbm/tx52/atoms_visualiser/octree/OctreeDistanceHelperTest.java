@@ -77,6 +77,45 @@ public class OctreeDistanceHelperTest {
         );
     }
 
+    @Test
+    public void getFarthestNeighbours() throws Exception {
+        Environment environment = genEnvironment(1000, false);
+        ArrayList<Atom> atoms = environment.getAtoms().getObjects();
+        for(Atom a : atoms)
+            octree.add(a);
+
+        Atom atom = atoms.get(0);
+
+        double start_naive_algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS);
+        ArrayList<Atom> farthestNeighsWithNaiveAlgorithm = new ArrayList<>();
+        farthestNeighsWithNaiveAlgorithm.add(atoms.get(1));
+        double farthestDistanceWithNaiveAlgorithm = atom.distance(atoms.get(1));
+        for(Atom a : atoms) {
+            double distanceAtomA = atom.distance(a);
+            if(a != atom && distanceAtomA < farthestDistanceWithNaiveAlgorithm) {
+                farthestDistanceWithNaiveAlgorithm = distanceAtomA;
+                farthestNeighsWithNaiveAlgorithm = new ArrayList<>();
+                farthestNeighsWithNaiveAlgorithm.add(a);
+            }
+            else if(distanceAtomA == farthestDistanceWithNaiveAlgorithm)
+                farthestNeighsWithNaiveAlgorithm.add(a);
+        }
+        double naive_algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS) - start_naive_algorithm_time;
+
+        double start_algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS);
+        ArrayList<OctreePoint> farthestNeigh = octreeDistanceHelper.getFarthestNeighbours(octree, atom);
+        double algorithm_time = stopwatch.runtime(TimeUnit.MICROSECONDS) - start_algorithm_time;
+
+        assertEquals(
+            farthestDistanceWithNaiveAlgorithm,
+            ((Atom) farthestNeigh.get(0)).distance(atom),
+            0.001
+        );
+    }
+
+    private Environment genEnvironment(int nbAtoms, boolean isCHNO) {
+        return new Environment(nbAtoms, size, isCHNO);
+    }
 
     @Test
     public void getAllNeighInSphere() throws Exception {
@@ -105,10 +144,6 @@ public class OctreeDistanceHelperTest {
             neighboursInSphere.containsAll(neighboursInSphereWithNaiveAlgorithm),
             neighboursInSphereWithNaiveAlgorithm.containsAll(neighboursInSphere)
         );
-    }
-
-    private Environment genEnvironment(int nbAtoms, boolean isCHNO) {
-        return new Environment(nbAtoms, size, isCHNO);
     }
 
     @Test

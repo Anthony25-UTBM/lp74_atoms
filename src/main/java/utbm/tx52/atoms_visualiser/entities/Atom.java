@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.controllers.AController;
+import utbm.tx52.atoms_visualiser.octree.OctreePoint;
 import utbm.tx52.atoms_visualiser.utils.ElementState;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
@@ -28,7 +29,7 @@ import static java.lang.Math.pow;
 Class atom
  */
 
-public class Atom extends Agent {
+public class Atom extends Agent implements OctreePoint {
     private static final Logger logger = LogManager.getLogger("Atom");
     public static final double DISTANCE_MIN = 10;
     public static final double DISTANCE_MIN_CARRE = 100;
@@ -222,6 +223,8 @@ public class Atom extends Agent {
     protected boolean EviterAtomes() throws Exception {
         OctreeDistanceHelper odh = environment.octreeDistanceHelper;
         Octree<Atom> selfOctree = environment.atoms.getOctreeForPoint(coord);
+
+        
         ArrayList<Octree> farthestCubes = odh.getSurroundingCubesIn(selfOctree, environment.atoms);
 
         ArrayList<Atom> farthestNeighbours = new ArrayList<>(selfOctree.getObjects());
@@ -229,24 +232,12 @@ public class Atom extends Agent {
             Iterators.addAll(farthestNeighbours, o.getObjectsIterator());
 
         // Recherche de l'atome le plus proche
-        Atom a;
-        if (!farthestNeighbours.get(0).equals(this)) {
-            a = farthestNeighbours.get(0);
-        } else {
-            a = farthestNeighbours.get(1);
-        }
-        double distanceCarre = distanceSquared(a);
-        for (Atom atom : farthestNeighbours) {
-            if (distanceSquared(atom) < distanceCarre && !atom.equals(this)) {
-                a = atom;
-                distanceCarre = distanceSquared(a);
-            }
-        }
+        Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
 
         // Evitement
-        //if (distanceCarre < DISTANCE_MIN_CARRE) {
-        if (distanceCarre < (a.rayon * a.rayon * a.rayon)) {
-            double distance = Math.sqrt(distanceCarre);
+        double distanceSquaredToA = distanceSquared(a);
+        if (distanceSquaredToA < (a.rayon * a.rayon * a.rayon)) {
+            double distance = Math.sqrt(distanceSquaredToA);
             double diffX = (a.getCoordinates().getX() - coord.getX()) / distance;
             double diffY = (a.getCoordinates().getY() - coord.getY()) / distance;
             double diffZ = (a.getCoordinates().getZ() - coord.getZ()) / distance;

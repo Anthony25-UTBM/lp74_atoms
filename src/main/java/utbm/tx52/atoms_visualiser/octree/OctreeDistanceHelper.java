@@ -1,7 +1,7 @@
 package utbm.tx52.atoms_visualiser.octree;
 
-import com.google.common.collect.Iterators;
 import javafx.geometry.Point3D;
+import utbm.tx52.atoms_visualiser.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,8 +10,9 @@ import java.util.Iterator;
  * Created by anthony on 03/12/16.
  */
 public class OctreeDistanceHelper {
-    public ArrayList getAllNeighInSphere(Octree<OctreePoint> node, Point3D sphereCenter, double radius) throws Exception {
-        ArrayList neighbours = new ArrayList<>();
+    public ArrayList<OctreePoint> getAllNeighInSphere(Octree<OctreePoint> node, Point3D sphereCenter, double radius)
+            throws Exception {
+        ArrayList<OctreePoint> neighbours = new ArrayList<OctreePoint>();
         double distanceCubeCenterSphereCenter = node.getCenter().distance(sphereCenter);
 
         if(isCubeMaybeInSphere(node, distanceCubeCenterSphereCenter, radius)) {
@@ -26,7 +27,7 @@ public class OctreeDistanceHelper {
                 }
             }
             else {
-                for(Octree child : node.children) {
+                for(Octree<OctreePoint> child : node.children) {
                     if (child.hasObjects()) {
                         neighbours.addAll(getAllNeighInSphere(child, sphereCenter, radius));
                     }
@@ -35,6 +36,65 @@ public class OctreeDistanceHelper {
         }
 
         return neighbours;
+    }
+
+    public ArrayList<OctreePoint> getFarthestNeighbours(Octree root, OctreePoint object) throws Exception {
+        OctreePoint randomPoint = getRandomObjInSameCube(object, root);
+        ArrayList neighbours;
+        if(randomPoint == null) {
+            neighbours = new ArrayList<OctreePoint>();
+            for(Octree o : getSurroundingCubesIn(root, root.getOctreeForPoint(object.getCoordinates())))
+                neighbours.add((OctreePoint) o.getObjects());
+        }
+        else {
+            double distance = object.getCoordinates().distance(randomPoint.getCoordinates());
+            neighbours = getAllNeighInSphere(root, object.getCoordinates(), distance);
+        }
+
+        Iterator neighboursIterator = neighbours.iterator();
+        Pair<ArrayList<OctreePoint>, Double> farthestNeighs = null;
+
+        while(true) {
+            try {
+                farthestNeighs = refreshFarthestNeighsIfNextIsFarther(object, farthestNeighs, neighboursIterator);
+            } catch (OctreeNoNeighbourFoundException ignored) {
+                if(farthestNeighs == null)
+                    throw new OctreeNoNeighbourFoundException();
+                break;
+            }
+        }
+
+        return farthestNeighs.x;
+    }
+
+    private OctreePoint getRandomObjInSameCube(OctreePoint object, Octree<OctreePoint> root) throws Exception {
+        Octree<OctreePoint> pointsOctree = root.getOctreeForPoint(object.getCoordinates());
+        Iterator pointsOctreeIterator = pointsOctree.getObjectsIterator();
+
+        OctreePoint randomObject = (OctreePoint) pointsOctreeIterator.next();
+        if(randomObject == object)
+            randomObject = (OctreePoint) pointsOctreeIterator.next();
+
+        return randomObject;
+    }
+
+    private Pair<ArrayList<OctreePoint>, Double> refreshFarthestNeighsIfNextIsFarther(
+            OctreePoint point, Pair<ArrayList<OctreePoint>, Double> farthestNeighs, Iterator neighboursIterator)
+            throws Exception {
+        if(!neighboursIterator.hasNext())
+            throw new OctreeNoNeighbourFoundException("No neighbour found");
+
+        OctreePoint neighbour = (OctreePoint) neighboursIterator.next();
+        double distance = neighbour.getCoordinates().distance(point.getCoordinates());
+        if(farthestNeighs == null || distance < farthestNeighs.y) {
+            ArrayList<OctreePoint> neighbours = new ArrayList<>();
+            neighbours.add(neighbour);
+            farthestNeighs = new Pair<>(neighbours, distance);
+        }
+        else if(distance == farthestNeighs.y)
+            farthestNeighs.x.add(neighbour);
+
+        return farthestNeighs;
     }
 
     /**

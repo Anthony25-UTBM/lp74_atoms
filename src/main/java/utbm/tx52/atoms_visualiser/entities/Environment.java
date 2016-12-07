@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
 import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
+import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
 
