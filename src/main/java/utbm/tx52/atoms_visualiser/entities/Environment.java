@@ -136,15 +136,8 @@ public class Environment extends Observable {
     }
 
     public Map<String, Integer> nbOfEachAtoms() {
-        ArrayList<Atom> atoms_objects = null;
-        try {
-            atoms_objects = atoms.getObjects();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         Map<String, Integer> atom_groups = new Hashtable<String, Integer>();
-        for (Atom a : atoms_objects) {
+        for (Atom a : atoms) {
             int current_nb = atom_groups.containsKey(a.getSymb()) ? atom_groups.get(a.getSymb()) : 0;
             atom_groups.put(a.getSymb(), current_nb + 1);
         }
@@ -153,15 +146,8 @@ public class Environment extends Observable {
     }
 
     public int nbOfNotActiveAtoms() {
-        ArrayList<Atom> atoms_objects = null;
-        try {
-            atoms_objects = atoms.getObjects();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         int not_active_atoms = 0;
-        for (Atom a : atoms_objects) {
+        for (Atom a : atoms) {
             if (a.isNotActive())
                 not_active_atoms++;
         }
@@ -170,24 +156,20 @@ public class Environment extends Observable {
     }
 
     public double getSpeed() {
-        try {
-            return atoms.getObjects().get(0).getSpeed();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        Iterator atomsIterator = atoms.iterator();
+        if(atomsIterator.hasNext())
+            return ((Atom) atomsIterator.next()).getSpeed();
+        else
             return 0;
-        }
     }
 
     public void setAtomsSpeed(int speed) throws NegativeSpeedException {
         if (speed < 0) {
             throw new NegativeSpeedException("Speed should be positive or null");
         }
-        try {
-            atoms.getObjects().forEach(a->{
-                a.setSpeed(speed);
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+        atoms.forEach(a->{
+            a.setSpeed(speed);
+        });
     }
 }
