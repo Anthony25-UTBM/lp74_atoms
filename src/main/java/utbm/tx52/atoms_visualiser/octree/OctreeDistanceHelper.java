@@ -1,5 +1,6 @@
 package utbm.tx52.atoms_visualiser.octree;
 
+import com.google.common.collect.Iterators;
 import javafx.geometry.Point3D;
 import utbm.tx52.atoms_visualiser.utils.Pair;
 
@@ -41,15 +42,11 @@ public class OctreeDistanceHelper {
     public ArrayList<OctreePoint> getFarthestNeighbours(Octree root, OctreePoint object) throws Exception {
         OctreePoint randomPoint = getRandomObjInSameCube(object, root);
         ArrayList neighbours;
-        if(randomPoint == null) {
-            neighbours = new ArrayList<OctreePoint>();
-            for(Octree o : getSurroundingCubesIn(root, root.getOctreeForPoint(object.getCoordinates())))
-                neighbours.add((OctreePoint) o.getObjects());
-        }
-        else {
-            double distance = object.getCoordinates().distance(randomPoint.getCoordinates());
-            neighbours = getAllNeighInSphere(root, object.getCoordinates(), distance);
-        }
+        Octree objectOctree = root.getOctreeForPoint(object.getCoordinates());
+
+        neighbours = objectOctree.getObjects();
+        for(Octree o : getSurroundingCubesIn(root, objectOctree))
+            Iterators.addAll(neighbours, o.iterator());
 
         Iterator neighboursIterator = neighbours.iterator();
         Pair<ArrayList<OctreePoint>, Double> farthestNeighs = null;
@@ -83,6 +80,9 @@ public class OctreeDistanceHelper {
             throws Exception {
 
         OctreePoint neighbour = (OctreePoint) neighboursIterator.next();
+        if(neighbour == point)
+            return farthestNeighs;
+
         double distance = neighbour.getCoordinates().distance(point.getCoordinates());
         if(farthestNeighs == null || distance < farthestNeighs.y) {
             ArrayList<OctreePoint> neighbours = new ArrayList<>();
@@ -118,15 +118,15 @@ public class OctreeDistanceHelper {
         return distanceCubeCenterSphereCenter - radius <= distanceFromCubeCenterToCorner;
     }
 
-    public ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree target) throws Exception {
+    public ArrayList<Octree> getSurroundingCubesIn(Octree octree, Octree node) throws Exception {
         ArrayList<Octree> neighbours = new ArrayList<Octree>();
 
-        if(target == octree) { }
-        else if(target.isLeaf() && areOctreesNeighbours(octree, target))
-            neighbours.add(target);
-        else if (target.isParent()) {
-            if(target.isPointInOctree(octree.getCenter()) || areOctreesNeighbours(octree, target)) {
-                for (Octree child : target.children)
+        if(node == octree) { }
+        else if(node.isLeaf() && areOctreesNeighbours(octree, node))
+            neighbours.add(node);
+        else if (node.isParent()) {
+            if(node.isPointInOctree(octree.getCenter()) || areOctreesNeighbours(octree, node)) {
+                for (Octree child : node.children)
                     neighbours.addAll(getSurroundingCubesIn(octree, child));
             }
         }
