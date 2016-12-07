@@ -88,9 +88,11 @@ public class UIMoleculeController implements IController {
 
     @FXML
     public void generateAtomsByFormula() {
+        if (env == null) env = new Environment();
         Formula f = new Formula();
         ArrayList<Atom> atoms = null;
         atoms = f.parse(env, m_Formula, acontroller.isCHNO());
+
         for (Atom a : atoms) {
             try {
                 env.addAtom(a);

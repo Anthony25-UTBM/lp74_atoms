@@ -5,11 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
-import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
-import utbm.tx52.atoms_visualiser.octree.OctreeSubdivisionException;
-import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.*;
 
@@ -26,6 +24,10 @@ public class Environment extends Observable {
      */
     protected double size;
     protected int maxObjects = 200;
+
+    public Environment() {
+
+    }
 
     public Environment(int nbAtoms, double size, boolean isCHNO) {
         this.size = size;

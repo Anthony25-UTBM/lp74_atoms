@@ -13,7 +13,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:20.0" level="project" />
+    <orderEntry type="library" name="Maven: com.tilab.jade:jade-wsdc:2.7.0" level="project" />
+    <orderEntry type="library" name="Maven: com.tilab.jade:jade-test-suite:1.13.0" level="project" />
+    <orderEntry type="library" name="Maven: com.tilab.jade:jade-misc:2.7.0" level="project" />
+    <orderEntry type="library" name="Maven: com.tilab.jade:jade:4.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.7" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:20.0" level="project" />
