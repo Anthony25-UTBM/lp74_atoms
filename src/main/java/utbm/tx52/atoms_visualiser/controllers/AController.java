@@ -1,7 +1,5 @@
 package utbm.tx52.atoms_visualiser.controllers;
 
-import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXToggleButton;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -15,7 +13,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
@@ -38,7 +39,6 @@ import utbm.tx52.atoms_visualiser.utils.Pair;
 import utbm.tx52.atoms_visualiser.utils.StatsElement;
 import utbm.tx52.atoms_visualiser.view.AScene;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -64,38 +64,21 @@ public class AController {
     //axis
     final Group axisGroup = new Group();
     protected Stage mainStage;
-    protected Environment env;
     protected Timer timer;
     protected Timer timerMolecule;
     protected AnimationTimer animTimer;
     protected AnimationTimer animTimerMolecule;
     protected boolean is_playing = false;
     protected IPeriodicTableFactory periodicTableFactory;
-
-
     // right menu
     Scene rootScene;
     @FXML
     VBox uiTableMolecules;
     // left menu
     @FXML
-    TreeTableView uiStatistics;
-    // bottom bar
-    @FXML
-    Button uiPlayBtn;
-    @FXML
-    Slider uiSpeedSlider;
-    @FXML
     MenuItem uiEgg;
-    @FXML
-    JFXToggleButton fullmode;
 
-    //Atom tab //
 
-    //Molecular tab//
-    @FXML
-    JFXTextField uiGenAtomNumber;
-    //controllers !
     @FXML
     UIAtomController uiAtomController;
     @FXML
@@ -114,6 +97,7 @@ public class AController {
     private double mouseOldY;
     private double mouseDeltaX;
     private double mouseDeltaY;
+
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
         handleMouse(uiReactionController.subScene, parent);
         handleMouse(uiAtomController.subSceneAtome, parent);
@@ -167,11 +151,11 @@ public class AController {
         controller.getSubScene().getWorld().getChildren().clear();
         if (nb_atoms > 0) {
             double size = screen_width * ratio;
-            env = new Environment(
-                    nb_atoms, size, isCHNO()
-            );
+            controller.setEnvironnement(new Environment(
+                    nb_atoms, size, isCHNO()));
+
         } else
-            env.atoms = new Octree<Atom>(env.atoms.getSize(), env.atoms.getMaxObjects());
+            controller.getEnvironnement().atoms = new Octree<Atom>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
         updateStat = true;
     }
 
@@ -310,52 +294,38 @@ public class AController {
         uiReactionController.subScene.getWorld().getChildren().addAll(axisGroup);
     }
 
+    private void startControllers(IController controller) {
+        double size = screen_width * ratio;
+        controller.init(this);
+        initAtomsNumber(controller);
+        controller.setEnvironnement(new Environment((int) m_numberOfAtoms, size, this.isCHNO()));
+        stop(controller);
+        initStatsTable(controller);
+        animTimer = new AnimationTimer() {
+            @Override
+            public void handle(long l) {
+                controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
+                updateStats(controller);
+            }
+        };
+        handleMouse(controller.getSubScene(), controller.getSubScene().getWorld());
+    }
+
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
         this.periodicTableFactory = new IPeriodicTableFactory(isCHNO);
         stage.show();
         updateStat = true;
         setCHNO(isCHNO);
-        uiAtomController.init(this);
-        uiMoleculeController.init(this);
-        uiReactionController.init(this);
-        initAtomsNumber(uiMoleculeController);
-        initAtomsNumber(uiReactionController);
         rootScene = new Scene(parent);
         rootScene.setFill(Color.GRAY);
         double size = screen_width * ratio;
-        env = new Environment((int) m_numberOfAtoms, size , this.isCHNO());
-        stop(uiMoleculeController);
-        stop(uiReactionController);
-        initStatsTable(uiMoleculeController);
-        initStatsTable(uiReactionController);
-
-        animTimer = new AnimationTimer() {
-            @Override
-            public void handle(long l) {
-                env.updateAtoms(uiReactionController.subScene.getWorld());
-
-                uiReactionController.subScene.heightProperty().bind(uiReactionController.uiAnchor.heightProperty());
-
-                uiReactionController.subScene.widthProperty().bind(uiReactionController.uiAnchor.widthProperty());
-                uiMoleculeController.getSubScene().heightProperty().bind(uiReactionController.uiAnchor.heightProperty());
-
-                uiMoleculeController.getSubScene().widthProperty().bind(uiReactionController.uiAnchor.widthProperty());
-                updateStats(uiMoleculeController);
-                updateStats(uiReactionController);
-
-
-                // updateStats();
-            }
-        };
+        startControllers(uiMoleculeController);
+        startControllers(uiReactionController);
 
         animTimer.start();
-
-        handleMouse(uiReactionController.subScene, uiReactionController.subScene.getWorld());
-        handleMouse(uiAtomController.subSceneAtome, uiAtomController.subSceneAtome.getWorld());
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         //stage.setFullScreen(true);
-
         stage.show();
         updateStat = true;
 
@@ -405,14 +375,14 @@ public class AController {
     public void updateStats(IController controller) {
         int nbAtoms;
         try {
-            nbAtoms = env.atoms.getObjects().size();
+            nbAtoms = controller.getEnvironnement().atoms.getObjects().size();
         } catch (InterruptedException e) {
             e.printStackTrace();
             nbAtoms = 0;
         }
 
         List<StatsElement> elem = Arrays.asList(
-                new StatsElement("Atomes inactifs", String.valueOf(env.nbOfNotActiveAtoms())),
+                new StatsElement("Atomes inactifs", String.valueOf(controller.getEnvironnement().nbOfNotActiveAtoms())),
                 new StatsElement("Nombre d'atoms", String.valueOf(nbAtoms))
         );
         TreeItem root = controller.getUIStatistics().getRoot();
@@ -428,7 +398,7 @@ public class AController {
             // show number of each atom
             {
                 updateStat = false;
-                Map<String, Integer> atoms_groups_map = env.nbOfEachAtoms();
+                Map<String, Integer> atoms_groups_map = controller.getEnvironnement().nbOfEachAtoms();
                 SortedSet<String> keys = new TreeSet<String>(atoms_groups_map.keySet());
                 for (String key : keys) {
                     int nb = atoms_groups_map.get(key);
@@ -452,7 +422,7 @@ public class AController {
             }
         });
         try {
-            setSpeed(0);
+            setSpeed(0, controller);
         } catch (NegativeSpeedException e) {
             e.printStackTrace();
         }
@@ -473,17 +443,17 @@ public class AController {
         speedSliderHandler(controller);
     }
 
-    public void setSpeed(int speed) throws NegativeSpeedException {
+    public void setSpeed(int speed, IController controller) throws NegativeSpeedException {
         if (is_playing || speed == 0)
-            env.setAtomsSpeed(speed);
+            controller.getEnvironnement().setAtomsSpeed(speed);
     }
 
     public void speedSliderHandler(IController controller) {
         try {
-            setSpeed((int) controller.getUISpeedSlider().getValue());
+            setSpeed((int) controller.getUISpeedSlider().getValue(), controller);
         } catch (NegativeSpeedException e) {
             try {
-                setSpeed(0);
+                setSpeed(0, controller);
             } catch (NegativeSpeedException e1) {
                 e1.printStackTrace();
             }

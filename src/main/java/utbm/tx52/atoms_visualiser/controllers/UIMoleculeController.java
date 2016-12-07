@@ -6,6 +6,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Environment;
 import utbm.tx52.atoms_visualiser.entities.Formula;
 import utbm.tx52.atoms_visualiser.view.AScene;
 
@@ -38,8 +39,19 @@ public class UIMoleculeController implements IController {
     int nbAtoms;
     AScene subSceneMolecule;
     String m_Formula;
+    private Environment env;
     private AController acontroller;
     private String m_draggedAtom;
+
+    @Override
+    public Environment getEnvironnement() {
+        return env;
+    }
+
+    @Override
+    public void setEnvironnement(Environment env) {
+        this.env = env;
+    }
 
     public void init(AController taController) {
         this.acontroller = taController;
@@ -68,10 +80,10 @@ public class UIMoleculeController implements IController {
     public void generateAtomsByFormula() {
         Formula f = new Formula();
         ArrayList<Atom> atoms = null;
-        atoms = f.parse(acontroller.env, m_Formula, acontroller.isCHNO());
+        atoms = f.parse(env, m_Formula, acontroller.isCHNO());
         for (Atom a : atoms) {
             try {
-                acontroller.env.addAtom(a);
+                env.addAtom(a);
             } catch (Exception e) {
                 e.printStackTrace();
             }

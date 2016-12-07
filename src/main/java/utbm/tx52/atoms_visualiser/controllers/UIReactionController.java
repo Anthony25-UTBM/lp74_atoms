@@ -6,6 +6,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import utbm.tx52.atoms_visualiser.entities.Environment;
 import utbm.tx52.atoms_visualiser.utils.EasterEgg;
 import utbm.tx52.atoms_visualiser.view.AScene;
 
@@ -37,6 +38,7 @@ public class UIReactionController implements IController {
     JFXTreeTableView uiStatistics;
     @FXML
     JFXTextField uiGenAtomNumber;
+    private Environment env;
 
     @FXML
     public void clear_pool() {
@@ -114,6 +116,16 @@ public class UIReactionController implements IController {
 
     {
         aController.speedSliderHandler(this);
+    }
+
+    @Override
+    public Environment getEnvironnement() {
+        return env;
+    }
+
+    @Override
+    public void setEnvironnement(Environment env) {
+        this.env = env;
     }
 
     public void init(AController aController) {

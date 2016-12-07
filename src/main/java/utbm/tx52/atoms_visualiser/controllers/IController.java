@@ -3,12 +3,17 @@ package utbm.tx52.atoms_visualiser.controllers;
 import com.jfoenix.controls.*;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import utbm.tx52.atoms_visualiser.entities.Environment;
 import utbm.tx52.atoms_visualiser.view.AScene;
 
 /**
  * Created by adah on 06/12/16.
  */
 public interface IController {
+
+    Environment getEnvironnement();
+
+    void setEnvironnement(Environment env);
 
     void init(AController a);
 

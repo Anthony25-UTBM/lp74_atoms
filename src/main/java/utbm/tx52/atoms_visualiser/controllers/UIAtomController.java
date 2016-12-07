@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import utbm.tx52.atoms_visualiser.entities.Environment;
 import utbm.tx52.atoms_visualiser.view.AScene;
 
 /**
@@ -22,8 +23,19 @@ public class UIAtomController implements IController {
     JFXTextField uiSearch;
     @FXML
     ListView uiAtomDetail;
+    private Environment env;
     private AController aController;
     private String m_draggedAtom;
+
+    @Override
+    public Environment getEnvironnement() {
+        return env;
+    }
+
+    @Override
+    public void setEnvironnement(Environment env) {
+        this.env = env;
+    }
 
     public void init(AController aController) {
         this.aController = aController;

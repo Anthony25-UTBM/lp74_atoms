@@ -23,7 +23,7 @@ public class SetupSceneHelper {
             if (!controller.getDraggedAtom().equals("")) {
 
                 Atom atom = new Atom(
-                        aController.env,
+                        controller.getEnvironnement(),
                         aController.periodicTableFactory.getInstance().getSymbole().indexOf(controller.getDraggedAtom()),
                         event.getSceneX(),
                         event.getSceneY(), 0, 0, aController.isCHNO()
@@ -32,7 +32,7 @@ public class SetupSceneHelper {
                 controller.setDraggedAtom("");
                 aController.setStatsUpdate(true);
                 try {
-                    aController.env.addAtom(atom);
+                    controller.getEnvironnement().addAtom(atom);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
