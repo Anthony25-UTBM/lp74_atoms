@@ -44,6 +44,16 @@ public class UIMoleculeController implements IController {
     private String m_draggedAtom;
 
     @Override
+    public AnchorPane getUIAnchor() {
+        return this.uiAnchorMolecule;
+    }
+
+    @Override
+    public void setUIAnchor(AnchorPane uiAnchor) {
+        this.uiAnchorMolecule = uiAnchor;
+    }
+
+    @Override
     public Environment getEnvironnement() {
         return env;
     }

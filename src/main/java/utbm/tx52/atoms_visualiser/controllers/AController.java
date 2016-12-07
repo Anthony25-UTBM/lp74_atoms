@@ -304,6 +304,9 @@ public class AController {
         animTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
+
+                controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
+                controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
                 controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
                 updateStats(controller);
             }

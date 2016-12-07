@@ -119,6 +119,16 @@ public class UIReactionController implements IController {
     }
 
     @Override
+    public AnchorPane getUIAnchor() {
+        return this.uiAnchor;
+    }
+
+    @Override
+    public void setUIAnchor(AnchorPane uiAnchor) {
+        this.uiAnchor = uiAnchor;
+    }
+
+    @Override
     public Environment getEnvironnement() {
         return env;
     }

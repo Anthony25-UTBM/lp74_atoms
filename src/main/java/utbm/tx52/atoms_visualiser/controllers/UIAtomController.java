@@ -28,6 +28,16 @@ public class UIAtomController implements IController {
     private String m_draggedAtom;
 
     @Override
+    public AnchorPane getUIAnchor() {
+        return this.uiAnchorAtome;
+    }
+
+    @Override
+    public void setUIAnchor(AnchorPane uiAnchor) {
+        this.uiAnchorAtome = uiAnchor;
+    }
+
+    @Override
     public Environment getEnvironnement() {
         return env;
     }
