@@ -8,7 +8,7 @@ addons:
       - oracle-java8-installer
 
 install:
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - mvn -Pjade-main install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 script:
   - mvn verify
   - mvn test
