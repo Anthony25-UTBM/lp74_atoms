@@ -1,12 +1,24 @@
 package utbm.tx52.atoms_visualiser;
 
-import org.junit.*;
+import javafx.geometry.Point3D;
+import org.junit.Before;
+import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
+import utbm.tx52.atoms_visualiser.entities.Atom;
+import utbm.tx52.atoms_visualiser.entities.Environment;
+import utbm.tx52.atoms_visualiser.entities.Molecule;
+import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
+import utbm.tx52.atoms_visualiser.octree.Octree;
+import utbm.tx52.atoms_visualiser.view.AGroup;
 
 import javax.lang.model.type.UnknownTypeException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -16,25 +28,21 @@ public class EnvironmentTest {
     private Environment environment;
     private int nbMolecules;
     private int nbAtoms;
-    private double height;
-    private double width;
-    private double depth;
+    private double size;
     private boolean isCHNO;
 
     @Before
     public void setUp() {
         nbMolecules = 5;
         nbAtoms = 5;
-        width = 100;
-        depth = 100;
-        height = 100;
+        size = 100;
         isCHNO = false;
 
         initEnvironment();
     }
 
     private void initEnvironment() {
-        environment = new Environment(nbAtoms, width, depth, height, isCHNO);
+        environment = new Environment(nbAtoms, size, isCHNO);
         generatePoolMoleculesFor(environment, nbMolecules);
     }
 
@@ -51,38 +59,36 @@ public class EnvironmentTest {
 
     @Test
     public void addMolecule() {
-        double posX = 1;
-        double posY = 2;
-        double rayon = 3;
+        Point3D coord = new Point3D(1, 2, 0);
+        double radius = 3;
 
-        environment.addMolecule(posX, posY, rayon);
+        environment.addMolecule(coord.getX(), coord.getY(), radius);
 
         Molecule lastMolecule = environment.molecules.get(environment.molecules.size() - 1);
-        assertEquals(posX, lastMolecule.posX, 0.001);
-        assertEquals(posY, lastMolecule.posY, 0.001);
-        assertEquals(rayon, lastMolecule.getRadius(), 0.001);
+        assertTrue(coord.equals(lastMolecule.getCoordinates()));
+        assertEquals(radius, lastMolecule.getRadius(), 0.001);
     }
 
     @Test
-    public void addAtomCHNO() {
-        Atom a = new Atom("C", true);
+    public void addAtomCHNO() throws Exception {
+        Atom a = new Atom(environment, "C", true);
         environment.addAtom(a);
 
-        Atom addedAtom = environment.atoms.get(environment.atoms.size() - 1);
+        Atom addedAtom = environment.atoms.getObjects().get(environment.atoms.getObjects().size() - 1);
         assertEquals(a, addedAtom);
     }
 
     @Test
-    public void addAtomNotCHNO() {
-        Atom a = new Atom("Ar", false);
+    public void addAtomNotCHNO() throws Exception {
+        Atom a = new Atom(environment, "Ar", false);
         environment.addAtom(a);
 
-        Atom addedAtom = environment.atoms.get(environment.atoms.size() - 1);
+        Atom addedAtom = environment.atoms.getObjects().get(environment.atoms.getObjects().size() - 1);
         assertEquals(a, addedAtom);
     }
 
     @Test
-    public void updateMolecules() {
+    public void updateMolecules() throws Exception {
         spyAllMoleculesOf(environment);
 
         environment.updateMolecules();
@@ -92,49 +98,55 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void updateAtoms() {
+    public void updateAtoms() throws Exception {
         spyAllAtomsOf(environment);
 
         AGroup world = new AGroup();
-        for(Atom a : environment.atoms) {
-            doNothing().when(a).MiseAJour(
-                any(), any(), anyDouble(), anyDouble(), anyDouble()
-            );
+        for(Atom a : environment.atoms.getObjects()) {
+            doNothing().when(a).MiseAJour(any());
             doNothing().when(a).draw(any());
         }
 
         environment.updateAtoms(world);
-        for(Atom a : environment.atoms) {
-            verify(a).MiseAJour(any(), any(), anyDouble(), anyDouble(), anyDouble());
+        for(Atom a : environment.atoms.getObjects()) {
+            verify(a).MiseAJour(any());
             verify(a).draw(any());
         }
     }
 
-    private void spyAllMoleculesOf(Environment env) {
+    private void spyAllMoleculesOf(Environment env) throws Exception {
         spyAllElemsOf(env, Molecule.class);
     }
 
-    private void spyAllAtomsOf(Environment env) {
+    private void spyAllAtomsOf(Environment env) throws Exception {
         spyAllElemsOf(env, Atom.class);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void spyAllElemsOf(Environment env, Class<T> elementType) throws UnknownTypeException {
+    private <T> void spyAllElemsOf(Environment env, Class<T> elementType) throws Exception {
         int index = 0;
 
-        ArrayList<T> elemList;
-        if(elementType == Molecule.class)
-            elemList = (ArrayList<T>) environment.molecules;
-        else if(elementType == Atom.class)
-            elemList = (ArrayList<T>) environment.atoms;
+        // It should be way cleaner when molecules will use an octree (or be removed)
+        if(elementType == Molecule.class) {
+            ArrayList<T> elemList = (ArrayList<T>) environment.molecules;
+            for (T e : elemList) {
+                elemList.set(index, spy(e));
+                index++;
+            }
+        }
+        else if(elementType == Atom.class) {
+            ArrayList<Atom> elemList = environment.atoms.getObjects();
+            for (Atom e : elemList) {
+                Octree<Atom> octree = environment.atoms.getOctreeForPoint(e.getCoordinates());
+                octree.remove(e);
+                octree.add(spy(e));
+                index++;
+            }
+        }
         else {
             throw new UnknownTypeException(null, null);
         }
 
-        for(T e : elemList) {
-            elemList.set(index, spy(e));
-            index++;
-        }
     }
 
     @Test
@@ -156,15 +168,17 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void nbOfEachAtoms() {
-        environment.atoms = new ArrayList<>();
+    public void nbOfEachAtoms() throws Exception {
+        environment.atoms = new Octree<Atom>(size, 20);
         Atom[] atomList = new Atom[] {
-            new Atom("C", true),
-            new Atom("H", true),
-            new Atom("H", true),
-            new Atom("Ar", false),
+            new Atom(environment, "C", true),
+            new Atom(environment, "H", true),
+            new Atom(environment, "H", true),
+            new Atom(environment, "Ar", false),
         };
-        environment.atoms.addAll(Arrays.asList(atomList));
+
+        for(Atom a : atomList)
+            environment.addAtom(a);
 
         Map<String, Integer> expectedResult = new Hashtable<>();
         expectedResult.put("C", 1);
@@ -175,38 +189,36 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void numberOfNotActiveAtomsAllActive() throws NegativeSpeedException {
+    public void numberOfNotActiveAtomsAllActive() throws Exception {
         activateAllAtomsOf(environment);
         assertEquals(0, environment.nbOfNotActiveAtoms());
     }
 
     @Test
-    public void numberOfNotActiveAtomsAllDisabled() throws NegativeSpeedException {
+    public void numberOfNotActiveAtomsAllDisabled() throws Exception {
         disableAllAtomsOf(environment);
         assertEquals(nbAtoms, environment.nbOfNotActiveAtoms());
     }
 
-    public void activateAllAtomsOf(Environment e) {
+    public void activateAllAtomsOf(Environment e) throws InterruptedException {
         setAllAtomsSpeedDirOfEnvTo(e, 1);
     }
 
-    public void disableAllAtomsOf(Environment e) {
+    public void disableAllAtomsOf(Environment e) throws InterruptedException {
         setAllAtomsSpeedDirOfEnvTo(e, 0);
     }
 
-    public void setAllAtomsSpeedDirOfEnvTo(Environment env, double speed) {
-        environment.atoms.forEach(a->{
-            a.speedX = speed;
-            a.speedY = speed;
-            a.speedZ = speed;
+    public void setAllAtomsSpeedDirOfEnvTo(Environment env, double speed) throws InterruptedException {
+        environment.atoms.getObjects().forEach(a->{
+            a.setSpeedVector(new Point3D(speed, speed, speed));
         });
     }
 
     @Test
-    public void setAtomsSpeed() throws NegativeSpeedException {
+    public void setAtomsSpeed() throws NegativeSpeedException, InterruptedException {
         environment.setAtomsSpeed(10);
 
-        environment.atoms.forEach(a->{
+        environment.atoms.getObjects().forEach(a->{
             assertEquals(10, a.getSpeed(), 0.001);
         });
     }

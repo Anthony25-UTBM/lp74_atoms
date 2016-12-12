@@ -1,7 +1,8 @@
 package utbm.tx52.atoms_visualiser;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import utbm.tx52.atoms_visualiser.entities.Molecule;
 
 /**
  * Created by anthony on 03/11/16.
