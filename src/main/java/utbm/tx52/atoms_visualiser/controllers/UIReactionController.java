@@ -57,6 +57,7 @@ public class UIReactionController implements IController {
 
     @Override
     public int getNumberOfAtoms() {
+        if (getUINumberOfAtoms().getText().isEmpty()) return 0;
         setNumberOfAtoms(Integer.parseInt(getUINumberOfAtoms().getText()));
         return nbAtoms;
     }

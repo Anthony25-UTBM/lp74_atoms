@@ -1,6 +1,8 @@
 package utbm.tx52.atoms_visualiser.entities;
 
 
+import com.jfoenix.controls.JFXDialog;
+import jade.core.behaviours.CyclicBehaviour;
 import com.google.common.collect.Iterators;
 import com.jfoenix.controls.JFXDialog;
 import javafx.application.ConditionalFeature;
@@ -56,6 +58,10 @@ public class Atom extends Agent implements OctreePoint {
     private ArrayList<Covalence> covalence;
     private long vanderWaalsRadius;
     private boolean isCHNO;
+
+    public Atom() {
+        System.out.println("With no argument");
+    }
 
     public Atom(Environment environment, String symbole, boolean isCHNO) {
         this(environment, Point3D.ZERO, 45, isCHNO);
@@ -196,6 +202,7 @@ public class Atom extends Agent implements OctreePoint {
             }
             if (this.isCHNO && liaison == 0) {
                 //TODO FIX UNIT !
+                if (a.getSpeed() - getSpeed() < 0) changeDirection(1);
                 double deltaEnergy = PLANCK_CONSTANT * Math.abs(a.getSpeed() - getSpeed());
                 double A = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 12);
                 double B = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 6);
@@ -299,14 +306,59 @@ public class Atom extends Agent implements OctreePoint {
         }
     }
 
-    public void MiseAJour(ArrayList<Molecule> molecules) throws Exception {
+    @Override
+    protected void takeDown() {
+        super.takeDown();
+    }
+
+    @Override
+    protected void setup() {
+        super.setup();
+        System.out.println("get Arguments");
+        Object[] args = getArguments();
+        if (args.length == 5) {
+            System.out.println("casting arguments");
+            this.environment = (Environment) args[0];
+            ratioSpeed = 1;
+            this.isCHNO = (boolean) args[4];
+            this.a_number = Integer.parseInt(args[1].toString());
+
+            state = ElementState.free;
+
+            this.coord = (Point3D) args[2];
+            double dir = Double.parseDouble(args[3].toString());
+            speedVector = new Point3D(Math.cos(dir), Math.sin(dir), 0);
+            setPropertiesFromPeriodicTable();
+
+
+            logger.debug("Atom crée (" + symb + ")");
+
+
+        }
+        System.out.println("Setup called atom");
+        addBehaviour();
+        try {
+            this.environment.addAtom(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addBehaviour() {
+        super.addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                updateCoordinates();
+            }
+        });
+    }
+
+    public void update() throws Exception {
         if (state == ElementState.free) {
             if (!EviterLimiteEnv()) {
                 if (!attachAtoms()) {
-                    if (!EviterMolecule(molecules)) {
-                        if (!EviterAtomes()) {
-                            CalculerDirectionMoyenne();
-                        }
+                    if (!EviterAtomes()) {
+                        //CalculerDirectionMoyenne();
                     }
                 }
             }

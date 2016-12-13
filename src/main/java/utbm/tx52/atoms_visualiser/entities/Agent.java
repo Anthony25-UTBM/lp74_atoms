@@ -3,7 +3,7 @@ package utbm.tx52.atoms_visualiser.entities;
 import javafx.geometry.Point3D;
 import utbm.tx52.atoms_visualiser.octree.OctreePoint;
 
-public abstract class Agent implements OctreePoint {
+public abstract class Agent extends jade.core.Agent implements OctreePoint {
     public Point3D coord;
 
     public Agent() {

@@ -1,5 +1,11 @@
 package utbm.tx52.atoms_visualiser;
 
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.core.Runtime;
+import jade.util.ExtendedProperties;
+import jade.util.leap.Properties;
+import jade.wrapper.AgentContainer;
 import org.junit.Before;
 import org.junit.Test;
 import utbm.tx52.atoms_visualiser.entities.Atom;
@@ -16,6 +22,7 @@ public class AtomTest {
     private double dir;
     private boolean isCHNO;
     private Environment environment;
+    private AgentContainer container;
 
 
     @Before
@@ -26,7 +33,18 @@ public class AtomTest {
         n = 1;
         dir = 0;
         isCHNO = false;
-        environment = new Environment(0, 1, isCHNO);
+        // create agent container
+        Runtime rt = Runtime.instance();
+        Properties p = new ExtendedProperties();
+        p.setProperty(Profile.GUI, "true");
+        ProfileImpl pc = new ProfileImpl(p);
+        pc.setParameter(ProfileImpl.MAIN_HOST, "127.0.0.1");
+        pc.setParameter(Profile.PLATFORM_ID, "sink-platform");
+        pc.setParameter(Profile.LOCAL_HOST, "127.0.0.1");
+        pc.setParameter(Profile.CONTAINER_NAME, "sink-container");
+        pc.setParameter(Profile.NO_MTP, "true");
+        container = rt.createAgentContainer(pc);
+        environment = new Environment(container, 0, 1, isCHNO);
         initAgent();
     }
 

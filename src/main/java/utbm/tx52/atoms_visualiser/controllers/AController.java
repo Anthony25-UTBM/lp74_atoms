@@ -1,5 +1,6 @@
 package utbm.tx52.atoms_visualiser.controllers;
 
+import jade.wrapper.AgentContainer;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -57,7 +58,7 @@ import java.util.*;
  *          features : les molécules peuvent etre géré il faut adopté la classe molécule
  */
 
-public class AController {
+public class AController extends jade.core.Agent {
     private static final Logger logger = LogManager.getLogger("AController");
     public static ObservableList<String> items = FXCollections.observableArrayList();
     static protected Color couleurs[] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
@@ -103,11 +104,17 @@ public class AController {
     };
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
+    private AgentContainer container;
 
     static protected void setElement(String string) {
         items.add(string);
     }
 
+    @Override
+    protected void setup() {
+        super.setup();
+        System.out.println("init Controller");
+    }
 
     public double getScreenWidth() {
         return screen_width;
@@ -128,7 +135,8 @@ public class AController {
         controller.setNumberOfAtoms(0);
         if (controller.getUINumberOfAtoms() != null) {
             controller.getUINumberOfAtoms().textProperty().addListener((observable, oldValue, newValue) -> {
-                controller.setNumberOfAtoms(Integer.parseInt(newValue));
+                if (newValue.isEmpty()) controller.setNumberOfAtoms(0);
+                else controller.setNumberOfAtoms(Integer.parseInt(newValue));
             });
         }
 
@@ -149,8 +157,9 @@ public class AController {
         controller.getSubScene().getWorld().getChildren().clear();
         if (nb_atoms > 0) {
             double size = screen_width * ratio;
+
             controller.setEnvironnement(new Environment(
-                    nb_atoms, size, isCHNO()));
+                    this.container, nb_atoms, size, isCHNO()));
 
         } else
             controller.getEnvironnement().atoms = new Octree<Atom>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
@@ -296,12 +305,19 @@ public class AController {
         double size = screen_width * ratio;
         controller.init(this);
         initAtomsNumber(controller);
-        controller.setEnvironnement(new Environment((int) m_numberOfAtoms, size, this.isCHNO()));
+        controller.setEnvironnement(new Environment(this.container, (int) m_numberOfAtoms, size, this.isCHNO()));
         stop(controller);
         initStatsTable(controller);
         setTimers();
 
         handleMouse(controller.getSubScene(), controller.getSubScene().getWorld());
+    }
+
+    public void setupContainers(IController controller) {
+        controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
+        controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
+        controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
+        updateStats(controller);
     }
 
     public AnimationTimer createTimer(IController controller) {
@@ -340,6 +356,7 @@ public class AController {
         //stage.setFullScreen(true);
         stage.show();
         updateStat = true;
+        container.start();
 
 
         //rootScene.setCamera(camera);
@@ -570,5 +587,8 @@ public class AController {
     }
 
 
+    public void setContainer(AgentContainer container) {
+        this.container = container;
+    }
 }
 

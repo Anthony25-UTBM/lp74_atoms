@@ -1,5 +1,7 @@
 package utbm.tx52.atoms_visualiser.entities;
 
+import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
 import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +10,7 @@ import utbm.tx52.atoms_visualiser.octree.Octree;
 import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
 import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
+import utbm.tx52.atoms_visualiser.utils.RandomHelper;
 import utbm.tx52.atoms_visualiser.view.AGroup;
 
 import java.util.*;
@@ -25,17 +28,19 @@ public class Environment extends Observable {
      */
     protected double size;
     protected int maxObjects = 200;
+    private AgentContainer container;
 
     public Environment() {
 
     }
 
-    public Environment(int nbAtoms, double size, boolean isCHNO) {
+    public Environment(AgentContainer container, int nbAtoms, double size, boolean isCHNO) {
         this.size = size;
         random_generator = new Random();
         molecules = new ArrayList();
-        atoms = new Octree<Atom>(size*2, maxObjects);
+        atoms = new Octree<Atom>(size * 2, maxObjects);
         int nbSamples;
+        this.container = container;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
         if (isCHNO) {
@@ -54,17 +59,33 @@ public class Environment extends Observable {
                 number = t_periodic.getNumber().get(number);
 
             Point3D a_coord = new Point3D(
-                random_generator.nextDouble() * (this.size/2 - 1),
-                random_generator.nextDouble() * (this.size/2 - 1),
-                random_generator.nextDouble() * (this.size/2 - 1)
+                random_generator.nextDouble() * (this.size / 2 - 1),
+                random_generator.nextDouble() * (this.size / 2 - 1),
+                random_generator.nextDouble() * (this.size / 2 - 1)
             );
             double a_dir = random_generator.nextDouble() * 2 * Math.PI;
             try {
-                atoms.add(new Atom(this, number, a_coord, a_dir, isCHNO));
+                //Atom tmp = new Atom(this, number, a_coord, a_dir, isCHNO);
+                String tmpAgentName = RandomHelper.getRandomID();
+                Object[] ARGS = {this, number, a_coord, a_dir, isCHNO};
+                AgentController controller = this.container.createNewAgent(
+                    tmpAgentName,
+                    Atom.class.getName(),
+                    ARGS
+                );
+                controller.start();
+                System.out.println("size  = " + this.atoms.size);
+
+                //this.container.acceptNewAgent(RandomHelper.getRandomID(),tmp);
+                //atoms.add((Atom)this.container.getAgent(tmpAgentName));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void setContainer(AgentContainer container) {
+        this.container = container;
     }
 
     public void addMolecule(double coordX, double coordY, double rayon) {
@@ -120,7 +141,7 @@ public class Environment extends Observable {
 
         for (Atom a : atoms_objects) {
             try {
-                a.MiseAJour(molecules);
+                a.update();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -168,7 +189,7 @@ public class Environment extends Observable {
             throw new NegativeSpeedException("Speed should be positive or null");
         }
 
-        atoms.forEach(a->{
+        atoms.forEach(a -> {
             a.setSpeed(speed);
         });
     }

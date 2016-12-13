@@ -1,5 +1,11 @@
 package utbm.tx52.atoms_visualiser;
 
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.core.Runtime;
+import jade.util.ExtendedProperties;
+import jade.util.leap.Properties;
+import jade.wrapper.AgentContainer;
 import javafx.geometry.Point3D;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,9 +36,21 @@ public class EnvironmentTest {
     private int nbAtoms;
     private double size;
     private boolean isCHNO;
+    private AgentContainer container;
 
     @Before
     public void setUp() {
+        Runtime rt = Runtime.instance();
+        Properties p = new ExtendedProperties();
+        p.setProperty(Profile.GUI, "true");
+        ProfileImpl pc = new ProfileImpl(p);
+        pc.setParameter(ProfileImpl.MAIN_HOST, "127.0.0.1");
+        pc.setParameter(Profile.PLATFORM_ID, "sink-platform");
+        pc.setParameter(Profile.LOCAL_HOST, "127.0.0.1");
+        pc.setParameter(Profile.CONTAINER_NAME, "sink-container");
+        pc.setParameter(Profile.NO_MTP, "true");
+        container = rt.createAgentContainer(pc);
+
         nbMolecules = 5;
         nbAtoms = 5;
         size = 100;
@@ -42,7 +60,7 @@ public class EnvironmentTest {
     }
 
     private void initEnvironment() {
-        environment = new Environment(nbAtoms, size, isCHNO);
+        environment = new Environment(container, nbAtoms, size, isCHNO);
         generatePoolMoleculesFor(environment, nbMolecules);
     }
 
@@ -103,13 +121,13 @@ public class EnvironmentTest {
 
         AGroup world = new AGroup();
         for(Atom a : environment.atoms.getObjects()) {
-            doNothing().when(a).MiseAJour(any());
+            doNothing().when(a).update();
             doNothing().when(a).draw(any());
         }
 
         environment.updateAtoms(world);
         for(Atom a : environment.atoms.getObjects()) {
-            verify(a).MiseAJour(any());
+            verify(a).update();
             verify(a).draw(any());
         }
     }
@@ -135,11 +153,10 @@ public class EnvironmentTest {
             }
         }
         else if(elementType == Atom.class) {
-            ArrayList<Atom> elemList = environment.atoms.getObjects();
-            for (Atom e : elemList) {
-                Octree<Atom> octree = environment.atoms.getOctreeForPoint(e.getCoordinates());
-                octree.remove(e);
-                octree.add(spy(e));
+            for(Atom a : environment.atoms) {
+                Octree<Atom> octree = environment.atoms.getOctreeForPoint(a.getCoordinates());
+                octree.remove(a);
+                octree.add(spy(a));
                 index++;
             }
         }
@@ -209,7 +226,7 @@ public class EnvironmentTest {
     }
 
     public void setAllAtomsSpeedDirOfEnvTo(Environment env, double speed) throws InterruptedException {
-        environment.atoms.getObjects().forEach(a->{
+        environment.atoms.forEach(a->{
             a.setSpeedVector(new Point3D(speed, speed, speed));
         });
     }
@@ -218,7 +235,7 @@ public class EnvironmentTest {
     public void setAtomsSpeed() throws NegativeSpeedException, InterruptedException {
         environment.setAtomsSpeed(10);
 
-        environment.atoms.getObjects().forEach(a->{
+        environment.atoms.forEach(a->{
             assertEquals(10, a.getSpeed(), 0.001);
         });
     }
