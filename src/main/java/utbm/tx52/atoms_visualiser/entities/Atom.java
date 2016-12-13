@@ -187,12 +187,6 @@ public class Atom extends Agent implements OctreePoint {
 
         double distanceSquaredToA = distanceSquared(a);
         if (distanceSquaredToA < (a.rayon * a.rayon * 4) && a_number != a.a_number) {
-            /*double distance = Math.sqrt(distanceCarre);
-            double diffX = (a.posX - posX) / distance;
-            double diffY = (a.posY - posY) / distance;
-            speedX = speedX - diffX / 2;
-            speedY = speedY - diffY / 2;
-            normalize();*/
             if (a.liaison != 0) {
                 liaison--;
                 a.liaison--;
@@ -260,50 +254,6 @@ public class Atom extends Agent implements OctreePoint {
 
         speedVector = speedVector.add(addSpeedX, addSpeedY, addSpeedZ);
         normalize();
-    }
-
-    protected boolean EviterMolecule(ArrayList<Molecule> molecules) {
-        if (!molecules.isEmpty()) {
-            // Recherche de la mol�cule la plus proche
-            Molecule m = molecules.get(0);
-            double distanceCarre = distanceSquared(m);
-            for (Molecule m_2 : molecules) {
-                if (distanceSquared(m) < distanceCarre) {
-                    m = m_2;
-                    distanceCarre = distanceSquared(m_2);
-                }
-            }
-
-            if (distanceCarre < (m.radius * m.radius * 4)) {
-                // Si collision, calcul du vecteur diff
-                double distance = Math.sqrt(distanceCarre);
-                double diffX = (m.getCoordinates().getX() - coord.getX()) / distance;
-                double diffY = (m.getCoordinates().getY() - coord.getY()) / distance;
-                double diffZ = (m.getCoordinates().getZ() - coord.getZ()) / distance;
-
-                speedVector = speedVector.subtract(diffX/2, diffY/2, diffZ/2);
-                normalize();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected void CalculerDirectionMoyenne() {
-        Point3D totalSpeedVector = Point3D.ZERO;
-        int nbTotal = 0;
-        for (Atom a : environment.atoms) {
-            if (DansAlignement(a)) {
-                totalSpeedVector = totalSpeedVector.add(a.getSpeedVector());
-                nbTotal++;
-            }
-        }
-        if (nbTotal >= 1) {
-            speedVector = totalSpeedVector.
-                multiply(1/(2 * nbTotal)).
-                add(speedVector.multiply(1/2));
-            normalize();
-        }
     }
 
     @Override
