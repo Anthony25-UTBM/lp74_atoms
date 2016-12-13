@@ -26,15 +26,22 @@ public class Environment extends Observable {
     protected double size;
     protected int maxObjects = 200;
 
-    public Environment() {
+    public Environment(double size) {
 
+        this.size = size;
+        molecules = new ArrayList();
+        atoms = new Octree<>(size*2, maxObjects);
+
+
+    }
+    public double getSize()
+    {
+        return size;
     }
 
     public Environment(int nbAtoms, double size, boolean isCHNO) {
-        this.size = size;
+        this(size);
         random_generator = new Random();
-        molecules = new ArrayList();
-        atoms = new Octree<Atom>(size*2, maxObjects);
         int nbSamples;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
@@ -84,6 +91,7 @@ public class Environment extends Observable {
 
     public void addAtom(Atom a) throws Exception {
         atoms.add(a);
+
     }
 
     public void move(Atom a, Point3D dest) throws Exception {

@@ -97,9 +97,9 @@ public class AController {
     private double mouseDeltaY;
 
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
+        handleMouse(uiMoleculeController.subSceneMolecule, parent);
         handleMouse(uiReactionController.subScene, parent);
         handleMouse(uiAtomController.subSceneAtome, parent);
-        handleMouse(uiMoleculeController.subSceneMolecule, parent);
     };
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
@@ -128,6 +128,7 @@ public class AController {
         controller.setNumberOfAtoms(0);
         if (controller.getUINumberOfAtoms() != null) {
             controller.getUINumberOfAtoms().textProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue.isEmpty()) newValue="0";
                 controller.setNumberOfAtoms(Integer.parseInt(newValue));
             });
         }
@@ -144,6 +145,10 @@ public class AController {
     }
 
 
+    public double getEnvSize()
+    {
+        return screen_width * ratio;
+    }
     public void random_elem_gen(IController controller, int nb_atoms) {
 
         controller.getSubScene().getWorld().getChildren().clear();
@@ -153,7 +158,7 @@ public class AController {
                     nb_atoms, size, isCHNO()));
 
         } else
-            controller.getEnvironnement().atoms = new Octree<Atom>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
+            controller.getEnvironnement().atoms = new Octree<>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
         updateStat = true;
     }
 
@@ -296,7 +301,6 @@ public class AController {
         double size = screen_width * ratio;
         controller.init(this);
         initAtomsNumber(controller);
-        controller.setEnvironnement(new Environment((int) m_numberOfAtoms, size, this.isCHNO()));
         stop(controller);
         initStatsTable(controller);
         setTimers();
@@ -308,9 +312,6 @@ public class AController {
         return new AnimationTimer() {
             @Override
             public void handle(long l) {
-
-                controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
-                controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
                 controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
                 updateStats(controller);
             }
@@ -318,8 +319,8 @@ public class AController {
     }
 
     public void setTimers() {
-        animTimer = createTimer(uiReactionController);
         animTimerMolecule = createTimer(uiMoleculeController);
+        animTimer = createTimer(uiReactionController);
     }
 
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
@@ -332,9 +333,10 @@ public class AController {
         double size = screen_width * ratio;
         startControllers(uiMoleculeController);
         startControllers(uiReactionController);
+        startControllers(uiAtomController);
 
-        animTimer.start();
         animTimerMolecule.start();
+        animTimer.start();
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         //stage.setFullScreen(true);
@@ -346,6 +348,7 @@ public class AController {
     }
 
     public void initStatsTable(IController controller) {
+        if(controller instanceof UIAtomController) return;
         ObservableList stats_columns = controller.getUIStatistics().getColumns();
 
         TreeTableColumn description_column = (
@@ -425,6 +428,7 @@ public class AController {
     }
 
     public void stop(IController controller) {
+        if(controller instanceof UIAtomController) return;
         controller.getUIPlayBtn().setText("Play");
         controller.getUIPlayBtn().setStyle("-fx-Background-color: #1E88E5;");
         controller.getUIPlayBtn().setOnAction(new EventHandler<ActionEvent>() {

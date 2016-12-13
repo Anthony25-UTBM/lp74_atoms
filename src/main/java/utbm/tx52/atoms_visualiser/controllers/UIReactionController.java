@@ -142,8 +142,13 @@ public class UIReactionController implements IController {
 
         this.aController = aController;
         subScene = new AScene(uiAnchor.getPrefWidth(), uiAnchor.getPrefHeight());
+        this.env = new Environment(aController.getEnvSize());
 
         setupScene();
+
+        this.getSubScene().heightProperty().bind(this.getUIAnchor().heightProperty());
+        this.getSubScene().widthProperty().bind(this.getUIAnchor().widthProperty());
+
     }
 
     @Override

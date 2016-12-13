@@ -56,9 +56,13 @@ public class Atom extends Agent implements OctreePoint {
     private ArrayList<Covalence> covalence;
     private long vanderWaalsRadius;
     private boolean isCHNO;
-
     public Atom(Environment environment, String symbole, boolean isCHNO) {
-        this(environment, Point3D.ZERO, 45, isCHNO);
+        this(environment,symbole, Point3D.ZERO,45, isCHNO);
+    }
+
+    public Atom(Environment environment, String symbole,Point3D point, double dir, boolean isCHNO) {
+
+        this(environment, point,dir, isCHNO);
         int n = 0;
         if (isCHNO) {
             CHNO t_chno = CHNO.getInstance();

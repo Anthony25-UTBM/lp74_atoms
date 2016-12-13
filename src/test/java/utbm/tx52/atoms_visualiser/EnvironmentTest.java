@@ -71,7 +71,8 @@ public class EnvironmentTest {
 
     @Test
     public void addAtomCHNO() throws Exception {
-        Atom a = new Atom(environment, "C", true);
+
+        Atom a = new Atom(environment, "C",Point3D.ZERO,45, true);
         environment.addAtom(a);
 
         Atom addedAtom = environment.atoms.getObjects().get(environment.atoms.getObjects().size() - 1);
@@ -80,7 +81,7 @@ public class EnvironmentTest {
 
     @Test
     public void addAtomNotCHNO() throws Exception {
-        Atom a = new Atom(environment, "Ar", false);
+        Atom a = new Atom(environment, "Ar",Point3D.ZERO,45, false);
         environment.addAtom(a);
 
         Atom addedAtom = environment.atoms.getObjects().get(environment.atoms.getObjects().size() - 1);

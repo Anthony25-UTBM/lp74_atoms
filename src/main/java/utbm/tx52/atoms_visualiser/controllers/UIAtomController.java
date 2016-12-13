@@ -51,6 +51,10 @@ public class UIAtomController implements IController {
         this.aController = aController;
         subSceneAtome = new AScene(uiAnchorAtome.getPrefWidth(), uiAnchorAtome.getPrefHeight());
         setupScene();
+
+        this.getSubScene().heightProperty().bind(this.getUIAnchor().heightProperty());
+        this.getSubScene().widthProperty().bind(this.getUIAnchor().widthProperty());
+
     }
 
     @Override

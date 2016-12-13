@@ -1,9 +1,11 @@
 package utbm.tx52.atoms_visualiser.entities;
 
+import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,19 +22,32 @@ public class Formula {
 
         while (matcher.find()) {
             String symbole = matcher.group(2);
+            Point3D a_coord;
             if (!verifyCHNO(isCHNO, matcher.group(1))) {
                 continue;
             }
+            Random random_generator = new Random();
+
             logger.debug("adding atom " + matcher.group(1));
             if (!symbole.isEmpty()) {
                 int count = Integer.parseInt(matcher.group(2));
 
 
                 for (int i = 1; i < count; i++) {
-                    atoms.add(new Atom(environment, matcher.group(1), isCHNO));
+                    a_coord = new Point3D(
+                            random_generator.nextDouble() * (environment.getSize()/2 - 1),
+                            random_generator.nextDouble() * (environment.getSize()/2 - 1),
+                            random_generator.nextDouble() * (environment.getSize()/2 - 1)
+                    );
+                    atoms.add(new Atom(environment, matcher.group(1),a_coord,45, isCHNO));
                 }
             }
-            atoms.add(new Atom(environment, matcher.group(1), isCHNO));
+            a_coord = new Point3D(
+                    random_generator.nextDouble() * (environment.getSize()/2 - 1),
+                    random_generator.nextDouble() * (environment.getSize()/2 - 1),
+                    random_generator.nextDouble() * (environment.getSize()/2 - 1)
+            );
+            atoms.add(new Atom(environment, matcher.group(1),a_coord,45, isCHNO));
         }
         return atoms;
     }
