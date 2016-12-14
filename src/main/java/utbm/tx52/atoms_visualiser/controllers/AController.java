@@ -99,9 +99,9 @@ public class AController extends jade.core.Agent {
     private double mouseDeltaY;
 
     private final EventHandler<MouseEvent> mouseEventHandler = event -> {
+        handleMouse(uiMoleculeController.subSceneMolecule, parent);
         handleMouse(uiReactionController.subScene, parent);
         handleMouse(uiAtomController.subSceneAtome, parent);
-        handleMouse(uiMoleculeController.subSceneMolecule, parent);
     };
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
@@ -136,8 +136,8 @@ public class AController extends jade.core.Agent {
         controller.setNumberOfAtoms(0);
         if (controller.getUINumberOfAtoms() != null) {
             controller.getUINumberOfAtoms().textProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue.isEmpty()) controller.setNumberOfAtoms(0);
-                else controller.setNumberOfAtoms(Integer.parseInt(newValue));
+                if(newValue.isEmpty()) newValue="0";
+                controller.setNumberOfAtoms(Integer.parseInt(newValue));
             });
         }
 
@@ -153,6 +153,11 @@ public class AController extends jade.core.Agent {
     }
 
 
+    public double getEnvSize()
+    {
+        return screen_width * ratio;
+    }
+
     public void random_elem_gen(IController controller, int nb_atoms) {
 
         controller.getSubScene().getWorld().getChildren().clear();
@@ -163,7 +168,7 @@ public class AController extends jade.core.Agent {
                     this.container, nb_atoms, size, isCHNO()));
 
         } else
-            controller.getEnvironnement().atoms = new Octree<Atom>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
+            controller.getEnvironnement().atoms = new Octree<>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
         updateStat = true;
     }
 
@@ -306,7 +311,7 @@ public class AController extends jade.core.Agent {
         double size = screen_width * ratio;
         controller.init(this);
         initAtomsNumber(controller);
-        controller.setEnvironnement(new Environment(this.container, (int) m_numberOfAtoms, size, this.isCHNO()));
+        controller.setEnvironnement(new Environment(this.container, m_numberOfAtoms, size, this.isCHNO()));
         try {
             controller.getEnvironnement().start();
         } catch (ControllerException e) {
@@ -320,8 +325,6 @@ public class AController extends jade.core.Agent {
     }
 
     public void setupContainers(IController controller) {
-        controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
-        controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
         controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
         updateStats(controller);
     }
@@ -330,7 +333,6 @@ public class AController extends jade.core.Agent {
         return new AnimationTimer() {
             @Override
             public void handle(long l) {
-
                 controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
                 controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
                 controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
@@ -340,8 +342,8 @@ public class AController extends jade.core.Agent {
     }
 
     public void setTimers() {
-        animTimer = createTimer(uiReactionController);
         animTimerMolecule = createTimer(uiMoleculeController);
+        animTimer = createTimer(uiReactionController);
     }
 
     public void AStart(Stage stage, boolean isCHNO) throws Exception {
@@ -354,9 +356,10 @@ public class AController extends jade.core.Agent {
         double size = screen_width * ratio;
         startControllers(uiMoleculeController);
         startControllers(uiReactionController);
+        startControllers(uiAtomController);
 
-        animTimer.start();
         animTimerMolecule.start();
+        animTimer.start();
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
         //stage.setFullScreen(true);
@@ -369,6 +372,7 @@ public class AController extends jade.core.Agent {
     }
 
     public void initStatsTable(IController controller) {
+        if(controller instanceof UIAtomController) return;
         ObservableList stats_columns = controller.getUIStatistics().getColumns();
 
         TreeTableColumn description_column = (
@@ -448,6 +452,7 @@ public class AController extends jade.core.Agent {
     }
 
     public void stop(IController controller) {
+        if(controller instanceof UIAtomController) return;
         controller.getUIPlayBtn().setText("Play");
         controller.getUIPlayBtn().setStyle("-fx-Background-color: #1E88E5;");
         controller.getUIPlayBtn().setOnAction(new EventHandler<ActionEvent>() {

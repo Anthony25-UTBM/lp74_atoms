@@ -65,9 +65,13 @@ public class UIMoleculeController implements IController {
 
     public void init(AController taController) {
         this.acontroller = taController;
+        env = new Environment(acontroller.getEnvSize());
         subSceneMolecule = new AScene(uiAnchorMolecule.getPrefWidth(), uiAnchorMolecule.getPrefHeight());
         initFormula();
         setupScene();
+        this.getSubScene().heightProperty().bind(this.getUIAnchor().heightProperty());
+        this.getSubScene().widthProperty().bind(this.getUIAnchor().widthProperty());
+
 
     }
 
@@ -88,19 +92,19 @@ public class UIMoleculeController implements IController {
 
     @FXML
     public void generateAtomsByFormula() {
-        if (env == null) env = new Environment();
         Formula f = new Formula();
-        ArrayList<Atom> atoms = null;
-        atoms = f.parse(env, m_Formula, acontroller.isCHNO());
-
+        ArrayList<Atom> atoms = f.parse(env, m_Formula, acontroller.isCHNO());
         for (Atom a : atoms) {
             try {
                 env.addAtom(a);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         uiFormula.setText("");
+        this.env.updateAtoms(getSubScene().getWorld());
+        this.acontroller.setStatsUpdate(true);
         //acontroller.refresh(this);
     }
 

@@ -29,14 +29,17 @@ public class Environment extends Observable {
     protected AgentContainer container = null;
 
     public Environment() {
+    }
 
+    public Environment(double size) {
+        this.size = size;
+        molecules = new ArrayList();
+        atoms = new Octree<>(size*2, maxObjects);
     }
 
     public Environment(int nbAtoms, double size, boolean isCHNO) {
-        this.size = size;
+        this(size);
         random_generator = new Random();
-        molecules = new ArrayList();
-        atoms = new Octree<Atom>(size * 2, maxObjects);
         int nbSamples;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
@@ -109,6 +112,10 @@ public class Environment extends Observable {
         if (!molecules.isEmpty()) {
             logger.debug("Molecule Yes");
         } else logger.debug("Molecule NO");
+    }
+
+    public double getSize() {
+        return size;
     }
 
     public Octree<Atom> getAtoms() throws InterruptedException {

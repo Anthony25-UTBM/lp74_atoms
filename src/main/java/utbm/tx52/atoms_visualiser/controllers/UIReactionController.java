@@ -145,6 +145,10 @@ public class UIReactionController implements IController {
         subScene = new AScene(uiAnchor.getPrefWidth(), uiAnchor.getPrefHeight());
 
         setupScene();
+
+        this.getSubScene().heightProperty().bind(this.getUIAnchor().heightProperty());
+        this.getSubScene().widthProperty().bind(this.getUIAnchor().widthProperty());
+
     }
 
     @Override
