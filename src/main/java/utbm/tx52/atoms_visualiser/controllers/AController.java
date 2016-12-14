@@ -1,6 +1,7 @@
 package utbm.tx52.atoms_visualiser.controllers;
 
 import jade.wrapper.AgentContainer;
+import jade.wrapper.ControllerException;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -306,6 +307,11 @@ public class AController extends jade.core.Agent {
         controller.init(this);
         initAtomsNumber(controller);
         controller.setEnvironnement(new Environment(this.container, (int) m_numberOfAtoms, size, this.isCHNO()));
+        try {
+            controller.getEnvironnement().start();
+        } catch (ControllerException e) {
+            e.printStackTrace();
+        }
         stop(controller);
         initStatsTable(controller);
         setTimers();

@@ -1,11 +1,5 @@
 package utbm.tx52.atoms_visualiser.octree;
 
-import jade.core.Profile;
-import jade.core.ProfileImpl;
-import jade.core.Runtime;
-import jade.util.ExtendedProperties;
-import jade.util.leap.Properties;
-import jade.wrapper.AgentContainer;
 import javafx.geometry.Point3D;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,20 +25,9 @@ public class OctreeTest {
     private Octree octree;
     private int maxObjects;
     private double size;
-    private AgentContainer container;
 
     @Before
     public void setUp() {
-        Runtime rt = Runtime.instance();
-        Properties p = new ExtendedProperties();
-        p.setProperty(Profile.GUI, "true");
-        ProfileImpl pc = new ProfileImpl(p);
-        pc.setParameter(ProfileImpl.MAIN_HOST, "127.0.0.1");
-        pc.setParameter(Profile.PLATFORM_ID, "sink-platform");
-        pc.setParameter(Profile.LOCAL_HOST, "127.0.0.1");
-        pc.setParameter(Profile.CONTAINER_NAME, "sink-container");
-        pc.setParameter(Profile.NO_MTP, "true");
-        container = rt.createAgentContainer(pc);
         maxObjects = 100;
         size = Math.pow(2, 20);
         initOctree();
@@ -164,7 +147,7 @@ public class OctreeTest {
     }
 
     private Environment genEnvironment(int nbAtoms, boolean isCHNO) {
-        return new Environment(this.container, nbAtoms, size, isCHNO);
+        return new Environment(nbAtoms, size, isCHNO);
     }
 
     @Test

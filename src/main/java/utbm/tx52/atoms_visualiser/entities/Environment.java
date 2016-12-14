@@ -1,7 +1,6 @@
 package utbm.tx52.atoms_visualiser.entities;
 
-import jade.wrapper.AgentContainer;
-import jade.wrapper.AgentController;
+import jade.wrapper.*;
 import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,6 @@ import utbm.tx52.atoms_visualiser.view.AGroup;
 import java.util.*;
 
 
-// Grille repr�sentant l'environnement + les atoms
 public class Environment extends Observable {
     private static final Logger logger = LogManager.getLogger("Environment");
     public OctreeDistanceHelper octreeDistanceHelper = new OctreeDistanceHelper();
@@ -28,19 +26,18 @@ public class Environment extends Observable {
      */
     protected double size;
     protected int maxObjects = 200;
-    private AgentContainer container;
+    protected AgentContainer container = null;
 
     public Environment() {
 
     }
 
-    public Environment(AgentContainer container, int nbAtoms, double size, boolean isCHNO) {
+    public Environment(int nbAtoms, double size, boolean isCHNO) {
         this.size = size;
         random_generator = new Random();
         molecules = new ArrayList();
         atoms = new Octree<Atom>(size * 2, maxObjects);
         int nbSamples;
-        this.container = container;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
         if (isCHNO) {
@@ -59,33 +56,48 @@ public class Environment extends Observable {
                 number = t_periodic.getNumber().get(number);
 
             Point3D a_coord = new Point3D(
-                random_generator.nextDouble() * (this.size / 2 - 1),
-                random_generator.nextDouble() * (this.size / 2 - 1),
-                random_generator.nextDouble() * (this.size / 2 - 1)
+                random_generator.nextDouble() * (this.size/2 - 1),
+                random_generator.nextDouble() * (this.size/2 - 1),
+                random_generator.nextDouble() * (this.size/2 - 1)
             );
             double a_dir = random_generator.nextDouble() * 2 * Math.PI;
             try {
-                //Atom tmp = new Atom(this, number, a_coord, a_dir, isCHNO);
-                String tmpAgentName = RandomHelper.getRandomID();
-                Object[] ARGS = {this, number, a_coord, a_dir, isCHNO};
-                AgentController controller = this.container.createNewAgent(
-                    tmpAgentName,
-                    Atom.class.getName(),
-                    ARGS
-                );
-                controller.start();
-                System.out.println("size  = " + this.atoms.size);
-
-                //this.container.acceptNewAgent(RandomHelper.getRandomID(),tmp);
-                //atoms.add((Atom)this.container.getAgent(tmpAgentName));
+                Atom a = new Atom(this, number, a_coord, a_dir, isCHNO);
+                addAtom(a);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void setContainer(AgentContainer container) {
+    public Environment(AgentContainer container, int nbAtoms, double size, boolean isCHNO) {
+        this(nbAtoms, size, isCHNO);
+        try {
+            setContainer(container);
+        } catch (StaleProxyException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setContainer(AgentContainer container) throws StaleProxyException {
+        // TODO: stop all running agents
+        if(this.container != null) {
+            this.container.kill();
+            copyAtomAgentsToContainer(container);
+        }
+
         this.container = container;
+    }
+
+    protected void copyAtomAgentsToContainer(AgentContainer targetContainer) {
+        for(Atom a : atoms) {
+            try {
+                targetContainer.acceptNewAgent(a.id, a);
+            } catch (StaleProxyException e) {
+                logger.error("Error when adding Atom " + a.id);
+                e.printStackTrace();
+            }
+        }
     }
 
     public void addMolecule(double coordX, double coordY, double rayon) {
@@ -104,7 +116,25 @@ public class Environment extends Observable {
     }
 
     public void addAtom(Atom a) throws Exception {
+        /* TODO:
+            * start the atom if the container is running
+            * search if the atom is not already in the tree (to avoid duplicates)
+         */
         atoms.add(a);
+        if(container != null)
+            this.container.acceptNewAgent(a.id, a);
+    }
+
+    public void start() throws ControllerException {
+        for(Atom a : atoms)
+            container.getAgent(a.id).start();
+        container.start();
+    }
+
+    public void stop() throws ControllerException {
+        for(Atom a : atoms)
+            container.getAgent(a.id).kill();
+        container.kill();
     }
 
     public void move(Atom a, Point3D dest) throws Exception {
@@ -131,15 +161,7 @@ public class Environment extends Observable {
     }
 
     public void updateAtoms(AGroup world) {
-        ArrayList<Atom> atoms_objects = null;
-        try {
-            atoms_objects = atoms.getObjects();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        for (Atom a : atoms_objects) {
+        for (Atom a : atoms) {
             try {
                 a.update();
             } catch (Exception e) {

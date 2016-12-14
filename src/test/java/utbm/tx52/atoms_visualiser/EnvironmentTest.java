@@ -1,11 +1,5 @@
 package utbm.tx52.atoms_visualiser;
 
-import jade.core.Profile;
-import jade.core.ProfileImpl;
-import jade.core.Runtime;
-import jade.util.ExtendedProperties;
-import jade.util.leap.Properties;
-import jade.wrapper.AgentContainer;
 import javafx.geometry.Point3D;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,10 +12,7 @@ import utbm.tx52.atoms_visualiser.octree.Octree;
 import utbm.tx52.atoms_visualiser.view.AGroup;
 
 import javax.lang.model.type.UnknownTypeException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,21 +27,9 @@ public class EnvironmentTest {
     private int nbAtoms;
     private double size;
     private boolean isCHNO;
-    private AgentContainer container;
 
     @Before
     public void setUp() {
-        Runtime rt = Runtime.instance();
-        Properties p = new ExtendedProperties();
-        p.setProperty(Profile.GUI, "true");
-        ProfileImpl pc = new ProfileImpl(p);
-        pc.setParameter(ProfileImpl.MAIN_HOST, "127.0.0.1");
-        pc.setParameter(Profile.PLATFORM_ID, "sink-platform");
-        pc.setParameter(Profile.LOCAL_HOST, "127.0.0.1");
-        pc.setParameter(Profile.CONTAINER_NAME, "sink-container");
-        pc.setParameter(Profile.NO_MTP, "true");
-        container = rt.createAgentContainer(pc);
-
         nbMolecules = 5;
         nbAtoms = 5;
         size = 100;
@@ -60,7 +39,7 @@ public class EnvironmentTest {
     }
 
     private void initEnvironment() {
-        environment = new Environment(container, nbAtoms, size, isCHNO);
+        environment = new Environment(nbAtoms, size, isCHNO);
         generatePoolMoleculesFor(environment, nbMolecules);
     }
 
@@ -153,7 +132,9 @@ public class EnvironmentTest {
             }
         }
         else if(elementType == Atom.class) {
-            for(Atom a : environment.atoms) {
+            ArrayList<Atom> atomObjects = environment.atoms.getObjects();
+
+            for(Atom a : atomObjects) {
                 Octree<Atom> octree = environment.atoms.getOctreeForPoint(a.getCoordinates());
                 octree.remove(a);
                 octree.add(spy(a));

@@ -30,7 +30,7 @@ public class FactoryGui extends Application {
         pc.setParameter(Profile.NO_MTP, "true");
         AgentContainer container = rt.createAgentContainer(pc);
 
-        AController c = new AController();
+        AController c;
         try {
             FXMLLoader f = new FXMLLoader(ApplicationAgent.class.getClassLoader().getResource(("uiAtoms.fxml")));
             Parent parent = f.load();
