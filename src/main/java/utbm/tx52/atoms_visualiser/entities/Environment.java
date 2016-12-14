@@ -4,6 +4,7 @@ import jade.wrapper.*;
 import javafx.geometry.Point3D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utbm.tx52.atoms_visualiser.controllers.IController;
 import utbm.tx52.atoms_visualiser.exceptions.NegativeSpeedException;
 import utbm.tx52.atoms_visualiser.octree.Octree;
 import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
@@ -17,6 +18,7 @@ import java.util.*;
 
 public class Environment extends Observable {
     private static final Logger logger = LogManager.getLogger("Environment");
+    public IController controller;
     public OctreeDistanceHelper octreeDistanceHelper = new OctreeDistanceHelper();
     public Octree<Atom> atoms;
     public ArrayList<Molecule> molecules;
@@ -73,8 +75,9 @@ public class Environment extends Observable {
         }
     }
 
-    public Environment(AgentContainer container, int nbAtoms, double size, boolean isCHNO) {
+    public Environment(IController controller, AgentContainer container, int nbAtoms, double size, boolean isCHNO) {
         this(nbAtoms, size, isCHNO);
+        this.controller = controller;
         try {
             setContainer(container);
         } catch (StaleProxyException e) {
@@ -167,7 +170,7 @@ public class Environment extends Observable {
         molecules.forEach(Molecule::update);
     }
 
-    public void updateAtoms(AGroup world) {
+    public void updateAtoms() {
         /* Using a different list avoids ConcurrentModificationException, because a.update() will maybe change
            the structure of our tree */
         ArrayList<Atom> atomObjects;
@@ -184,12 +187,12 @@ public class Environment extends Observable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            a.draw(world);
+            a.draw(controller.getSubScene().getWorld());
         }
     }
 
-    public void updateEnv(AGroup world) {
-        updateAtoms(world);
+    public void updateEnv() {
+        updateAtoms();
         updateMolecules();
         setChanged();
         notifyObservers();

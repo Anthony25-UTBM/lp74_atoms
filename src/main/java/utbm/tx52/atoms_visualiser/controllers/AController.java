@@ -164,8 +164,7 @@ public class AController extends jade.core.Agent {
         if (nb_atoms > 0) {
             double size = screen_width * ratio;
 
-            controller.setEnvironnement(new Environment(
-                    this.container, nb_atoms, size, isCHNO()));
+            controller.setEnvironnement(new Environment(controller, this.container, nb_atoms, size, isCHNO()));
 
         } else
             controller.getEnvironnement().atoms = new Octree<>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
@@ -311,7 +310,9 @@ public class AController extends jade.core.Agent {
         double size = screen_width * ratio;
         controller.init(this);
         initAtomsNumber(controller);
-        controller.setEnvironnement(new Environment(this.container, m_numberOfAtoms, size, this.isCHNO()));
+        controller.setEnvironnement(new Environment(
+            controller, this.container, m_numberOfAtoms, size, this.isCHNO())
+        );
         try {
             controller.getEnvironnement().start();
         } catch (ControllerException e) {
@@ -325,7 +326,7 @@ public class AController extends jade.core.Agent {
     }
 
     public void setupContainers(IController controller) {
-        controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
+        controller.getEnvironnement().updateAtoms();
         updateStats(controller);
     }
 
@@ -335,7 +336,6 @@ public class AController extends jade.core.Agent {
             public void handle(long l) {
                 controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
                 controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
-                controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
                 updateStats(controller);
             }
         };
@@ -362,13 +362,9 @@ public class AController extends jade.core.Agent {
         animTimer.start();
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
-        //stage.setFullScreen(true);
         stage.show();
         updateStat = true;
         container.start();
-
-
-        //rootScene.setCamera(camera);
     }
 
     public void initStatsTable(IController controller) {

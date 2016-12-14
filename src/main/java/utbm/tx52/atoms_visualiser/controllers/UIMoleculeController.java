@@ -103,7 +103,7 @@ public class UIMoleculeController implements IController {
             }
         }
         uiFormula.setText("");
-        this.env.updateAtoms(getSubScene().getWorld());
+        this.env.updateAtoms();
         this.acontroller.setStatsUpdate(true);
         //acontroller.refresh(this);
     }
