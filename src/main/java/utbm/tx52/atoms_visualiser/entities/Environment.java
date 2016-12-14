@@ -161,7 +161,17 @@ public class Environment extends Observable {
     }
 
     public void updateAtoms(AGroup world) {
-        for (Atom a : atoms) {
+        /* Using a different list avoids ConcurrentModificationException, because a.update() will maybe change
+           the structure of our tree */
+        ArrayList<Atom> atomObjects;
+        try {
+            atomObjects = atoms.getObjects();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        for (Atom a : atomObjects) {
             try {
                 a.update();
             } catch (Exception e) {
