@@ -336,6 +336,7 @@ public class AController extends jade.core.Agent {
             public void handle(long l) {
                 controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
                 controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
+                controller.getEnvironnement().updateEnv();
                 updateStats(controller);
             }
         };

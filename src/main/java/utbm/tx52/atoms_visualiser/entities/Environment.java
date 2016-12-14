@@ -11,7 +11,6 @@ import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
 import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.utils.RandomHelper;
-import utbm.tx52.atoms_visualiser.view.AGroup;
 
 import java.util.*;
 
@@ -89,16 +88,16 @@ public class Environment extends Observable {
         // TODO: stop all running agents
         if(this.container != null) {
             this.container.kill();
-            copyAtomAgentsToContainer(container);
         }
 
+        copyAtomAgentsToContainer(container);
         this.container = container;
     }
 
     protected void copyAtomAgentsToContainer(AgentContainer targetContainer) {
         for(Atom a : atoms) {
             try {
-                targetContainer.acceptNewAgent(a.id, a);
+                targetContainer.acceptNewAgent(a.id, a).start();
             } catch (StaleProxyException e) {
                 logger.error("Error when adding Atom " + a.id);
                 e.printStackTrace();
@@ -136,9 +135,9 @@ public class Environment extends Observable {
     }
 
     public void start() throws ControllerException {
-        for(Atom a : atoms)
-            container.getAgent(a.id).start();
         container.start();
+        for(Atom a : atoms)
+            container.getAgent(a.id).kill();
     }
 
     public void stop() throws ControllerException {
@@ -166,6 +165,27 @@ public class Environment extends Observable {
         }
     }
 
+    public void updateEnv() {
+        drawAtoms();
+        updateMolecules();
+        setChanged();
+        notifyObservers();
+    }
+
+    public void drawAtoms() {
+        ArrayList<Atom> atomObjects;
+        try {
+            atomObjects = atoms.getObjects();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        for (Atom a : atomObjects) {
+            a.draw();
+        }
+    }
+
     public void updateMolecules() {
         molecules.forEach(Molecule::update);
     }
@@ -187,15 +207,8 @@ public class Environment extends Observable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            a.draw(controller.getSubScene().getWorld());
+            a.draw();
         }
-    }
-
-    public void updateEnv() {
-        updateAtoms();
-        updateMolecules();
-        setChanged();
-        notifyObservers();
     }
 
     public Map<String, Integer> nbOfEachAtoms() {
@@ -209,8 +222,16 @@ public class Environment extends Observable {
     }
 
     public int nbOfNotActiveAtoms() {
+        ArrayList<Atom> atomObjects;
+        try {
+            atomObjects = atoms.getObjects();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return 0;
+        }
+
         int not_active_atoms = 0;
-        for (Atom a : atoms) {
+        for (Atom a : atomObjects) {
             if (a.isNotActive())
                 not_active_atoms++;
         }

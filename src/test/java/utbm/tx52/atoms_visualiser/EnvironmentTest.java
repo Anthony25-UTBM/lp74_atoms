@@ -110,13 +110,13 @@ public class EnvironmentTest {
 
         for(Atom a : environment.atoms.getObjects()) {
             doNothing().when(a).update();
-            doNothing().when(a).draw(any());
+            doNothing().when(a).draw();
         }
 
         environment.updateAtoms();
         for(Atom a : environment.atoms.getObjects()) {
             verify(a).update();
-            verify(a).draw(any());
+            verify(a).draw();
         }
     }
 
@@ -162,14 +162,14 @@ public class EnvironmentTest {
         environment = PowerMockito.spy(environment);
         environment.controller = controller;
 
-        doNothing().when(environment).updateAtoms();
+        doNothing().when(environment).drawAtoms();
         doNothing().when(environment).updateMolecules();
         PowerMockito.doNothing().when(environment, "setChanged");
         doNothing().when(environment).notifyObservers();
 
         environment.updateEnv();
 
-        verify(environment).updateAtoms();
+        verify(environment).drawAtoms();
         verify(environment).updateMolecules();
         PowerMockito.verifyPrivate(environment).invoke("setChanged");
         verify(environment).notifyObservers();

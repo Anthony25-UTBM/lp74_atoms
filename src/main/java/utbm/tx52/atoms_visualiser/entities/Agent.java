@@ -21,11 +21,6 @@ public abstract class Agent extends jade.core.Agent implements OctreePoint {
         this.id = RandomHelper.getRandomID();
     }
 
-    /**
-     * Start the agent
-     */
-    public abstract void start();
-
     public Point3D getCoordinates() {
         return coord;
     }

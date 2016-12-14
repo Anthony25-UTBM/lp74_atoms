@@ -2,9 +2,11 @@ package utbm.tx52.atoms_visualiser.entities;
 
 
 import com.jfoenix.controls.JFXDialog;
+import com.sun.jndi.toolkit.ctx.Continuation;
 import jade.core.behaviours.CyclicBehaviour;
 import com.google.common.collect.Iterators;
 import com.jfoenix.controls.JFXDialog;
+import jade.core.behaviours.TickerBehaviour;
 import javafx.application.ConditionalFeature;
 import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
@@ -24,6 +26,7 @@ import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.pow;
 
@@ -60,6 +63,7 @@ public class Atom extends Agent implements OctreePoint {
     private boolean isCHNO;
 
     public Atom() {
+        super();
         System.out.println("With no argument");
     }
 
@@ -92,6 +96,7 @@ public class Atom extends Agent implements OctreePoint {
     }
 
     protected Atom(Environment environment, Point3D coord, double dir, boolean isCHNO) {
+        super();
         this.environment = environment;
         ratioSpeed = 1;
         this.isCHNO = isCHNO;
@@ -148,8 +153,6 @@ public class Atom extends Agent implements OctreePoint {
         this.speedVector = speedVector;
     }
 
-    public void start() {}
-
     //TODO: exploiter cette m�thode
     public int estlibre() {
         return liaison;
@@ -177,12 +180,6 @@ public class Atom extends Agent implements OctreePoint {
         double minDistanceFromMaxCoord = Math.abs(environment.size/2 - Math.max(posX, Math.max(posY, posZ)));
 
         return Math.min(minDistanceFromMinCoord, minDistanceFromMaxCoord);
-    }
-
-    //TODO: Interet de cette methode !!
-    protected boolean DansAlignement(Atom a) {
-        double distanceCarre = distanceSquared(a);
-        return (distanceCarre < DISTANCE_MAX_CARRE && distanceCarre > DISTANCE_MIN_CARRE);
     }
 
     //TODO: URGENT
@@ -265,44 +262,19 @@ public class Atom extends Agent implements OctreePoint {
         super.takeDown();
     }
 
-    @Override
     protected void setup() {
         super.setup();
-        System.out.println("get Arguments");
-        Object[] args = getArguments();
-        if (args.length == 5) {
-            System.out.println("casting arguments");
-            this.environment = (Environment) args[0];
-            ratioSpeed = 1;
-            this.isCHNO = (boolean) args[4];
-            this.a_number = Integer.parseInt(args[1].toString());
+        System.out.println("init atom");
 
-            state = ElementState.free;
-
-            this.coord = (Point3D) args[2];
-            double dir = Double.parseDouble(args[3].toString());
-            speedVector = new Point3D(Math.cos(dir), Math.sin(dir), 0);
-            setPropertiesFromPeriodicTable();
-
-
-            logger.debug("Atom crée (" + symb + ")");
-
-
-        }
-        System.out.println("Setup called atom");
-        addBehaviour();
-        try {
-            this.environment.addAtom(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void addBehaviour() {
-        super.addBehaviour(new CyclicBehaviour() {
+        addBehaviour(new CyclicBehaviour() {
             @Override
             public void action() {
-                updateCoordinates();
+                try {
+                    update();
+                    TimeUnit.MILLISECONDS.sleep(35);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -327,7 +299,8 @@ public class Atom extends Agent implements OctreePoint {
         sphere.setT(new double[]{coord.getX(), coord.getY(), coord.getZ()});
     }
 
-    public void draw(AGroup root) {
+    public void draw() {
+        AGroup root = environment.controller.getSubScene().getWorld();
         updatePosition();
         if (!root.getChildren().contains(sphere)) {
             root.getChildren().add(sphere);
