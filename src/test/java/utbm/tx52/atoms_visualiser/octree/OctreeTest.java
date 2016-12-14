@@ -243,7 +243,7 @@ public class OctreeTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            assertTrue(atoms.containsAll(octree_atoms) && octree_atoms.containsAll(atoms));
+            assertTrue(octree_atoms.containsAll(atoms));
         }
     }
 }

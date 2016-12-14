@@ -71,10 +71,22 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
             return new ArrayList<T>(objects);
 
         ArrayList<T> childrenObjects = new ArrayList<T>();
-        long stamp = rwlock.tryOptimisticRead();
-        for (Octree<T> child : children) {
-            if(child.hasObjects())
-                Iterators.addAll(childrenObjects, child.iterator());
+
+        long stamp = 0;
+        try {
+            stamp = rwlock.readLockInterruptibly();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return childrenObjects;
+        }
+
+        try {
+            for (Octree<T> child : children) {
+                if (child.hasObjects())
+                    Iterators.addAll(childrenObjects, child.iterator());
+            }
+        } finally {
+            rwlock.unlockRead(stamp);
         }
 
         return childrenObjects;
@@ -119,17 +131,21 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         if(!isPointInOctree(coord))
             throw new PointOutsideOctreeException("Point is not in octree");
 
-        if(isParent()) {
-            long stamp = rwlock.readLockInterruptibly();
-            try {
+        Octree<T> octree;
+        long stamp = rwlock.readLockInterruptibly();
+        try {
+            if(isParent()) {
                 int i = getChildIndexForPoint(coord);
-                return children[i].getOctreeForPoint(coord);
-            } finally {
-                rwlock.unlockRead(stamp);
-            }
+                    octree = children[i].getOctreeForPoint(coord);
+                }
+            else
+                octree = this;
         }
-        else
-            return this;
+        finally {
+                rwlock.unlockRead(stamp);
+        }
+
+        return octree;
     }
 
     public boolean isPointInOctree(Point3D coord) {
@@ -217,13 +233,11 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
             children[i] = child;
         }
 
-        ArrayList<T> objectsCopy = objects;
-        objects = new ArrayList<T>();
-
-        for (T o : objectsCopy) {
+        for (T o : objects) {
             int childIndex = getChildIndexForPoint(o.getCoordinates());
             children[childIndex].add(o);
         }
+        objects = new ArrayList<T>();
     }
 
     /**
@@ -269,24 +283,32 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         ArrayList<T> oldObjects;
         long stamp = rwlock.readLock();
         try {
-            if (!isPossibleToMergeChildren())
+            if (!isPossibleToMergeChildren()) {
                 throw new OctreeCannotMergeException(
                     "One of the children is not leaf and/or max objects limit would be reached"
                 );
-            oldObjects = getObjects();
+            }
         } finally {
             rwlock.unlockRead(stamp);
         }
 
-        children = new Octree[0];
-        for (T o : oldObjects)
-            add(o);
+        stamp = rwlock.writeLock();
+        try {
+            oldObjects = getObjects();
 
-        if (!isRoot())
-            try {
-                parent.mergeAllChildren();
-            } catch (OctreeCannotMergeException ignore) {
+            children = new Octree[0];
+            for (T o : oldObjects)
+                add(o);
+
+            if (!isRoot()) {
+                try {
+                    parent.mergeAllChildren();
+                } catch (OctreeCannotMergeException ignore) {
+                }
             }
+        } finally {
+            rwlock.unlockWrite(stamp);
+        }
     }
 
     protected boolean isPossibleToMergeChildren() throws InterruptedException {
