@@ -142,7 +142,7 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
                 octree = this;
         }
         finally {
-                rwlock.unlockRead(stamp);
+            rwlock.unlockRead(stamp);
         }
 
         return octree;
@@ -265,7 +265,13 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         if (isParent())
             getOctreeForPoint(object.getCoordinates()).remove(object);
         else {
-            objects.remove(object);
+            long stamp;
+            stamp = rwlock.writeLock();
+            try {
+                objects.remove(object);
+            } finally {
+                rwlock.unlockWrite(stamp);
+            }
             if (!isRoot())
                 try {
                     parent.mergeAllChildren();
