@@ -92,6 +92,19 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         return childrenObjects;
     }
 
+    private ArrayList<T> getObjectsWithoutLock() throws InterruptedException {
+        if(isLeaf())
+            return new ArrayList<T>(objects);
+
+        ArrayList<T> childrenObjects = new ArrayList<T>();
+        for (Octree<T> child : children) {
+            if (child.hasObjects())
+                childrenObjects.addAll(child.getObjectsWithoutLock());
+        }
+
+        return childrenObjects;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Iterator<T> iterator() {
@@ -136,8 +149,8 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         try {
             if(isParent()) {
                 int i = getChildIndexForPoint(coord);
-                    octree = children[i].getOctreeForPoint(coord);
-                }
+                octree = children[i].getOctreeForPoint(coord);
+            }
             else
                 octree = this;
         }
@@ -265,14 +278,15 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
             stamp = rwlock.writeLock();
             try {
                 objects.remove(object);
+                if (!isRoot()) {
+                    try {
+                        parent.mergeAllChildren();
+                    } catch (OctreeCannotMergeException ignore) {
+                    }
+                }
             } finally {
                 rwlock.unlockWrite(stamp);
             }
-            if (!isRoot())
-                try {
-                    parent.mergeAllChildren();
-                } catch (OctreeCannotMergeException ignore) {
-                }
         }
     }
 
@@ -282,34 +296,23 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
      * @throws OctreeSubdivisionException
      */
     protected void mergeAllChildren() throws Exception {
-        ArrayList<T> oldObjects;
-        long stamp = rwlock.readLock();
-        try {
-            if (!isPossibleToMergeChildren()) {
-                throw new OctreeCannotMergeException(
-                    "One of the children is not leaf and/or max objects limit would be reached"
-                );
-            }
-        } finally {
-            rwlock.unlockRead(stamp);
+        if (!isPossibleToMergeChildren()) {
+            throw new OctreeCannotMergeException(
+                "One of the children is not leaf and/or max objects limit would be reached"
+            );
         }
 
-        stamp = rwlock.writeLock();
-        try {
-            oldObjects = getObjects();
+        ArrayList<T> oldObjects = getObjects();
 
-            children = new Octree[0];
-            for (T o : oldObjects)
-                add(o);
+        children = new Octree[0];
+        for (T o : oldObjects)
+            add(o);
 
-            if (!isRoot()) {
-                try {
-                    parent.mergeAllChildren();
-                } catch (OctreeCannotMergeException ignore) {
-                }
+        if (!isRoot()) {
+            try {
+                parent.mergeAllChildren();
+            } catch (OctreeCannotMergeException ignore) {
             }
-        } finally {
-            rwlock.unlockWrite(stamp);
         }
     }
 
@@ -318,7 +321,7 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         for (Octree<T> c : children)
             allChildrenAreLeaf = allChildrenAreLeaf && c.isLeaf();
 
-        boolean underMaxObjects = getObjects().size() <= maxObjects;
+        boolean underMaxObjects = getObjectsWithoutLock().size() <= maxObjects;
 
         return allChildrenAreLeaf && underMaxObjects;
     }
