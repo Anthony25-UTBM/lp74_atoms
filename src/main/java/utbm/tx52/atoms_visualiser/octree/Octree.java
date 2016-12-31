@@ -186,19 +186,15 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
         if(!isPointInOctree(object.getCoordinates()))
             throw new PointOutsideOctreeException();
 
+        Octree<T> addedIn;
         long stamp;
         stamp = rwlock.writeLock();
         try {
-            if(isLeaf() && maxObjects < objects.size() + 1)
-                subdivide();
-        } catch(OctreeAlreadyParentException ignored) {
-        } finally {
-            rwlock.unlockWrite(stamp);
-        }
+            try {
+                if(isLeaf() && maxObjects < objects.size() + 1)
+                    subdivide();
+            } catch(OctreeAlreadyParentException ignored) { }
 
-        Octree<T> addedIn;
-        stamp = rwlock.readLock();
-        try {
             if(isParent()) {
                 int childIndex = getChildIndexForPoint(object.getCoordinates());
                 addedIn = children[childIndex].add(object);
@@ -208,7 +204,7 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
                 addedIn = this;
             }
         } finally {
-            rwlock.unlockRead(stamp);
+            rwlock.unlockWrite(stamp);
         }
 
         return addedIn;
