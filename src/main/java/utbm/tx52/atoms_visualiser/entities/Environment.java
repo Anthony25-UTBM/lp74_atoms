@@ -10,9 +10,9 @@ import utbm.tx52.atoms_visualiser.octree.Octree;
 import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
 import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
-import utbm.tx52.atoms_visualiser.utils.RandomHelper;
 
 import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
 
 public class Environment extends Observable {
@@ -21,7 +21,8 @@ public class Environment extends Observable {
     public OctreeDistanceHelper octreeDistanceHelper = new OctreeDistanceHelper();
     public Octree<Atom> atoms;
     public ArrayList<Molecule> molecules;
-    protected Random random_generator;
+    protected Random randomGenerator;
+    protected PriorityBlockingQueue<Atom> atomsDrawingQueue = new PriorityBlockingQueue<Atom>();
     /**
      * Environment is a cube, `size` is the size of an edge
      */
@@ -40,7 +41,7 @@ public class Environment extends Observable {
 
     public Environment(int nbAtoms, double size, boolean isCHNO) {
         this(size);
-        random_generator = new Random();
+        randomGenerator = new Random();
         int nbSamples;
 
         PeriodicTable t_periodic = PeriodicTable.getInstance();
@@ -53,18 +54,18 @@ public class Environment extends Observable {
         }
 
         for (int i = 0; i < nbAtoms; i++) {
-            int number = random_generator.nextInt(nbSamples - 1);
+            int number = randomGenerator.nextInt(nbSamples - 1);
             if (isCHNO)
                 number = CHNO.getInstance().getANumber(number);
             else
                 number = t_periodic.getNumber().get(number);
 
             Point3D a_coord = new Point3D(
-                random_generator.nextDouble() * (this.size/2 - 1),
-                random_generator.nextDouble() * (this.size/2 - 1),
-                random_generator.nextDouble() * (this.size/2 - 1)
+                randomGenerator.nextDouble() * (this.size/2 - 1),
+                randomGenerator.nextDouble() * (this.size/2 - 1),
+                randomGenerator.nextDouble() * (this.size/2 - 1)
             );
-            double a_dir = random_generator.nextDouble() * 2 * Math.PI;
+            double a_dir = randomGenerator.nextDouble() * 2 * Math.PI;
             try {
                 Atom a = new Atom(this, number, a_coord, a_dir, isCHNO);
                 addAtom(a);
@@ -153,8 +154,9 @@ public class Environment extends Observable {
             a.setCoordinates(dest);
         else {
             Point3D oldCoord = a.getCoordinates();
+            a_octree.remove(a);
+
             try {
-                a_octree.remove(a);
                 a.setCoordinates(dest);
                 atoms.add(a);
             } catch(PointOutsideOctreeException e) {
@@ -163,6 +165,10 @@ public class Environment extends Observable {
                 atoms.add(a);
             }
         }
+
+        /* We cannot draw something in an other thread than the JavaFX one, so we are using a queue to put every atoms
+        that has to be redrawn */
+        atomsDrawingQueue.add(a);
     }
 
     public void updateEnv() {
@@ -173,15 +179,13 @@ public class Environment extends Observable {
     }
 
     public void drawAtoms() {
-        ArrayList<Atom> atomObjects;
-        try {
-            atomObjects = atoms.getObjects();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(atomsDrawingQueue.size() == 0)
             return;
-        }
 
-        for (Atom a : atomObjects) {
+        Atom[] atomsToDraw = new Atom[0];
+        atomsToDraw = atomsDrawingQueue.toArray(atomsToDraw);
+        for (Atom a : atomsToDraw) {
+            atomsDrawingQueue.remove(a);
             a.draw();
         }
     }

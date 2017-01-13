@@ -4,7 +4,7 @@ import javafx.geometry.Point3D;
 import utbm.tx52.atoms_visualiser.octree.OctreePoint;
 import utbm.tx52.atoms_visualiser.utils.RandomHelper;
 
-public abstract class Agent extends jade.core.Agent implements OctreePoint {
+public abstract class Agent extends jade.core.Agent implements OctreePoint, Comparable<Agent> {
     public String id;
     protected Point3D coord;
 
@@ -43,6 +43,10 @@ public abstract class Agent extends jade.core.Agent implements OctreePoint {
             Math.pow(a.getCoordinates().getY() - coord.getY(), 2) +
             Math.pow(a.getCoordinates().getZ() - coord.getZ(), 2)
         );
+    }
+
+    public int compareTo(Agent a) {
+        return Integer.compare(this.id.hashCode(), a.id.hashCode());
     }
 
 }
