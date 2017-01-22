@@ -27,6 +27,7 @@ public class Molecule extends Agent {
         return radius;
     }
 
-    public void update() { }
+    public void update() {
+    }
 }
     

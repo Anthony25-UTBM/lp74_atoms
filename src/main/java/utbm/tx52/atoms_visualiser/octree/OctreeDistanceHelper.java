@@ -40,13 +40,12 @@ public class OctreeDistanceHelper {
     }
 
     public ArrayList<OctreePoint> getFarthestNeighbours(Octree root, OctreePoint object) throws Exception {
-        OctreePoint randomPoint = getRandomObjInSameCube(object, root);
         ArrayList neighbours;
         Octree objectOctree = root.getOctreeForPoint(object.getCoordinates());
 
         neighbours = objectOctree.getObjects();
         for(Octree o : getSurroundingCubesIn(root, objectOctree))
-            Iterators.addAll(neighbours, o.iterator());
+            neighbours.addAll(o.getObjects());
 
         Iterator neighboursIterator = neighbours.iterator();
         Pair<ArrayList<OctreePoint>, Double> farthestNeighs = null;
@@ -55,24 +54,14 @@ public class OctreeDistanceHelper {
             try {
                 farthestNeighs = refreshFarthestNeighsIfNextIsFarther(object, farthestNeighs, neighboursIterator);
             } catch (OctreeNoNeighbourFoundException ignored) {
-                if(farthestNeighs == null)
-                    throw new OctreeNoNeighbourFoundException();
                 break;
             }
         }
 
+        if(farthestNeighs == null)
+            throw new OctreeNoNeighbourFoundException();
+
         return farthestNeighs.x;
-    }
-
-    private OctreePoint getRandomObjInSameCube(OctreePoint object, Octree<OctreePoint> root) throws Exception {
-        Octree<OctreePoint> pointsOctree = root.getOctreeForPoint(object.getCoordinates());
-        Iterator pointsOctreeIterator = pointsOctree.iterator();
-
-        OctreePoint randomObject = (OctreePoint) pointsOctreeIterator.next();
-        if(randomObject == object)
-            randomObject = (OctreePoint) pointsOctreeIterator.next();
-
-        return randomObject;
     }
 
     private Pair<ArrayList<OctreePoint>, Double> refreshFarthestNeighsIfNextIsFarther(
@@ -82,6 +71,8 @@ public class OctreeDistanceHelper {
         OctreePoint neighbour = (OctreePoint) neighboursIterator.next();
         if(neighbour == point)
             return farthestNeighs;
+        else if(neighbour == null)
+            throw new OctreeNoNeighbourFoundException();
 
         double distance = neighbour.getCoordinates().distance(point.getCoordinates());
         if(farthestNeighs == null || distance < farthestNeighs.y) {

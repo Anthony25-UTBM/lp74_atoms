@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ATOMES.iml" filepath="$PROJECT_DIR$/ATOMES.iml" />
-      <module fileurl="file://$PROJECT_DIR$/atoms_visualiser.iml" filepath="$PROJECT_DIR$/atoms_visualiser.iml" />
     </modules>
   </component>
 </project>

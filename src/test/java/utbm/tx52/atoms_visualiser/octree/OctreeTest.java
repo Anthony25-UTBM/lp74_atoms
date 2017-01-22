@@ -58,7 +58,7 @@ public class OctreeTest {
     @Test
     public void getOctreeForPoint() throws Exception {
         Environment environment = genEnvironment(50, false);
-        for(Atom a : environment.getAtoms().getObjects()) {
+        for(Atom a : environment.atoms) {
             Octree storedIn = octree.add(a);
             assertEquals(storedIn, octree.getOctreeForPoint(a.getCoordinates()));
         }
@@ -83,7 +83,7 @@ public class OctreeTest {
     @Test
     public void addMoreThanMaxItems() throws Exception {
         Environment environment = genEnvironment(1000, false);
-        ArrayList<Atom> env_atoms = environment.getAtoms().getObjects();
+        ArrayList<Atom> env_atoms = environment.atoms.getObjects();
 
         for(Atom a : env_atoms)
             octree.add(a);
@@ -110,12 +110,13 @@ public class OctreeTest {
 
     /**
      * Check that an object goes into the correct child
+     *
      * @throws OctreeSubdivisionException
      */
     @Test
     public void addCheckIfPlacedInCorrectChild() throws Exception {
         Environment environment = genEnvironment(maxObjects, false);
-        for(Atom a : environment.getAtoms().getObjects())
+        for(Atom a : environment.atoms)
             octree.add(a);
         octree.subdivide();
 
@@ -189,7 +190,7 @@ public class OctreeTest {
     @Test
     public void removeButCannotMerge() throws Exception {
         Environment environment = genEnvironment(maxObjects + 1, false);
-        for(Atom a : environment.getAtoms().getObjects())
+        for(Atom a : environment.atoms)
             octree.add(a);
 
         Atom a = new Atom(environment, 1, 0, 0, 0, 0, false);
@@ -242,7 +243,7 @@ public class OctreeTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            assertTrue(atoms.containsAll(octree_atoms) && octree_atoms.containsAll(atoms));
+            assertTrue(octree_atoms.containsAll(atoms));
         }
     }
 }

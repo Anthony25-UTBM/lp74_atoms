@@ -1,5 +1,7 @@
 package utbm.tx52.atoms_visualiser.controllers;
 
+import jade.wrapper.AgentContainer;
+import jade.wrapper.ControllerException;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -57,7 +59,7 @@ import java.util.*;
  *          features : les molécules peuvent etre géré il faut adopté la classe molécule
  */
 
-public class AController {
+public class AController extends jade.core.Agent {
     private static final Logger logger = LogManager.getLogger("AController");
     public static ObservableList<String> items = FXCollections.observableArrayList();
     static protected Color couleurs[] = {Color.WHITE, Color.BLUE, Color.CHARTREUSE, Color.INDIGO, Color.IVORY, Color.LEMONCHIFFON, Color.BLACK, Color.PINK, Color.RED};
@@ -103,11 +105,17 @@ public class AController {
     };
     private double ratio = 10;
     private TreeItem<StatsElement> atoms_groups;
+    private AgentContainer container;
 
     static protected void setElement(String string) {
         items.add(string);
     }
 
+    @Override
+    protected void setup() {
+        super.setup();
+        System.out.println("init Controller");
+    }
 
     public double getScreenWidth() {
         return screen_width;
@@ -149,13 +157,14 @@ public class AController {
     {
         return screen_width * ratio;
     }
+
     public void random_elem_gen(IController controller, int nb_atoms) {
 
         controller.getSubScene().getWorld().getChildren().clear();
         if (nb_atoms > 0) {
             double size = screen_width * ratio;
-            controller.setEnvironnement(new Environment(
-                    nb_atoms, size, isCHNO()));
+
+            controller.setEnvironnement(new Environment(controller, this.container, nb_atoms, size, isCHNO()));
 
         } else
             controller.getEnvironnement().atoms = new Octree<>(controller.getEnvironnement().atoms.getSize(), controller.getEnvironnement().atoms.getMaxObjects());
@@ -301,6 +310,14 @@ public class AController {
         double size = screen_width * ratio;
         controller.init(this);
         initAtomsNumber(controller);
+        controller.setEnvironnement(new Environment(
+            controller, this.container, m_numberOfAtoms, size, this.isCHNO())
+        );
+        try {
+            controller.getEnvironnement().start();
+        } catch (ControllerException e) {
+            e.printStackTrace();
+        }
         stop(controller);
         initStatsTable(controller);
         setTimers();
@@ -308,11 +325,18 @@ public class AController {
         handleMouse(controller.getSubScene(), controller.getSubScene().getWorld());
     }
 
+    public void setupContainers(IController controller) {
+        controller.getEnvironnement().updateAtoms();
+        updateStats(controller);
+    }
+
     public AnimationTimer createTimer(IController controller) {
         return new AnimationTimer() {
             @Override
             public void handle(long l) {
-                controller.getEnvironnement().updateAtoms(controller.getSubScene().getWorld());
+                controller.getSubScene().heightProperty().bind(controller.getUIAnchor().heightProperty());
+                controller.getSubScene().widthProperty().bind(controller.getUIAnchor().widthProperty());
+                controller.getEnvironnement().updateEnv();
                 updateStats(controller);
             }
         };
@@ -339,12 +363,9 @@ public class AController {
         animTimer.start();
         stage.setTitle("Atom pour les nuls");
         stage.setScene(rootScene);
-        //stage.setFullScreen(true);
         stage.show();
         updateStat = true;
-
-
-        //rootScene.setCamera(camera);
+        container.start();
     }
 
     public void initStatsTable(IController controller) {
@@ -406,8 +427,6 @@ public class AController {
             root.getChildren().add(new TreeItem<StatsElement>(e));
         });
         if (updateStat) {
-
-
             atoms_groups.getChildren().clear();
 
             // show number of each atom
@@ -574,5 +593,8 @@ public class AController {
     }
 
 
+    public void setContainer(AgentContainer container) {
+        this.container = container;
+    }
 }
 

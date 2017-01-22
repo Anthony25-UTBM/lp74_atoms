@@ -1,8 +1,12 @@
 package utbm.tx52.atoms_visualiser.entities;
 
 
+import com.jfoenix.controls.JFXDialog;
+import com.sun.jndi.toolkit.ctx.Continuation;
+import jade.core.behaviours.CyclicBehaviour;
 import com.google.common.collect.Iterators;
 import com.jfoenix.controls.JFXDialog;
+import jade.core.behaviours.TickerBehaviour;
 import javafx.application.ConditionalFeature;
 import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
@@ -11,17 +15,15 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.controllers.AController;
-import utbm.tx52.atoms_visualiser.octree.OctreePoint;
+import utbm.tx52.atoms_visualiser.octree.*;
 import utbm.tx52.atoms_visualiser.utils.ElementState;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
 import utbm.tx52.atoms_visualiser.view.ASphere;
-import utbm.tx52.atoms_visualiser.octree.Octree;
-import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
-import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.pow;
 
@@ -56,12 +58,17 @@ public class Atom extends Agent implements OctreePoint {
     private ArrayList<Covalence> covalence;
     private long vanderWaalsRadius;
     private boolean isCHNO;
+
+    public Atom() {
+        super();
+        System.out.println("With no argument");
+    }
+
     public Atom(Environment environment, String symbole, boolean isCHNO) {
         this(environment,symbole, Point3D.ZERO,45, isCHNO);
     }
 
     public Atom(Environment environment, String symbole,Point3D point, double dir, boolean isCHNO) {
-
         this(environment, point,dir, isCHNO);
         int n = 0;
         if (isCHNO) {
@@ -86,6 +93,7 @@ public class Atom extends Agent implements OctreePoint {
     }
 
     protected Atom(Environment environment, Point3D coord, double dir, boolean isCHNO) {
+        super();
         this.environment = environment;
         ratioSpeed = 1;
         this.isCHNO = isCHNO;
@@ -142,8 +150,6 @@ public class Atom extends Agent implements OctreePoint {
         this.speedVector = speedVector;
     }
 
-    public void start() {}
-
     //TODO: exploiter cette m�thode
     public int estlibre() {
         return liaison;
@@ -161,7 +167,7 @@ public class Atom extends Agent implements OctreePoint {
         try {
             move(coord.add(speedVector.multiply(PAS)));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -173,24 +179,18 @@ public class Atom extends Agent implements OctreePoint {
         return Math.min(minDistanceFromMinCoord, minDistanceFromMaxCoord);
     }
 
-    //TODO: Interet de cette methode !!
-    protected boolean DansAlignement(Atom a) {
-        double distanceCarre = distanceSquared(a);
-        return (distanceCarre < DISTANCE_MAX_CARRE && distanceCarre > DISTANCE_MIN_CARRE);
-    }
-
     //TODO: URGENT
     protected boolean attachAtoms() throws Exception {
-        Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        Atom a;
+        try {
+            a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        } catch (OctreeNoNeighbourFoundException e) {
+            // not a big deal, tree has probably changed, and it will be changed at the next frame
+            return false;
+        }
 
         double distanceSquaredToA = distanceSquared(a);
         if (distanceSquaredToA < (a.rayon * a.rayon * 4) && a_number != a.a_number) {
-            /*double distance = Math.sqrt(distanceCarre);
-            double diffX = (a.posX - posX) / distance;
-            double diffY = (a.posY - posY) / distance;
-            speedX = speedX - diffX / 2;
-            speedY = speedY - diffY / 2;
-            normalize();*/
             if (a.liaison != 0) {
                 liaison--;
                 a.liaison--;
@@ -200,6 +200,7 @@ public class Atom extends Agent implements OctreePoint {
             }
             if (this.isCHNO && liaison == 0) {
                 //TODO FIX UNIT !
+                if (a.getSpeed() - getSpeed() < 0) changeDirection(1);
                 double deltaEnergy = PLANCK_CONSTANT * Math.abs(a.getSpeed() - getSpeed());
                 double A = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 12);
                 double B = 4 * deltaEnergy * Math.pow(vanderWaalsRadius, 6);
@@ -211,7 +212,13 @@ public class Atom extends Agent implements OctreePoint {
     }
 
     protected boolean EviterAtomes() throws Exception {
-        Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        Atom a;
+        try {
+            a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        } catch (OctreeNoNeighbourFoundException e) {
+            // not a big deal, tree has probably changed, and it will be changed at the next frame
+            return false;
+        }
 
         // Evitement
         double distanceSquaredToA = distanceSquared(a);
@@ -259,58 +266,34 @@ public class Atom extends Agent implements OctreePoint {
         normalize();
     }
 
-    protected boolean EviterMolecule(ArrayList<Molecule> molecules) {
-        if (!molecules.isEmpty()) {
-            // Recherche de la mol�cule la plus proche
-            Molecule m = molecules.get(0);
-            double distanceCarre = distanceSquared(m);
-            for (Molecule m_2 : molecules) {
-                if (distanceSquared(m) < distanceCarre) {
-                    m = m_2;
-                    distanceCarre = distanceSquared(m_2);
+    @Override
+    protected void takeDown() {
+        super.takeDown();
+    }
+
+    protected void setup() {
+        super.setup();
+        System.out.println("init atom");
+
+        addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                try {
+                    update();
+                    TimeUnit.MILLISECONDS.sleep(35);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-
-            if (distanceCarre < (m.radius * m.radius * 4)) {
-                // Si collision, calcul du vecteur diff
-                double distance = Math.sqrt(distanceCarre);
-                double diffX = (m.getCoordinates().getX() - coord.getX()) / distance;
-                double diffY = (m.getCoordinates().getY() - coord.getY()) / distance;
-                double diffZ = (m.getCoordinates().getZ() - coord.getZ()) / distance;
-
-                speedVector = speedVector.subtract(diffX/2, diffY/2, diffZ/2);
-                normalize();
-                return true;
-            }
-        }
-        return false;
+        });
     }
 
-    protected void CalculerDirectionMoyenne() {
-        Point3D totalSpeedVector = Point3D.ZERO;
-        int nbTotal = 0;
-        for (Atom a : environment.atoms) {
-            if (DansAlignement(a)) {
-                totalSpeedVector = totalSpeedVector.add(a.getSpeedVector());
-                nbTotal++;
-            }
-        }
-        if (nbTotal >= 1) {
-            speedVector = totalSpeedVector.
-                multiply(1/(2 * nbTotal)).
-                add(speedVector.multiply(1/2));
-            normalize();
-        }
-    }
-
-    public void MiseAJour(ArrayList<Molecule> molecules) throws Exception {
+    public void update() throws Exception {
         if (state == ElementState.free) {
             if (!EviterLimiteEnv()) {
                 if (!attachAtoms()) {
-                    if (!EviterMolecule(molecules)) {
-                        if (!EviterAtomes()) {
-                            CalculerDirectionMoyenne();
-                        }
+                    if (!EviterAtomes()) {
+                        //CalculerDirectionMoyenne();
                     }
                 }
             }
@@ -325,7 +308,8 @@ public class Atom extends Agent implements OctreePoint {
         sphere.setT(new double[]{coord.getX(), coord.getY(), coord.getZ()});
     }
 
-    public void draw(AGroup root) {
+    public void draw() {
+        AGroup root = environment.controller.getSubScene().getWorld();
         updatePosition();
         if (!root.getChildren().contains(sphere)) {
             root.getChildren().add(sphere);

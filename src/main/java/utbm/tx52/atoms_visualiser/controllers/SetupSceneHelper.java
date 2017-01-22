@@ -18,7 +18,6 @@ public class SetupSceneHelper {
             }
             event.consume();
         });
-        AScene finalSubSceneAtome = subSceneAtome;
         uiAnchor.setOnDragDropped(event -> {
             if (!controller.getDraggedAtom().equals("")) {
 
@@ -28,7 +27,7 @@ public class SetupSceneHelper {
                         event.getSceneX(),
                         event.getSceneY(), 0, 0, aController.isCHNO()
                 );
-                atom.draw(finalSubSceneAtome.getWorld());
+                atom.draw();
                 controller.setDraggedAtom("");
                 aController.setStatsUpdate(true);
                 try {
