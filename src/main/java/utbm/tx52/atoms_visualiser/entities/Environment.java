@@ -154,7 +154,7 @@ public class Environment extends Observable {
             a.setCoordinates(dest);
         else {
             Point3D oldCoord = a.getCoordinates();
-            a_octree.remove(a);
+            atoms.remove(a);
 
             try {
                 a.setCoordinates(dest);
@@ -256,8 +256,14 @@ public class Environment extends Observable {
             throw new NegativeSpeedException("Speed should be positive or null");
         }
 
-        atoms.forEach(a -> {
-            a.setSpeed(speed);
-        });
+        try {
+            ArrayList<Atom> atomsList = atoms.getObjects();
+
+            atomsList.forEach(a -> {
+                a.setSpeed(speed);
+            });
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 }

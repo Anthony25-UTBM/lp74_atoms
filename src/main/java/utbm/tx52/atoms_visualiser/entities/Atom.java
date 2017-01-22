@@ -15,14 +15,11 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utbm.tx52.atoms_visualiser.controllers.AController;
-import utbm.tx52.atoms_visualiser.octree.OctreePoint;
+import utbm.tx52.atoms_visualiser.octree.*;
 import utbm.tx52.atoms_visualiser.utils.ElementState;
 import utbm.tx52.atoms_visualiser.utils.PeriodicTable;
 import utbm.tx52.atoms_visualiser.view.AGroup;
 import utbm.tx52.atoms_visualiser.view.ASphere;
-import utbm.tx52.atoms_visualiser.octree.Octree;
-import utbm.tx52.atoms_visualiser.octree.OctreeDistanceHelper;
-import utbm.tx52.atoms_visualiser.octree.PointOutsideOctreeException;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -170,7 +167,7 @@ public class Atom extends Agent implements OctreePoint {
         try {
             move(coord.add(speedVector.multiply(PAS)));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -184,7 +181,13 @@ public class Atom extends Agent implements OctreePoint {
 
     //TODO: URGENT
     protected boolean attachAtoms() throws Exception {
-        Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        Atom a;
+        try {
+            a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        } catch (OctreeNoNeighbourFoundException e) {
+            // not a big deal, tree has probably changed, and it will be changed at the next frame
+            return false;
+        }
 
         double distanceSquaredToA = distanceSquared(a);
         if (distanceSquaredToA < (a.rayon * a.rayon * 4) && a_number != a.a_number) {
@@ -209,7 +212,13 @@ public class Atom extends Agent implements OctreePoint {
     }
 
     protected boolean EviterAtomes() throws Exception {
-        Atom a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        Atom a;
+        try {
+            a = (Atom) environment.octreeDistanceHelper.getFarthestNeighbours(environment.atoms, this).get(0);
+        } catch (OctreeNoNeighbourFoundException e) {
+            // not a big deal, tree has probably changed, and it will be changed at the next frame
+            return false;
+        }
 
         // Evitement
         double distanceSquaredToA = distanceSquared(a);

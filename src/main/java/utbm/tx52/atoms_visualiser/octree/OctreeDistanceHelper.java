@@ -54,11 +54,12 @@ public class OctreeDistanceHelper {
             try {
                 farthestNeighs = refreshFarthestNeighsIfNextIsFarther(object, farthestNeighs, neighboursIterator);
             } catch (OctreeNoNeighbourFoundException ignored) {
-                if(farthestNeighs == null)
-                    throw new OctreeNoNeighbourFoundException();
                 break;
             }
         }
+
+        if(farthestNeighs == null)
+            throw new OctreeNoNeighbourFoundException();
 
         return farthestNeighs.x;
     }
@@ -70,6 +71,8 @@ public class OctreeDistanceHelper {
         OctreePoint neighbour = (OctreePoint) neighboursIterator.next();
         if(neighbour == point)
             return farthestNeighs;
+        else if(neighbour == null)
+            throw new OctreeNoNeighbourFoundException();
 
         double distance = neighbour.getCoordinates().distance(point.getCoordinates());
         if(farthestNeighs == null || distance < farthestNeighs.y) {

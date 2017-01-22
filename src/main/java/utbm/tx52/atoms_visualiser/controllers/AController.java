@@ -427,8 +427,6 @@ public class AController extends jade.core.Agent {
             root.getChildren().add(new TreeItem<StatsElement>(e));
         });
         if (updateStat) {
-
-
             atoms_groups.getChildren().clear();
 
             // show number of each atom

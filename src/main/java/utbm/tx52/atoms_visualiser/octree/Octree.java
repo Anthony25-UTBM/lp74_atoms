@@ -82,8 +82,11 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
 
         try {
             for (Octree<T> child : children) {
-                if (child.hasObjects())
-                    childrenObjects.addAll(child.getObjects());
+                if (child.hasObjects()) {
+                    ArrayList<T> childObjects = child.getObjectsWithoutLock();
+                    if (childObjects.size() > 0)
+                        childrenObjects.addAll(childObjects);
+                }
             }
         } finally {
             rwlock.unlockRead(stamp);
@@ -98,8 +101,11 @@ public class Octree<T extends OctreePoint> implements Iterable<T> {
 
         ArrayList<T> childrenObjects = new ArrayList<T>();
         for (Octree<T> child : children) {
-            if (child.hasObjects())
-                childrenObjects.addAll(child.getObjectsWithoutLock());
+            if (child.hasObjects()) {
+                ArrayList<T> childObjects = child.getObjectsWithoutLock();
+                if (childObjects.size() > 0)
+                    childrenObjects.addAll(childObjects);
+            }
         }
 
         return childrenObjects;
